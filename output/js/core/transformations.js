@@ -61,6 +61,10 @@ export class Transformations {
         this.projection = Matrix4.perspective(fovY, aspectRatio, near, far);
         this.productComputed = false;
     }
+    setIsometricProjection() {
+        this.projection = Matrix4.isometricProjection();
+        this.productComputed = false;
+    }
     push() {
         this.modelStack.push(this.model.clone());
         this.rotationStack.push(this.rotation.clone());

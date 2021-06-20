@@ -112,6 +112,18 @@ export class Matrix4 {
     }
 
 
+    static isometricProjection() {
+
+        return new Matrix4(
+            new Float32Array(
+            [1, 0, -1, 0,
+             1, -1, 1, 0,
+             0, 0, 1, 0,
+             0, 0, 0, 1       
+            ]));
+    }
+
+
     static lookAt(eye : Vector3, target : Vector3, upDir = new Vector3(0, 1, 0)) {
 
         let A = Matrix4.identity();

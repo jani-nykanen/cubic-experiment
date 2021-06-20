@@ -19,6 +19,8 @@ export class GameScene {
         canvas.transform.loadIdentity();
         canvas.transform.setCamera(new Vector3(0, -1, -4), new Vector3());
         canvas.transform.setPerspective(60.0, canvas.width / canvas.height, 0.1, 100.0);
+        // canvas.transform.setIsometricProjection();
+        // canvas.transform.scale(0.25, 0.25, 0.25);
         canvas.transform.rotate(this.angle, new Vector3(1, -1, 0));
         canvas.transform.use();
         canvas.setDrawColor(1, 0, 0);

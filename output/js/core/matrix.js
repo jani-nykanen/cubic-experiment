@@ -49,6 +49,13 @@ export class Matrix4 {
         A.m[14] = -1.0;
         return A;
     }
+    static isometricProjection() {
+        return new Matrix4(new Float32Array([1, 0, -1, 0,
+            1, -1, 1, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        ]));
+    }
     static lookAt(eye, target, upDir = new Vector3(0, 1, 0)) {
         let A = Matrix4.identity();
         let forward = Vector3.normalize(new Vector3(eye.x - target.x, eye.y - target.y, eye.z - target.z));

@@ -127,6 +127,13 @@ export class Transformations {
     }
 
 
+    public setIsometricProjection() {
+
+        this.projection = Matrix4.isometricProjection();
+        this.productComputed = false;
+    }
+
+
     public push() {
 
         this.modelStack.push(this.model.clone());
