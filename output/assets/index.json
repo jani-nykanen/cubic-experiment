@@ -1,0 +1,19 @@
+{
+    "bitmapPath" : "assets/bitmaps/",
+    "bitmaps" : [
+
+        {"name": "font", "path": "font.png"},
+        {"name": "crate", "path": "crate.png"}
+    ],
+
+    "samplePath" : "assets/audio/",
+    "samples" : [
+
+    ],
+
+    "modelPath" : "assets/models/",
+    "models" : [
+
+        {"name": "cube", "path": "cube.obj"}
+    ]
+}
