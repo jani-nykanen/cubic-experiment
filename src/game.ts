@@ -1,7 +1,8 @@
 import { Canvas, ShaderType } from "./core/canvas.js";
 import { CoreEvent, Scene } from "./core/core.js";
-import { State } from "./core/types.js";
+import { Mesh } from "./core/mesh.js";
 import { Vector3 } from "./core/vector.js";
+import { ShapeGenerator } from "./shapegen.js";
 
 
 export class GameScene implements Scene {
@@ -9,10 +10,15 @@ export class GameScene implements Scene {
 
     private angle : number;
 
+    private cube : Mesh;
+
 
     constructor(param : any, event : CoreEvent) {
 
         this.angle = 0.0;
+
+        this.cube = (new ShapeGenerator())
+            .generateCube(event);
     }   
 
 
@@ -38,10 +44,10 @@ export class GameScene implements Scene {
         canvas.transform.use();
 
         canvas.setDrawColor(1, 0, 0);
-        canvas.setLight(0.5, (new Vector3(0, -1 ,-4)).normalize());
+        canvas.setLight(1.0, (new Vector3(0, -1 ,-4)).normalize());
 
         // canvas.bindTexture(canvas.getBitmap("crate"));
-        canvas.drawModel(canvas.getModel("cube"));
+        canvas.drawMesh(this.cube);
 
         // 2D
         canvas.changeShader(ShaderType.Textured);
