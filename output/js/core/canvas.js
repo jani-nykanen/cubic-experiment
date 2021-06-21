@@ -32,7 +32,7 @@ export class Canvas {
             width = window.innerWidth;
         if (height <= 0)
             height = window.innerHeight;
-        this.createHtml5Canvas(width, height, width <= 0);
+        this.createHtml5Canvas(width, height);
         this.initOpenGL();
         window.addEventListener("resize", () => this.resize(window.innerWidth, window.innerHeight));
         this.shaders = new Array();
@@ -72,7 +72,7 @@ export class Canvas {
     get height() {
         return this.canvas.height;
     }
-    createHtml5Canvas(width, height, antialias = true) {
+    createHtml5Canvas(width, height) {
         let cdiv = document.createElement("div");
         cdiv.setAttribute("style", "position: absolute; top: 0; left: 0; z-index: -1;");
         this.canvas = document.createElement("canvas");
@@ -81,7 +81,7 @@ export class Canvas {
         this.canvas.setAttribute("style", "position: absolute; top: 0; left: 0; z-index: -1;");
         cdiv.appendChild(this.canvas);
         document.body.appendChild(cdiv);
-        this.glCtx = this.canvas.getContext("webgl", { alpha: false, antialias: antialias });
+        this.glCtx = this.canvas.getContext("webgl", { alpha: false, antialias: true });
         this.resize(window.innerWidth, window.innerHeight);
     }
     resize(width, height) {

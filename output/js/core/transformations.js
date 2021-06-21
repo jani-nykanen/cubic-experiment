@@ -43,6 +43,22 @@ export class Transformations {
         this.rotation = Matrix4.multiply(this.rotation, op);
         this.productComputed = false;
     }
+    transformModel(mat, applyToRotation = false) {
+        this.model = Matrix4.multiply(this.model, mat);
+        if (applyToRotation)
+            this.rotation = Matrix4.multiply(this.rotation, mat);
+        this.productComputed = false;
+    }
+    transformModelBasis(up, left, forward, applyToRotation = false) {
+        let op = new Matrix4(new Float32Array([left.x, up.x, forward.x, 0,
+            left.y, up.y, forward.y, 0,
+            left.z, up.z, forward.z, 0,
+            0, 0, 0, 1]));
+        this.model = Matrix4.multiply(this.model, op);
+        if (applyToRotation)
+            this.rotation = Matrix4.multiply(this.rotation, op);
+        this.productComputed = false;
+    }
     setView2D(width, height) {
         this.view = Matrix4.ortho2D(0, width, height, 0);
         this.projection = Matrix4.identity();

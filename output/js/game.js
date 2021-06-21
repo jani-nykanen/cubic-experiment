@@ -15,17 +15,23 @@ export class GameScene {
         this.player.update(event);
     }
     redraw(canvas) {
-        let lightDir = Vector3.normalize(new Vector3(-1, -1, 1));
+        let lightDir = Vector3.normalize(new Vector3(-0.5, -1.5, 1));
         canvas.toggleDepthTest(true);
-        canvas.clear(0.67, 0.67, 0.67);
+        canvas.clear(0.33, 0.67, 1.0);
         canvas.resetVertexAndFragmentTransforms();
         // 3D
-        canvas.changeShader(ShaderType.TexturedLight);
+        canvas.changeShader(ShaderType.NoTexturesLight);
         canvas.transform.loadIdentity();
         canvas.transform.setIsometricCamera(canvas.width / canvas.height, 0.5);
         canvas.transform.use();
         canvas.setDrawColor(1, 1, 1);
-        canvas.setLight(1.0, lightDir);
+        canvas.setLight(0.75, lightDir);
+        canvas.transform.push();
+        canvas.transform.rotate(-Math.PI / 2, new Vector3(1, 0, 0));
+        canvas.transform.use();
+        canvas.drawRectangle(-2.5, -2.5, 5, 5);
+        canvas.resetVertexAndFragmentTransforms();
+        canvas.transform.pop();
         this.player.draw(canvas);
         // 2D
         canvas.changeShader(ShaderType.Textured);

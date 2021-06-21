@@ -55,8 +55,7 @@ void main() {
     gl_Position = transform * vec4(vertexPos * size + pos, 1);
 
     vec3 rot = (rotation * vec4(vertexNormal,1)).xyz;
-    light = clamp(lightMag * abs(dot(rot, lightDir)), 0.0, 1.0);
-    // light = clamp(lightMag * (1.0 + dot(rot, lightDir)), 0.0, 1.0);
+    light = clamp(lightMag * (1.0 + dot(rot, lightDir)), 0.0, 1.0);
 }`,
 }
 
@@ -149,7 +148,7 @@ void main() {
          discard;
     }
 
-    gl_FragColor =  vec4((1.0 - light) * res.rgb, res.a);;
+    gl_FragColor =  vec4((1.0 - light) * res.rgb, res.a);
 }`,
 
 

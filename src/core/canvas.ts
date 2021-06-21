@@ -68,7 +68,7 @@ export class Canvas {
         if (width <= 0) width = window.innerWidth;
         if (height <= 0) height = window.innerHeight;
 
-        this.createHtml5Canvas(width, height, width <= 0);
+        this.createHtml5Canvas(width, height);
         this.initOpenGL();
 
         window.addEventListener("resize", () => this.resize(
@@ -114,7 +114,7 @@ export class Canvas {
     }
 
 
-    private createHtml5Canvas(width : number, height : number, antialias = true) {
+    private createHtml5Canvas(width : number, height : number) {
 
         let cdiv = document.createElement("div");
         cdiv.setAttribute("style", 
@@ -130,7 +130,7 @@ export class Canvas {
         cdiv.appendChild(this.canvas);
         document.body.appendChild(cdiv);
 
-        this.glCtx = this.canvas.getContext("webgl", {alpha: false, antialias: antialias});
+        this.glCtx = this.canvas.getContext("webgl", {alpha: false, antialias: true});
 
         this.resize(window.innerWidth, window.innerHeight);
         
