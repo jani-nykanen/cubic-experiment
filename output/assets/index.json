@@ -6,13 +6,10 @@
         {"name": "crate", "path": "crate.png"}
     ],
 
-    "samplePath" : "assets/audio/",
-    "samples" : [
+    "tilemapPath" : "assets/maps/",
+    "tilemaps" : [
 
-    ],
-
-    "modelPath" : "assets/models/",
-    "models" : [
-
+        {"name": "1", "path": "1.tmx"}
     ]
+
 }

@@ -5,29 +5,32 @@ import { Mesh } from "./core/mesh.js";
 export class ShapeGenerator {
 
 
-    private vertexBuffer : Float32Array;
-    private uvBuffer : Float32Array;
-    private normalBuffer : Float32Array;
-    private indexBuffer : Uint16Array;
+    private vertexBuffer : Array<number>;
+    private uvBuffer : Array<number>;
+    private normalBuffer : Array<number>;
+    private indexBuffer : Array<number>;
     
 
     constructor() {
 
-        this.vertexBuffer = new Float32Array();
-        this.uvBuffer = new Float32Array();
-        this.normalBuffer = new Float32Array();
-        this.indexBuffer = new Uint16Array();
-
+        this.vertexBuffer = new Array<number>();
+        this.uvBuffer = new Array<number>();
+        this.normalBuffer = new Array<number>();
+        this.indexBuffer = new Array<number>();
     }
 
 
-    private generateMesh = (event : CoreEvent) : Mesh => 
-        event.constructMesh(this.vertexBuffer, this.uvBuffer, this.normalBuffer, this.indexBuffer);
+    public generateMesh = (event : CoreEvent) : Mesh => 
+        event.constructMesh(
+            new Float32Array(this.vertexBuffer), 
+            new Float32Array(this.uvBuffer), 
+            new Float32Array(this.normalBuffer), 
+            new Uint16Array(this.indexBuffer));
 
 
     public generateCube(event : CoreEvent) : Mesh {
 
-        const VERTICES = [
+        this.vertexBuffer = [
 
             // Front
             -0.5, -0.5, -0.5,
@@ -66,7 +69,7 @@ export class ShapeGenerator {
             0.5, -0.5, 0.5,
         ];
 
-        const UVS = [
+        this.uvBuffer = [
 
             0, 0, 1, 0, 1, 1, 0, 1,
             0, 0, 1, 0, 1, 1, 0, 1,
@@ -76,7 +79,7 @@ export class ShapeGenerator {
             0, 0, 1, 0, 1, 1, 0, 1,
         ];
 
-        const NORMALS = [
+        this.normalBuffer = [
 
             0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1,
             0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,
@@ -88,7 +91,7 @@ export class ShapeGenerator {
             1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
         ];
 
-        const INDICES = [
+        this.indexBuffer = [
             0, 1, 2, 2, 3, 0,
 
             4, 5, 6, 6, 7, 4,
@@ -100,12 +103,35 @@ export class ShapeGenerator {
             20, 21, 22, 22, 23, 20,
         ];
 
+        return this.generateMesh(event);
+    }
 
-        this.vertexBuffer = new Float32Array(VERTICES);
-        this.uvBuffer = new Float32Array(UVS);
-        this.normalBuffer = new Float32Array(NORMALS);
-        this.indexBuffer = new Uint16Array(INDICES);
 
-        return this.generateMesh(event);;
+    public addHorizontalPlane(x : number, y : number, z : number, 
+        width : number, depth : number, up = -1) {
+
+        this.vertexBuffer.push(
+            x, y, z,
+            x+width, y, z,
+            x + width, y, z+depth,
+            x, y, z+depth
+        );
+
+        this.uvBuffer.push(
+            0, 0, 1,0, 1,1, 0, 1
+        );
+
+        this.normalBuffer.push(
+            0, up, 0, 
+            0, up, 0,
+            0, up, 0,
+            0, up, 0
+        );
+
+        let l = this.vertexBuffer.length / 3;
+        this.indexBuffer.push(
+            l, l+1, l+2,
+            l+2, l+3, l
+        );
     }
 }

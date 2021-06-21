@@ -103,7 +103,7 @@ export class Player {
         this.angle.z = t * this.direction.x * Math.PI/2;
         this.angle.x = t * this.direction.z * Math.PI/2;
 
-        this.jump = Math.sqrt(0.5) * Math.sin(t * Math.PI) * (1.0 - Math.sqrt(2 * 0.5 * 0.5));
+        this.jump = 1.0/Math.SQRT2 * Math.sin(t * Math.PI) * (1.0 - 1.0/Math.SQRT2);
     }
 
 

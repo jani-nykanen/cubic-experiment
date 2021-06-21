@@ -1,3 +1,4 @@
+import { clamp } from "./mathext.js";
 import { KeyValuePair } from "./types.js";
 
 
@@ -106,4 +107,7 @@ export class Tilemap {
             .fill(null)
             .map( (a, i) => this.cloneLayer(i));
     }
+
+
+    public max = (layer : number) : number => Math.max(...this.layers[clamp(layer, 0, this.layers.length)]);
 }

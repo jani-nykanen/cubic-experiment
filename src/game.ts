@@ -4,12 +4,14 @@ import { Model } from "./core/model.js";
 import { Vector3 } from "./core/vector.js";
 import { Player } from "./player.js";
 import { ShapeGenerator } from "./shapegen.js";
+import { Stage } from "./stage.js";
 
 
 export class GameScene implements Scene {
 
 
     private player : Player;
+    private stage : Stage;
 
 
     constructor(param : any, event : CoreEvent) {
@@ -21,6 +23,8 @@ export class GameScene implements Scene {
         event.assets.addModel("cube", new Model([cube]));
 
         this.player = new Player(0, 0, 0);
+
+        this.stage = new Stage(1, event);
     }   
 
 
@@ -42,22 +46,14 @@ export class GameScene implements Scene {
         canvas.changeShader(ShaderType.NoTexturesLight);
         
         canvas.transform.loadIdentity();
-        canvas.transform.setIsometricCamera(canvas.width/canvas.height, 0.5);
+        canvas.transform.setIsometricCamera(canvas.width/canvas.height, 0.25);
+        this.stage.setCameraCenter(canvas);
         canvas.transform.use();
 
         canvas.setDrawColor(1, 1, 1);
         canvas.setLight(0.75, lightDir);
 
-        canvas.transform.push();
-        canvas.transform.rotate(-Math.PI/2, new Vector3(1, 0, 0));
-        canvas.transform.use();
-
-        canvas.drawRectangle(-2.5, -2.5, 5, 5);
-        canvas.resetVertexAndFragmentTransforms();
-
-        canvas.transform.pop();
-
-
+        this.stage.draw(canvas);
         this.player.draw(canvas);
 
         // 2D

@@ -1,6 +1,8 @@
+import { clamp } from "./mathext.js";
 import { KeyValuePair } from "./types.js";
 export class Tilemap {
     constructor(xmlString) {
+        this.max = (layer) => Math.max(...this.layers[clamp(layer, 0, this.layers.length)]);
         let doc = (new DOMParser()).parseFromString(xmlString, "text/xml");
         let root = doc.getElementsByTagName("map")[0];
         this.width = Number(root.getAttribute("width"));
