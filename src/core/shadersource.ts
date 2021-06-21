@@ -125,6 +125,35 @@ void main() {
 }`,
 
 
+TexturedLight : 
+
+`
+precision mediump float;
+     
+uniform sampler2D texSampler;
+
+uniform vec4 color;
+
+uniform vec2 texPos;
+uniform vec2 texSize;
+
+varying vec2 uv;
+varying float light;
+
+void main() {
+
+    vec2 tex = uv * texSize + texPos;    
+    vec4 res = texture2D(texSampler, tex) * color;
+
+    if(res.a <= 0.01) {
+         discard;
+    }
+
+    gl_FragColor =  vec4((1.0 - light) * res.rgb, res.a);;
+}`,
+
+
+
 TexturedFog :
 
 `precision mediump float;

@@ -61,8 +61,15 @@ export class Transformations {
         this.projection = Matrix4.perspective(fovY, aspectRatio, near, far);
         this.productComputed = false;
     }
-    setIsometricProjection() {
-        this.projection = Matrix4.isometricProjection();
+    setOrthoProjection(aspectRatio, near, far) {
+        this.projection = Matrix4.ortho(-aspectRatio, aspectRatio, 1.0, -1.0, near, far);
+        this.productComputed = false;
+    }
+    setIsometricCamera(aspectRatio, scale) {
+        let camPos = Vector3.normalize(new Vector3(-1, 1, 1));
+        this.setOrthoProjection(aspectRatio, 0.1, 100.0);
+        this.setCamera(camPos, new Vector3());
+        this.view = Matrix4.multiply(this.view, Matrix4.scale(scale, scale, scale));
         this.productComputed = false;
     }
     push() {

@@ -7,7 +7,6 @@ import { Shader } from "./shader.js";
 import { FragmentSource, VertexSource } from "./shadersource.js";
 import { Sprite } from "./sprite.js";
 import { Transformations } from "./transformations.js";
-import { KeyValuePair } from "./types.js";
 import { RGBA, Vector3 } from "./vector.js";
 
 
@@ -26,6 +25,7 @@ export enum ShaderType {
     NoTextures = 1,
     NoTexturesLight = 2,
     TexturedFog = 3,
+    TexturedLight = 4,
 };
 
 
@@ -95,7 +95,11 @@ export class Canvas {
 
         this.shaders[3] =  [
             ShaderType.TexturedFog, 
-                new Shader(this.glCtx, VertexSource.Textured, FragmentSource.TexturedFog)];         
+                new Shader(this.glCtx, VertexSource.Textured, FragmentSource.TexturedFog)];    
+                
+        this.shaders[4] =  [
+            ShaderType.TexturedLight, 
+                new Shader(this.glCtx, VertexSource.Textured, FragmentSource.TexturedLight)];            
 
         
         this.activeShader =  this.shaders[0][1];

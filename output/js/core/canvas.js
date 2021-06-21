@@ -18,6 +18,7 @@ export var ShaderType;
     ShaderType[ShaderType["NoTextures"] = 1] = "NoTextures";
     ShaderType[ShaderType["NoTexturesLight"] = 2] = "NoTexturesLight";
     ShaderType[ShaderType["TexturedFog"] = 3] = "TexturedFog";
+    ShaderType[ShaderType["TexturedLight"] = 4] = "TexturedLight";
 })(ShaderType || (ShaderType = {}));
 ;
 export class Canvas {
@@ -50,6 +51,10 @@ export class Canvas {
         this.shaders[3] = [
             ShaderType.TexturedFog,
             new Shader(this.glCtx, VertexSource.Textured, FragmentSource.TexturedFog)
+        ];
+        this.shaders[4] = [
+            ShaderType.TexturedLight,
+            new Shader(this.glCtx, VertexSource.Textured, FragmentSource.TexturedLight)
         ];
         this.activeShader = this.shaders[0][1];
         this.activeShader.use();

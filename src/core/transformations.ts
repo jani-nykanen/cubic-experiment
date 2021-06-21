@@ -127,9 +127,21 @@ export class Transformations {
     }
 
 
-    public setIsometricProjection() {
+    public setOrthoProjection(aspectRatio : number, near : number, far : number) {
 
-        this.projection = Matrix4.isometricProjection();
+        this.projection = Matrix4.ortho(-aspectRatio, aspectRatio, 1.0, -1.0, near, far);
+        this.productComputed = false;
+    }
+
+
+    public setIsometricCamera(aspectRatio : number, scale : number) {
+
+        let camPos = Vector3.normalize(new Vector3(-1, 1, 1));
+
+        this.setOrthoProjection(aspectRatio, 0.1, 100.0);
+        this.setCamera(camPos, new Vector3());
+        this.view = Matrix4.multiply(this.view, Matrix4.scale(scale, scale, scale));
+
         this.productComputed = false;
     }
 

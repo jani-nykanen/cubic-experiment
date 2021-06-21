@@ -35,6 +35,7 @@ export class Shader {
         let gl = this.gl;
         gl.bindAttribLocation(program, 0, "vertexPos");
         gl.bindAttribLocation(program, 1, "vertexUV");
+        gl.bindAttribLocation(program, 2, "vertexNormal");
     }
     getUniformLocations() {
         let gl = this.gl;
