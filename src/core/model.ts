@@ -8,7 +8,13 @@ export class Model {
     private meshes : Array<Mesh>;
 
 
-    constructor(gl : WebGLRenderingContext, rawModel? : OBJModel) {
+    constructor(meshes : Array<Mesh>, gl? : WebGLRenderingContext, rawModel? : OBJModel) {
+
+        if (meshes != null) {
+
+            this.meshes = Array.from(meshes);
+            return;
+        }
 
         this.meshes = new Array();
 

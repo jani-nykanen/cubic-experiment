@@ -38,12 +38,7 @@ export class Canvas {
     private canvas : HTMLCanvasElement;
     private glCtx : WebGLRenderingContext;
 
-    // TODO: Array for shaders?
     private shaders : Array<[ShaderType, Shader]>;
-
-    private defaultShader : Shader;
-    private fogShader : Shader;
-    private untexturedShader : Shader;
     private activeShader : Shader;
 
     private rectangle : Mesh;
@@ -447,7 +442,7 @@ export class Canvas {
 
     public createModel(rawData : OBJModel) : Model {
 
-        return new Model(this.glCtx, rawData);
+        return new Model(null, this.glCtx, rawData);
     }
     
 

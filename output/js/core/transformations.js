@@ -66,8 +66,8 @@ export class Transformations {
         this.productComputed = false;
     }
     setIsometricCamera(aspectRatio, scale) {
-        let camPos = Vector3.normalize(new Vector3(-1, 1, 1));
-        this.setOrthoProjection(aspectRatio, 0.1, 100.0);
+        let camPos = Vector3.normalize(new Vector3(1, 1, -1));
+        this.setOrthoProjection(aspectRatio, -100.0, 100.0);
         this.setCamera(camPos, new Vector3());
         this.view = Matrix4.multiply(this.view, Matrix4.scale(scale, scale, scale));
         this.productComputed = false;

@@ -82,6 +82,7 @@ Vector3.distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 Vector3.direction = (a, b) => (new Vector3(b.x - a.x, b.y - a.y, b.z - a.z)).normalize(true);
 Vector3.add = (a, b) => new Vector3(a.x + b.x, a.y + b.y, a.z + b.z);
 Vector3.cross = (u, v) => new Vector3(u.y * v.z - u.z * v.y, -(u.x * v.z - u.z * v.x), u.x * v.y - u.y * v.x);
+Vector3.lerp = (a, b, t) => new Vector3((1 - t) * a.x + t * b.x, (1 - t) * a.y + t * b.y, (1 - t) * a.z + t * b.z);
 export class Rect {
     constructor(x = 0, y = 0, w = 0, h = 0) {
         this.clone = () => new Rect(this.x, this.y, this.w, this.h);

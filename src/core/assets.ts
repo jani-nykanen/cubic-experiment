@@ -279,4 +279,10 @@ export class AssetManager {
 
         return this.total == 0 ? 1.0 : this.loaded / this.total;
     }
+
+
+    public addModel(name : string, model : Model) {
+
+        this.models.addAsset(name, model);
+    }
 }

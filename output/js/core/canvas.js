@@ -260,7 +260,7 @@ export class Canvas {
         return new Bitmap(this.glCtx, image, null, repeatFlag);
     }
     createModel(rawData) {
-        return new Model(this.glCtx, rawData);
+        return new Model(null, this.glCtx, rawData);
     }
     getBitmap(name) {
         return this.assets.getBitmap(name);

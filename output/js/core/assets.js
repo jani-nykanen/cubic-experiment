@@ -152,4 +152,7 @@ export class AssetManager {
     dataLoadedUnit() {
         return this.total == 0 ? 1.0 : this.loaded / this.total;
     }
+    addModel(name, model) {
+        this.models.addAsset(name, model);
+    }
 }

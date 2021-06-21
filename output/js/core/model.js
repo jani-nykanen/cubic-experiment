@@ -1,6 +1,10 @@
 import { Mesh } from "./mesh.js";
 export class Model {
-    constructor(gl, rawModel) {
+    constructor(meshes, gl, rawModel) {
+        if (meshes != null) {
+            this.meshes = Array.from(meshes);
+            return;
+        }
         this.meshes = new Array();
         if (rawModel != undefined) {
             rawModel.unwrapIndices()

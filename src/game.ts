@@ -1,36 +1,38 @@
 import { Canvas, ShaderType } from "./core/canvas.js";
 import { CoreEvent, Scene } from "./core/core.js";
-import { Mesh } from "./core/mesh.js";
+import { Model } from "./core/model.js";
 import { Vector3 } from "./core/vector.js";
+import { Player } from "./player.js";
 import { ShapeGenerator } from "./shapegen.js";
 
 
 export class GameScene implements Scene {
 
 
-    private angle : number;
-
-    private cube : Mesh;
+    private player : Player;
 
 
     constructor(param : any, event : CoreEvent) {
 
-        this.angle = 0.0;
 
-        this.cube = (new ShapeGenerator())
+        // TODO: Create models in "ModelGen"?
+        let cube = (new ShapeGenerator())
             .generateCube(event);
+        event.assets.addModel("cube", new Model([cube]));
+
+        this.player = new Player(0, 0, 0);
     }   
 
 
     public update(event : CoreEvent) {
 
-        this.angle = (this.angle + 0.025 * event.step) % (Math.PI * 2);
+        this.player.update(event);
     }
     
 
     public redraw(canvas : Canvas) {
 
-        let lightDir = Vector3.normalize(new Vector3(1, -1, -1));
+        let lightDir = Vector3.normalize(new Vector3(-1, -1, 1));
         
         canvas.toggleDepthTest(true);
         canvas.clear(0.67, 0.67, 0.67);
@@ -41,14 +43,12 @@ export class GameScene implements Scene {
         
         canvas.transform.loadIdentity();
         canvas.transform.setIsometricCamera(canvas.width/canvas.height, 0.5);
-        canvas.transform.rotate(this.angle, new Vector3(0, 1, 0));
         canvas.transform.use();
 
         canvas.setDrawColor(1, 1, 1);
         canvas.setLight(1.0, lightDir);
 
-        canvas.bindTexture(canvas.getBitmap("crate"));
-        canvas.drawMesh(this.cube);
+        this.player.draw(canvas);
 
         // 2D
         canvas.changeShader(ShaderType.Textured);

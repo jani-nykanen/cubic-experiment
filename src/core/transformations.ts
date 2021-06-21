@@ -136,9 +136,9 @@ export class Transformations {
 
     public setIsometricCamera(aspectRatio : number, scale : number) {
 
-        let camPos = Vector3.normalize(new Vector3(-1, 1, 1));
+        let camPos = Vector3.normalize(new Vector3(1, 1, -1));
 
-        this.setOrthoProjection(aspectRatio, 0.1, 100.0);
+        this.setOrthoProjection(aspectRatio, -100.0, 100.0);
         this.setCamera(camPos, new Vector3());
         this.view = Matrix4.multiply(this.view, Matrix4.scale(scale, scale, scale));
 

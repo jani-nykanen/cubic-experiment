@@ -177,6 +177,11 @@ export class Vector3 {
 		u.y * v.z - u.z * v.y,
 		-(u.x * v.z - u.z * v.x),
 		u.x * v.y - u.y * v.x);
+
+	static lerp = (a : Vector3, b : Vector3, t : number) : Vector3 => new Vector3(
+		(1-t) * a.x + t * b.x,
+		(1-t) * a.y + t * b.y,
+		(1-t) * a.z + t * b.z);
 }
 
 
