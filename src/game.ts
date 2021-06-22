@@ -47,7 +47,6 @@ export class GameScene implements Scene {
         
         canvas.transform.loadIdentity();
         canvas.transform.setIsometricCamera(canvas.width/canvas.height, 0.25);
-        this.stage.setCameraCenter(canvas);
         canvas.transform.use();
 
         canvas.setDrawColor(1, 1, 1);

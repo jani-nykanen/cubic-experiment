@@ -25,7 +25,6 @@ export class GameScene {
         canvas.changeShader(ShaderType.NoTexturesLight);
         canvas.transform.loadIdentity();
         canvas.transform.setIsometricCamera(canvas.width / canvas.height, 0.25);
-        this.stage.setCameraCenter(canvas);
         canvas.transform.use();
         canvas.setDrawColor(1, 1, 1);
         canvas.setLight(0.75, lightDir);

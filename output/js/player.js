@@ -24,7 +24,7 @@ export class Player {
             dx = Math.sign(s.x);
         }
         else if (Math.abs(s.x) < Math.abs(s.y)) {
-            dz = -Math.sign(s.y);
+            dz = Math.sign(s.y);
         }
         if (Math.abs(dx) < EPS2 && Math.abs(dz) < EPS2)
             return;
@@ -50,7 +50,7 @@ export class Player {
         let t = this.moveTimer / Player.MOVE_TIME;
         this.renderPos = Vector3.lerp(this.pos, this.target, t);
         this.angle.z = t * this.direction.x * Math.PI / 2;
-        this.angle.x = t * this.direction.z * Math.PI / 2;
+        this.angle.x = t * -this.direction.z * Math.PI / 2;
         this.jump = 1.0 / Math.SQRT2 * Math.sin(t * Math.PI) * (1.0 - 1.0 / Math.SQRT2);
     }
     update(event) {
@@ -59,7 +59,7 @@ export class Player {
     }
     draw(canvas) {
         canvas.transform.push();
-        canvas.transform.translate(this.renderPos.x + 0.5, this.renderPos.y + 0.5 + this.jump, this.renderPos.z + 0.5);
+        canvas.transform.translate(this.renderPos.x + 0.5, this.renderPos.y + 0.5 + this.jump, -this.renderPos.z - 0.5);
         canvas.transform.rotate(this.angle.x, new Vector3(1, 0, 0));
         canvas.transform.rotate(-this.angle.z, new Vector3(0, 0, 1));
         canvas.transform.use();

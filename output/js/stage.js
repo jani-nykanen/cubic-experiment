@@ -17,12 +17,9 @@ export class Stage {
         }
         this.terrain = shapeGen.generateMesh(event);
     }
-    setCameraCenter(canvas) {
-        canvas.transform.translate(-this.width / 2, -this.height / 2, -this.depth / 2);
-        canvas.transform.use();
-    }
     draw(canvas) {
         canvas.transform.push();
+        canvas.transform.translate(0, 0, -this.depth);
         canvas.transform.use();
         canvas.setDrawColor();
         canvas.drawMesh(this.terrain);
