@@ -37,7 +37,7 @@ export class GameScene {
         canvas.transform.loadIdentity();
         canvas.transform.fitHeight(720.0, canvas.width / canvas.height);
         canvas.transform.use();
-        canvas.drawText(canvas.getBitmap("font"), "TEST", 8, 8, -24, 0, false, 0.5, 0.5);
+        this.player.drawDebug(canvas);
     }
     dispose() {
         return null;

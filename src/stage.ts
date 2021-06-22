@@ -55,14 +55,15 @@ export class Stage {
 
     public setCameraCenter(canvas : Canvas) {
 
-        canvas.transform.translate(0, -this.height/2, 0);
+        canvas.transform.translate(-this.width/2, -this.height/2, -this.depth/2);
+        canvas.transform.use();
+
     }
 
 
     public draw(canvas : Canvas) {
 
         canvas.transform.push();
-        canvas.transform.translate(-this.width/2, 0, -this.depth/2);
         
         canvas.transform.use();
 

@@ -69,7 +69,7 @@ export class ShapeGenerator {
         this.vertexBuffer.push(x, y, z, x + width, y, z, x + width, y, z + depth, x, y, z + depth);
         this.uvBuffer.push(0, 0, 1, 0, 1, 1, 0, 1);
         this.normalBuffer.push(0, up, 0, 0, up, 0, 0, up, 0, 0, up, 0);
-        let l = this.vertexBuffer.length / 3;
+        let l = (this.vertexBuffer.length / 3) - 4;
         this.indexBuffer.push(l, l + 1, l + 2, l + 2, l + 3, l);
     }
 }

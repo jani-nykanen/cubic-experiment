@@ -128,10 +128,11 @@ export class ShapeGenerator {
             0, up, 0
         );
 
-        let l = this.vertexBuffer.length / 3;
+        let l = (this.vertexBuffer.length / 3) -4;
         this.indexBuffer.push(
             l, l+1, l+2,
             l+2, l+3, l
         );
     }
+
 }

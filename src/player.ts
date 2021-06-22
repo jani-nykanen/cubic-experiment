@@ -117,7 +117,10 @@ export class Player {
     public draw(canvas : Canvas) {
 
         canvas.transform.push();
-        canvas.transform.translate(this.renderPos.x, this.renderPos.y+0.5 + this.jump, this.renderPos.z);
+        canvas.transform.translate(
+            this.renderPos.x + 0.5, 
+            this.renderPos.y+0.5 + this.jump, 
+            this.renderPos.z + 0.5);
 
         canvas.transform.rotate(this.angle.x, new Vector3(1, 0, 0));
         canvas.transform.rotate(-this.angle.z, new Vector3(0, 0, 1));
@@ -129,6 +132,15 @@ export class Player {
         canvas.setDrawColor();
 
         canvas.transform.pop();
+    }
+
+
+    public drawDebug(canvas : Canvas) {
+
+        let font = canvas.getBitmap("font");
+
+        canvas.drawText(font, "X: " + String(this.pos.x | 0) + "\nZ: " + String(this.pos.z | 0),
+            8, 8, -32, 0, false, 0.5, 0.5);
     }
 
 }
