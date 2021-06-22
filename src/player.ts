@@ -1,6 +1,10 @@
 import { Canvas } from "./core/canvas.js";
 import { CoreEvent } from "./core/core.js";
+import { clamp } from "./core/mathext.js";
+import { Mesh } from "./core/mesh.js";
 import { Vector2, Vector3 } from "./core/vector.js";
+import { ShapeGenerator } from "./shapegen.js";
+import { Stage } from "./stage.js";
 
 
 export class Player {
@@ -10,6 +14,7 @@ export class Player {
 
 
     private pos : Vector3
+    private startPos : Vector3;
     private target : Vector3;
     private renderPos : Vector3;
 
@@ -18,32 +23,34 @@ export class Player {
 
     private moving : boolean;
     private moveTimer : number;
+    private falling : boolean;
+    private gravity : number;
 
     private jump : number;
 
+    private shadow : Mesh;
+    private shadowSize : Vector2;
 
-    constructor(x : number, y : number, z : number) {
 
-        this.pos = new Vector3(x, y, z);
-        this.target = this.pos.clone();
-        this.renderPos = this.pos.clone();
+    constructor(x : number, y : number, z : number, event : CoreEvent) {
+
+        this.startPos = new Vector3(x, y, z);
+        this.reset();
+
+        this.shadow = (new ShapeGenerator())
+            .addHorizontalPlane(-0.5, 0, -0.5, 1, 1)
+            .generateMesh(event);
     
-        this.direction = new Vector3();
-        this.angle = new Vector3();
-
-        this.moveTimer = 0;
-        this.moving = false;
-
-        this.jump = 0;
+        this.shadowSize = new Vector2(0, 0);
     }
 
 
-    private control(event : CoreEvent) {
+    private control(stage : Stage, event : CoreEvent) {
 
         const EPS = 0.25;
         const EPS2 = 0.01;
 
-        if (this.moving) return;
+        if (this.moving || this.falling) return;
 
         let dx = 0;
         let dz = 0;
@@ -67,12 +74,55 @@ export class Player {
         this.direction = new Vector3(dx, 0, dz);
         this.target = Vector3.add(this.pos, this.direction);
 
+        if (stage.getHeight(this.target.x, this.target.z) > this.pos.y) {
+
+            this.target = this.pos.clone();
+            return;
+        }
+
         this.moving = true;
         this.moveTimer = 0;
     }
 
 
-    private move(event : CoreEvent) {
+    private checkFalling(stage : Stage) {
+
+        let height = stage.getHeight(this.pos.x, this.pos.z);
+        if (height == this.pos.y) return;
+
+        this.target = new Vector3(this.pos.x, height, this.pos.z);
+       // this.direction = new Vector3(0, -1, 0);
+
+        this.falling = true;
+        this.gravity = 0;
+    }
+
+    
+    private fall(event : CoreEvent) {
+
+        const GRAVITY_DELTA = 0.015;
+
+        this.gravity += GRAVITY_DELTA * event.step;
+
+        this.renderPos.y -= this.gravity * event.step;
+        if (this.renderPos.y < this.target.y) {
+
+            this.pos = this.target.clone();
+            this.renderPos = this.pos.clone();
+
+            this.falling = false;
+            this.gravity = 0;
+        }
+    }
+
+
+    private move(stage : Stage, event : CoreEvent) {
+
+        if (this.falling) {
+
+            this.fall(event);
+            return;
+        }
 
         if (!this.moving) {
 
@@ -85,12 +135,12 @@ export class Player {
             this.moveTimer -= Player.MOVE_TIME;
             this.moving = false;
             this.pos = this.target.clone();
-
             this.renderPos = this.pos.clone();
 
             this.angle.zeros();
-
             this.jump = 0;
+
+            this.checkFalling(stage);
 
             return;
         }
@@ -106,14 +156,62 @@ export class Player {
     }
 
 
-    public update(event : CoreEvent) {
+    public update(stage : Stage, event : CoreEvent) {
 
-        this.control(event);
-        this.move(event);
+        this.control(stage, event);
+        this.move(stage, event);
+    }
+
+
+    private drawShadow(canvas : Canvas) {
+
+        const MAX_ALPHA = 0.5;
+        const COMPARE = 4;
+
+        let alpha : number;
+
+        if (this.falling) {
+
+            alpha = clamp(1.0 - (this.renderPos.y - this.target.y) / COMPARE, 0, 1);
+        }
+        else if (this.moving) {
+
+            alpha = this.moveTimer / Player.MOVE_TIME;
+        }
+        canvas.setDrawColor(0, 0, 0, alpha * MAX_ALPHA);
+
+        canvas.transform.push();
+        canvas.transform.translate(
+            this.target.x + 0.5, 
+            this.target.y + 0.001, 
+            -this.target.z - 0.5);
+        canvas.transform.use();
+
+        canvas.drawMesh(this.shadow);
+
+        canvas.transform.pop();
+        canvas.setDrawColor();
+
+        canvas.setDrawColor(0, 0, 0, (1.0-alpha) * MAX_ALPHA);
+
+        canvas.transform.push();
+        canvas.transform.translate(
+            this.pos.x + 0.5, 
+            this.pos.y + 0.001, 
+            -this.pos.z - 0.5);
+        canvas.transform.use();
+
+        canvas.drawMesh(this.shadow);
+
+        canvas.transform.pop();
+        canvas.setDrawColor();
     }
 
 
     public draw(canvas : Canvas) {
+
+        if (this.falling || this.moving)
+            this.drawShadow(canvas);
 
         canvas.transform.push();
         canvas.transform.translate(
@@ -140,6 +238,24 @@ export class Player {
 
         canvas.drawText(font, "X: " + String(this.pos.x | 0) + "\nZ: " + String(this.pos.z | 0),
             8, 8, -32, 0, false, 0.5, 0.5);
+    }
+
+
+    public reset() {
+
+        this.pos = this.startPos.clone();
+        this.target = this.pos.clone();
+        this.renderPos = this.pos.clone();
+    
+        this.direction = new Vector3();
+        this.angle = new Vector3();
+
+        this.moveTimer = 0;
+        this.moving = false;
+        this.falling = false;
+        this.gravity = 0;
+
+        this.jump = 0;
     }
 
 }

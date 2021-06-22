@@ -71,5 +71,22 @@ export class ShapeGenerator {
         this.normalBuffer.push(0, up, 0, 0, up, 0, 0, up, 0, 0, up, 0);
         let l = (this.vertexBuffer.length / 3) - 4;
         this.indexBuffer.push(l, l + 1, l + 2, l + 2, l + 3, l);
+        return this;
+    }
+    addVerticalPlaneXY(x, y, z, width, height, front = -1) {
+        this.vertexBuffer.push(x, y, z, x + width, y, z, x + width, y + height, z, x, y + height, z);
+        this.uvBuffer.push(0, 0, 1, 0, 1, 1, 0, 1);
+        this.normalBuffer.push(0, 0, front, 0, 0, front, 0, 0, front, 0, 0, front);
+        let l = (this.vertexBuffer.length / 3) - 4;
+        this.indexBuffer.push(l, l + 1, l + 2, l + 2, l + 3, l);
+        return this;
+    }
+    addVerticalPlaneXZ(x, y, z, depth, height, front = 1) {
+        this.vertexBuffer.push(x, y, z, x, y, z + depth, x, y + height, z + depth, x, y + height, z);
+        this.uvBuffer.push(0, 0, 1, 0, 1, 1, 0, 1);
+        this.normalBuffer.push(front, 0, 0, front, 0, 0, front, 0, 0, front, 0, 0);
+        let l = (this.vertexBuffer.length / 3) - 4;
+        this.indexBuffer.push(l, l + 1, l + 2, l + 2, l + 3, l);
+        return this;
     }
 }

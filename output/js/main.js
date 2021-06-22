@@ -5,6 +5,6 @@ window.onload = () => (new Core())
     .addInputAction("fire2", "ShiftLeft", 2)
     .addInputAction("start", "Enter", 9, 7)
     .addInputAction("back", "Escape", 8, 6)
-    .addInputAction("debug", "KeyP")
+    .addInputAction("reset", "KeyR", 3)
     .loadAssets("assets/index.json")
     .run(GameScene);

@@ -108,7 +108,7 @@ export class ShapeGenerator {
 
 
     public addHorizontalPlane(x : number, y : number, z : number, 
-        width : number, depth : number, up = -1) {
+        width : number, depth : number, up = -1) : ShapeGenerator {
 
         this.vertexBuffer.push(
             x, y, z,
@@ -133,6 +133,70 @@ export class ShapeGenerator {
             l, l+1, l+2,
             l+2, l+3, l
         );
+
+        return this;
+    }
+
+
+    public addVerticalPlaneXY(x : number, y : number, z : number, 
+        width : number, height : number, front = -1) : ShapeGenerator {
+
+        this.vertexBuffer.push(
+            x, y, z,
+            x+width, y, z,
+            x + width, y+height, z,
+            x, y+height, z
+        );
+
+        this.uvBuffer.push(
+            0, 0, 1,0, 1,1, 0, 1
+        );
+
+        this.normalBuffer.push(
+            0, 0, front, 
+            0, 0, front,
+            0, 0, front,
+            0, 0, front
+        );
+
+        let l = (this.vertexBuffer.length / 3) -4;
+        this.indexBuffer.push(
+            l, l+1, l+2,
+            l+2, l+3, l
+        );
+
+        return this;
+    }
+
+
+    public addVerticalPlaneXZ(x : number, y : number, z : number, 
+        depth : number, height : number, front = 1) : ShapeGenerator {
+
+        this.vertexBuffer.push(
+            x, y, z,
+            x, y, z+depth,
+            x, y+height, z+depth,
+            x, y+height, z
+        );
+
+        this.uvBuffer.push(
+            0, 0, 1,0, 1,1, 0, 1
+        );
+
+        this.normalBuffer.push(
+            front, 0, 0, 
+            front, 0, 0,
+            front, 0, 0,
+            front, 0, 0
+        );
+
+        let l = (this.vertexBuffer.length / 3) -4;
+        this.indexBuffer.push(
+            l, l+1, l+2,
+            l+2, l+3, l
+        );
+
+        return this;
     }
 
 }

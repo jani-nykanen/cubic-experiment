@@ -1,8 +1,10 @@
 import { Canvas, ShaderType } from "./core/canvas.js";
 import { CoreEvent, Scene } from "./core/core.js";
 import { Model } from "./core/model.js";
-import { Vector3 } from "./core/vector.js";
-import { Player } from "./player.js";
+import { TransitionEffectType } from "./core/transition.js";
+import { State } from "./core/types.js";
+import { RGBA, Vector3 } from "./core/vector.js";
+import { ObjectManager } from "./objectmanager.js";
 import { ShapeGenerator } from "./shapegen.js";
 import { Stage } from "./stage.js";
 
@@ -10,27 +12,40 @@ import { Stage } from "./stage.js";
 export class GameScene implements Scene {
 
 
-    private player : Player;
+    private objects : ObjectManager;
     private stage : Stage;
 
 
     constructor(param : any, event : CoreEvent) {
-
 
         // TODO: Create models in "ModelGen"?
         let cube = (new ShapeGenerator())
             .generateCube(event);
         event.assets.addModel("cube", new Model([cube]));
 
-        this.player = new Player(0, 0, 0);
-
         this.stage = new Stage(1, event);
+        this.objects = new ObjectManager(this.stage, event);
     }   
+
+
+    private reset() {
+
+        this.objects.reset();
+    }
 
 
     public update(event : CoreEvent) {
 
-        this.player.update(event);
+        if (event.transition.isActive()) return;
+
+        this.objects.update(this.stage, event);
+
+        if (event.input.getAction("reset") == State.Pressed) {
+
+            event.transition.activate(true, TransitionEffectType.Fade, 1.0/15.0,
+                () => this.reset(), 
+                new RGBA(0.33, 0.66, 1.0));
+        }
     }
     
 
@@ -53,7 +68,7 @@ export class GameScene implements Scene {
         canvas.setLight(0.75, lightDir);
 
         this.stage.draw(canvas);
-        this.player.draw(canvas);
+        this.objects.draw(canvas);
 
         // 2D
         canvas.changeShader(ShaderType.Textured);
@@ -61,8 +76,6 @@ export class GameScene implements Scene {
         canvas.transform.loadIdentity();
         canvas.transform.fitHeight(720.0, canvas.width/canvas.height);
         canvas.transform.use();
-
-        this.player.drawDebug(canvas);
     }
 
 
