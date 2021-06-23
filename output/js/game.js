@@ -17,6 +17,7 @@ export class GameScene {
     }
     reset() {
         this.objects.reset();
+        this.stage.reset();
     }
     update(event) {
         if (event.transition.isActive())

@@ -1,6 +1,6 @@
 import { Core, CoreEvent } from "./core/core.js";
 import { Mesh } from "./core/mesh.js";
-import { Vector3 } from "./core/vector.js";
+import { Vector2, Vector3 } from "./core/vector.js";
 
 
 export class ShapeGenerator {
@@ -117,6 +117,39 @@ export class ShapeGenerator {
     }
 
 
+    private pushVertices4(A : Vector3, B : Vector3, C : Vector3, D: Vector3) {
+
+        this.vertexBuffer.push(
+            A.x, A.y, A.z,
+            B.x, B.y, B.z,
+            C.x, C.y, C.z,
+
+            C.x, C.y, C.z,
+            D.x, D.y, D.z,
+            A.x, A.y, A.z
+        );
+    }
+
+
+    private pushNormals(N : Vector3) {
+
+        this.normalBuffer.push(
+            N.x, N.y, N.z,
+            N.x, N.y, N.z,
+            N.x, N.y, N.z,
+        );  
+    }
+
+
+    private pushDefaultUVs() {
+
+        this.uvBuffer.push(
+            0, 0, 
+            1, 0, 
+            1, 1);
+    }
+
+
     // The f**k are those star things called?
     public generateStar(innerRadius : number, 
         thickness : number, starThings : number, event : CoreEvent) : Mesh {
@@ -166,38 +199,13 @@ export class ShapeGenerator {
                         Vector3.direction(C, A)).normalize(),
                     z);
 
-                this.vertexBuffer.push(
-                    A.x, A.y, A.z,
-                    B.x, B.y, B.z,
-                    C.x, C.y, C.z,
+                this.pushVertices4(A, B, C, D);
+                for (let i = 0; i < 4; ++ i) {
 
-                    C.x, C.y, C.z,
-                    D.x, D.y, D.z,
-                    A.x, A.y, A.z
-                );
-
-                for (let i = 0; i < 2; ++ i) {
-
-                    this.uvBuffer.push(
-                        0, 0, 
-                        1, 0, 
-                        1, 1,
-                        
-                        1, 1,
-                        0, 1, 
-                        0, 0
-                    );
+                    this.pushDefaultUVs();
                 }
-
-                this.normalBuffer.push(
-                    N1.x, N1.y, N1.z,
-                    N1.x, N1.y, N1.z,
-                    N1.x, N1.y, N1.z,
-
-                    N2.x, N2.y, N2.z,
-                    N2.x, N2.y, N2.z,
-                    N2.x, N2.y, N2.z
-                );
+                this.pushNormals(N1);
+                this.pushNormals(N2);
             }
 
         }
@@ -207,6 +215,95 @@ export class ShapeGenerator {
             this.indexBuffer.push(this.indexBuffer.length);
         }
 
+        return this.generateMesh(event);
+    }
+
+
+    public generateCylinderFromPath(path : (t : number) => Vector2, steps : number, 
+        height : number, event : CoreEvent) : Mesh {
+
+        let step = 1.0 / steps;
+
+        let t : number;
+
+        let A : Vector3;
+        let B : Vector3;
+        let C : Vector3;
+        let D : Vector3;
+        let N1 : Vector3;
+        let N2 : Vector3;
+
+        let p : Vector2;
+
+        // "Cap"
+        for (let i = 0; i < steps; ++ i) {
+
+            t = i * step;
+
+            p = path(t);
+            A = new Vector3(p.x, height, p.y);
+            p = path(t + step);
+            B = new Vector3(p.x, height, p.y);
+            C = new Vector3();
+
+            N1 = new Vector3(0, 1, 0);
+                
+            this.vertexBuffer.push(
+                A.x, A.y, A.z,
+                B.x, B.y, B.z,
+                C.x, C.y, C.z,
+            );
+
+            this.uvBuffer.push(
+                0, 0, 
+                1, 0, 
+                1, 1,
+            );
+                
+            this.normalBuffer.push(
+                N1.x, N1.y, N1.z,
+                N1.x, N1.y, N1.z,
+                N1.x, N1.y, N1.z,
+            );          
+        }
+
+        for (let i = 0; i < this.vertexBuffer.length/3; ++ i) {
+
+            this.indexBuffer.push(this.indexBuffer.length);
+        }
+
+        let k = this.indexBuffer.length;
+        let l = k;
+
+        for (let i = 0; i < steps; ++ i) {
+
+            t = i * step;  
+
+            p = path(t);
+            A = new Vector3(p.x, height, p.y);
+            B = new Vector3(p.x, 0, p.y);
+
+            N1 = Vector3.normalize(B);
+
+            this.vertexBuffer.push(A.x, A.y, A.z, B.x, B.y, B.z);
+            this.normalBuffer.push(N1.x, N1.y, N1.z, N1.x, N1.y, N1.z);
+            this.uvBuffer.push(0, 0, 0, 0); // We aren't going to texture it anyway
+
+            if (i < steps-1) {
+
+                this.indexBuffer.push(
+                    l, l+1, l+3, 
+                    l+3, l+2, l);
+            }
+            else {
+
+                this.indexBuffer.push(
+                    l, l+1, k+1, 
+                    k+1, k, l);
+            }
+
+            l += 2;
+        }
 
         return this.generateMesh(event);
     }

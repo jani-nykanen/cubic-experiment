@@ -2,7 +2,7 @@ import { Canvas } from "./core/canvas.js";
 import {  CoreEvent } from "./core/core.js";
 import { Mesh } from "./core/mesh.js";
 import { Tilemap } from "./core/tilemap.js";
-import { Vector3 } from "./core/vector.js";
+import { Vector2, Vector3 } from "./core/vector.js";
 import { ObjectManager } from "./objectmanager.js";
 import { ShapeGenerator } from "./shapegen.js";
 
@@ -11,6 +11,7 @@ export enum TileEffect {
 
     None = 0,
     StarObtained = 1,
+    ButtonPressed = 2,
 };
 
 
@@ -30,6 +31,7 @@ export class Stage {
     private terrain : Mesh;
     private starShape : Mesh;
     private starShadow : Mesh;
+    private button : Mesh;
 
     private starAngle : number;
 
@@ -47,9 +49,23 @@ export class Stage {
 
         this.createTerrainMesh(event);
 
-        this.starShape = (new ShapeGenerator())
-            .generateStar(0.50, 0.5, 5, event);
+        let gen = new ShapeGenerator();
+
+        this.starShape = gen.generateStar(0.50, 0.5, 5, event);
+        this.button = gen.generateCylinderFromPath(
+            t => new Vector2(0.5*Math.cos(t * Math.PI*2), 0.5*Math.sin(t * Math.PI*2)), 
+            32, 1.0, event);
+
         this.generateStarShadow(event);
+
+        this.starAngle = 0;
+    }
+
+
+    public reset() {
+
+        this.heightMap = this.baseMap.cloneLayer(0);
+        this.objectLayer = this.baseMap.cloneLayer(1);
 
         this.starAngle = 0;
     }
@@ -165,10 +181,30 @@ export class Stage {
     }
 
 
+    private drawButton(canvas : Canvas, x : number, y : number, z : number, pressed = false) {
+
+        const SCALE_Y = [0.33, 0.05];
+        const BASE_SCALE = 0.80;
+
+        canvas.transform.push();
+        canvas.transform.translate(x + 0.5, y, z + 0.5);
+        canvas.transform.scale(BASE_SCALE, SCALE_Y[Number(pressed)], BASE_SCALE);
+        canvas.transform.use();
+
+        canvas.setDrawColor(1.0, 0.33, 1.0);
+        canvas.drawMesh(this.button);
+
+        canvas.transform.pop();
+
+        canvas.setDrawColor();
+    }
+
+
     private drawStaticObjects(canvas : Canvas) {
 
         let tid : number;
         let y : number;
+        let dz : number;
 
         for (let z = 0; z < this.depth; ++ z) {
 
@@ -179,10 +215,20 @@ export class Stage {
             
                 y = this.getHeight(x, z);
 
+                dz = this.depth-1 - z;
+
                 switch (tid) {
 
+                // Star
                 case 10:
-                    this.drawStar(canvas, x, y, this.depth-1 - z);
+                    this.drawStar(canvas, x, y, dz);
+                    break;
+
+                // Button
+                case 11:
+                case 257:
+                    this.drawButton(canvas, x, y, dz, tid == 257);
+                    break;
 
                 default:
                     break;
@@ -239,6 +285,18 @@ export class Stage {
     }
 
 
+    private toggleWalls() {
+
+        for (let i = 0; i < this.objectLayer.length; ++ i) {
+
+            if (this.objectLayer[i] == 257)
+                this.objectLayer[i] = 11;
+
+            // TODO: Walls
+        }
+    }
+
+
     public checkTile(x : number, y : number, z : number, consumeStars = true) : TileEffect {
 
         let index = z * this.width + x;
@@ -252,7 +310,18 @@ export class Stage {
 
                 this.objectLayer[index] = 0;
                 return TileEffect.StarObtained;
+
+            // Button
+            case 11:
+
+                this.toggleWalls();
+                this.objectLayer[index] = 257;
+                return TileEffect.ButtonPressed;
+
+            default:
+                break;
             }
+
         }
 
         return TileEffect.None;

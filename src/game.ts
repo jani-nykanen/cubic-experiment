@@ -31,6 +31,7 @@ export class GameScene implements Scene {
     private reset() {
 
         this.objects.reset();
+        this.stage.reset();
     }
 
 

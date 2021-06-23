@@ -1,9 +1,10 @@
-import { Vector3 } from "./core/vector.js";
+import { Vector2, Vector3 } from "./core/vector.js";
 import { ShapeGenerator } from "./shapegen.js";
 export var TileEffect;
 (function (TileEffect) {
     TileEffect[TileEffect["None"] = 0] = "None";
     TileEffect[TileEffect["StarObtained"] = 1] = "StarObtained";
+    TileEffect[TileEffect["ButtonPressed"] = 2] = "ButtonPressed";
 })(TileEffect || (TileEffect = {}));
 ;
 export class Stage {
@@ -15,9 +16,15 @@ export class Stage {
         this.heightMap = this.baseMap.cloneLayer(0);
         this.objectLayer = this.baseMap.cloneLayer(1);
         this.createTerrainMesh(event);
-        this.starShape = (new ShapeGenerator())
-            .generateStar(0.50, 0.5, 5, event);
+        let gen = new ShapeGenerator();
+        this.starShape = gen.generateStar(0.50, 0.5, 5, event);
+        this.button = gen.generateCylinderFromPath(t => new Vector2(0.5 * Math.cos(t * Math.PI * 2), 0.5 * Math.sin(t * Math.PI * 2)), 32, 1.0, event);
         this.generateStarShadow(event);
+        this.starAngle = 0;
+    }
+    reset() {
+        this.heightMap = this.baseMap.cloneLayer(0);
+        this.objectLayer = this.baseMap.cloneLayer(1);
         this.starAngle = 0;
     }
     generateStarShadow(event) {
@@ -82,18 +89,39 @@ export class Stage {
         canvas.transform.pop();
         canvas.setDrawColor();
     }
+    drawButton(canvas, x, y, z, pressed = false) {
+        const SCALE_Y = [0.33, 0.05];
+        const BASE_SCALE = 0.80;
+        canvas.transform.push();
+        canvas.transform.translate(x + 0.5, y, z + 0.5);
+        canvas.transform.scale(BASE_SCALE, SCALE_Y[Number(pressed)], BASE_SCALE);
+        canvas.transform.use();
+        canvas.setDrawColor(1.0, 0.33, 1.0);
+        canvas.drawMesh(this.button);
+        canvas.transform.pop();
+        canvas.setDrawColor();
+    }
     drawStaticObjects(canvas) {
         let tid;
         let y;
+        let dz;
         for (let z = 0; z < this.depth; ++z) {
             for (let x = 0; x < this.width; ++x) {
                 tid = this.objectLayer[z * this.width + x];
                 if (tid == 0)
                     continue;
                 y = this.getHeight(x, z);
+                dz = this.depth - 1 - z;
                 switch (tid) {
+                    // Star
                     case 10:
-                        this.drawStar(canvas, x, y, this.depth - 1 - z);
+                        this.drawStar(canvas, x, y, dz);
+                        break;
+                    // Button
+                    case 11:
+                    case 257:
+                        this.drawButton(canvas, x, y, dz, tid == 257);
+                        break;
                     default:
                         break;
                 }
@@ -129,6 +157,13 @@ export class Stage {
             return offStageValue;
         return this.heightMap[z * this.width + x];
     }
+    toggleWalls() {
+        for (let i = 0; i < this.objectLayer.length; ++i) {
+            if (this.objectLayer[i] == 257)
+                this.objectLayer[i] = 11;
+            // TODO: Walls
+        }
+    }
     checkTile(x, y, z, consumeStars = true) {
         let index = z * this.width + x;
         if (this.getHeight(x, z) == y) {
@@ -137,6 +172,13 @@ export class Stage {
                 case 10:
                     this.objectLayer[index] = 0;
                     return TileEffect.StarObtained;
+                // Button
+                case 11:
+                    this.toggleWalls();
+                    this.objectLayer[index] = 257;
+                    return TileEffect.ButtonPressed;
+                default:
+                    break;
             }
         }
         return TileEffect.None;
