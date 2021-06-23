@@ -1,4 +1,3 @@
-import { clamp } from "./core/mathext.js";
 import { Vector2, Vector3 } from "./core/vector.js";
 import { ShapeGenerator } from "./shapegen.js";
 export class Player {
@@ -8,7 +7,6 @@ export class Player {
         this.shadow = (new ShapeGenerator())
             .addHorizontalPlane(-0.5, 0, -0.5, 1, 1)
             .generateMesh(event);
-        this.shadowSize = new Vector2(0, 0);
     }
     control(stage, event) {
         const EPS = 0.25;
@@ -34,6 +32,7 @@ export class Player {
             this.target = this.pos.clone();
             return;
         }
+        this.targetHeight = stage.getHeight(this.target.x, this.target.z);
         this.moving = true;
         this.moveTimer = 0;
     }
@@ -45,8 +44,9 @@ export class Player {
         // this.direction = new Vector3(0, -1, 0);
         this.falling = true;
         this.gravity = 0;
+        this.targetHeight = height;
     }
-    fall(event) {
+    fall(stage, event) {
         const GRAVITY_DELTA = 0.015;
         this.gravity += GRAVITY_DELTA * event.step;
         this.renderPos.y -= this.gravity * event.step;
@@ -55,11 +55,12 @@ export class Player {
             this.renderPos = this.pos.clone();
             this.falling = false;
             this.gravity = 0;
+            stage.checkTile(this.pos.x, this.pos.y, this.pos.z);
         }
     }
     move(stage, event) {
         if (this.falling) {
-            this.fall(event);
+            this.fall(stage, event);
             return;
         }
         if (!this.moving) {
@@ -74,6 +75,9 @@ export class Player {
             this.angle.zeros();
             this.jump = 0;
             this.checkFalling(stage);
+            if (!this.falling) {
+                stage.checkTile(this.pos.x, this.pos.y, this.pos.z);
+            }
             return;
         }
         let t = this.moveTimer / Player.MOVE_TIME;
@@ -87,28 +91,33 @@ export class Player {
         this.move(stage, event);
     }
     drawShadow(canvas) {
-        const MAX_ALPHA = 0.5;
-        const COMPARE = 4;
-        let alpha;
-        if (this.falling) {
-            alpha = clamp(1.0 - (this.renderPos.y - this.target.y) / COMPARE, 0, 1);
+        const ALPHA = 0.33;
+        let t = this.moveTimer / Player.MOVE_TIME;
+        canvas.setDrawColor(0, 0, 0, ALPHA);
+        if (this.falling || this.target.y == this.targetHeight) {
+            canvas.transform.push();
+            canvas.transform.translate(this.renderPos.x + 0.5, this.targetHeight + 0.001, -this.renderPos.z - 0.5);
+            canvas.transform.use();
+            canvas.drawMesh(this.shadow);
+            canvas.transform.pop();
+            canvas.setDrawColor();
         }
-        else if (this.moving) {
-            alpha = this.moveTimer / Player.MOVE_TIME;
+        else {
+            // Back
+            canvas.transform.push();
+            canvas.transform.translate(this.pos.x + 0.5 + this.direction.x * t * 0.5, this.pos.y + 0.001, -this.pos.z - 0.5 - this.direction.z * t * 0.5);
+            canvas.transform.scale(1.0 - t * Math.abs(this.direction.x), 1, 1.0 - t * Math.abs(this.direction.z));
+            canvas.transform.use();
+            canvas.drawMesh(this.shadow);
+            canvas.transform.pop();
+            // Front
+            canvas.transform.push();
+            canvas.transform.translate(this.pos.x + 0.5 + this.direction.x * t * 1.0, this.targetHeight + 0.001, -this.pos.z - 0.5 - this.direction.z * t * 1.0);
+            canvas.transform.scale(1.0 - (1.0 - t) * Math.abs(this.direction.x), 1, 1.0 - (1.0 - t) * Math.abs(this.direction.z));
+            canvas.transform.use();
+            canvas.drawMesh(this.shadow);
+            canvas.transform.pop();
         }
-        canvas.setDrawColor(0, 0, 0, alpha * MAX_ALPHA);
-        canvas.transform.push();
-        canvas.transform.translate(this.target.x + 0.5, this.target.y + 0.001, -this.target.z - 0.5);
-        canvas.transform.use();
-        canvas.drawMesh(this.shadow);
-        canvas.transform.pop();
-        canvas.setDrawColor();
-        canvas.setDrawColor(0, 0, 0, (1.0 - alpha) * MAX_ALPHA);
-        canvas.transform.push();
-        canvas.transform.translate(this.pos.x + 0.5, this.pos.y + 0.001, -this.pos.z - 0.5);
-        canvas.transform.use();
-        canvas.drawMesh(this.shadow);
-        canvas.transform.pop();
         canvas.setDrawColor();
     }
     draw(canvas) {
@@ -139,6 +148,7 @@ export class Player {
         this.falling = false;
         this.gravity = 0;
         this.jump = 0;
+        this.targetHeight = this.pos.y;
     }
 }
 Player.MOVE_TIME = 30;

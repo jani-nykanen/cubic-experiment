@@ -21,6 +21,7 @@ export class GameScene {
     update(event) {
         if (event.transition.isActive())
             return;
+        this.stage.update(event);
         this.objects.update(this.stage, event);
         if (event.input.getAction("reset") == State.Pressed) {
             event.transition.activate(true, TransitionEffectType.Fade, 1.0 / 15.0, () => this.reset(), new RGBA(0.33, 0.66, 1.0));

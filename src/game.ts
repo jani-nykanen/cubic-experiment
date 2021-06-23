@@ -38,6 +38,7 @@ export class GameScene implements Scene {
 
         if (event.transition.isActive()) return;
 
+        this.stage.update(event);
         this.objects.update(this.stage, event);
 
         if (event.input.getAction("reset") == State.Pressed) {

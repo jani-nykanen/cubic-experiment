@@ -2,8 +2,7 @@
     "bitmapPath" : "assets/bitmaps/",
     "bitmaps" : [
 
-        {"name": "font", "path": "font.png"},
-        {"name": "crate", "path": "crate.png"}
+        {"name": "font", "path": "font.png"}
     ],
 
     "tilemapPath" : "assets/maps/",
