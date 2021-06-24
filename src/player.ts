@@ -76,6 +76,7 @@ export class Player {
         if (stage.getHeight(this.target.x, this.target.z) > this.pos.y) {
 
             this.target = this.pos.clone();
+            this.direction.zeros();
             return;
         }
 

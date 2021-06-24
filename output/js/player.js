@@ -30,6 +30,7 @@ export class Player {
         this.target = Vector3.add(this.pos, this.direction);
         if (stage.getHeight(this.target.x, this.target.z) > this.pos.y) {
             this.target = this.pos.clone();
+            this.direction.zeros();
             return;
         }
         this.targetHeight = stage.getHeight(this.target.x, this.target.z);

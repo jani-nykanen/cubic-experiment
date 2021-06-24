@@ -23,6 +23,10 @@ export class Stage {
         this.cross = gen.addHorizontalPlane(-0.5, 0, -0.1, 1.0, 0.2, 1)
             .addHorizontalPlane(-0.1, 0, -0.5, 0.2, 1.0, 1)
             .generateMesh(event);
+        this.specialWall = gen.addHorizontalPlane(-0.5, 0.0, -0.5, 1, 1, 1)
+            .addVerticalPlaneXY(-0.5, -1.0, -0.5, 1.0, 1.0)
+            .addVerticalPlaneXZ(0.5, -1.0, -0.5, 1.0, 1.0)
+            .generateMesh(event);
         this.starAngle = 0;
     }
     reset() {
@@ -107,7 +111,13 @@ export class Stage {
     drawSpecialWall(canvas, x, y, z, enabled = false) {
         const BASE_SCALE = 0.80;
         canvas.transform.push();
-        canvas.transform.translate(x + 0.5, y + 0.005, z + 0.5);
+        canvas.transform.translate(x + 0.5, y, z + 0.5);
+        if (enabled) {
+            canvas.transform.use();
+            canvas.setDrawColor(0.67, 0.67, 1.0);
+            canvas.drawMesh(this.specialWall);
+        }
+        canvas.transform.translate(0, 0.005, 0);
         canvas.transform.rotate(Math.PI / 4, new Vector3(0, 1, 0));
         canvas.transform.scale(BASE_SCALE, BASE_SCALE, BASE_SCALE);
         canvas.transform.use();
@@ -168,6 +178,8 @@ export class Stage {
                     case 9:
                         objects.createPlayer(x, this.heightMap[z * this.width + x], z, event);
                         break;
+                    default:
+                        break;
                 }
             }
         }
@@ -181,7 +193,14 @@ export class Stage {
         for (let i = 0; i < this.objectLayer.length; ++i) {
             if (this.objectLayer[i] == 257)
                 this.objectLayer[i] = 11;
-            // TODO: Walls
+            else if (this.objectLayer[i] == 12) {
+                ++this.heightMap[i];
+                this.objectLayer[i] = 13;
+            }
+            else if (this.objectLayer[i] == 13) {
+                --this.heightMap[i];
+                this.objectLayer[i] = 12;
+            }
         }
     }
     checkTile(x, y, z, consumeStars = true) {
