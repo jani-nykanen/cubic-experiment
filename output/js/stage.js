@@ -20,6 +20,9 @@ export class Stage {
         this.starShape = gen.generateStar(0.50, 0.5, 5, event);
         this.button = gen.generateCylinderFromPath(t => new Vector2(0.5 * Math.cos(t * Math.PI * 2), 0.5 * Math.sin(t * Math.PI * 2)), 32, 1.0, event);
         this.generateStarShadow(event);
+        this.cross = gen.addHorizontalPlane(-0.5, 0, -0.1, 1.0, 0.2, 1)
+            .addHorizontalPlane(-0.1, 0, -0.5, 0.2, 1.0, 1)
+            .generateMesh(event);
         this.starAngle = 0;
     }
     reset() {
@@ -101,6 +104,18 @@ export class Stage {
         canvas.transform.pop();
         canvas.setDrawColor();
     }
+    drawSpecialWall(canvas, x, y, z, enabled = false) {
+        const BASE_SCALE = 0.80;
+        canvas.transform.push();
+        canvas.transform.translate(x + 0.5, y + 0.005, z + 0.5);
+        canvas.transform.rotate(Math.PI / 4, new Vector3(0, 1, 0));
+        canvas.transform.scale(BASE_SCALE, BASE_SCALE, BASE_SCALE);
+        canvas.transform.use();
+        canvas.setDrawColor(1.0, 0.33, 1.0);
+        canvas.drawMesh(this.cross);
+        canvas.transform.pop();
+        canvas.setDrawColor();
+    }
     drawStaticObjects(canvas) {
         let tid;
         let y;
@@ -121,6 +136,11 @@ export class Stage {
                     case 11:
                     case 257:
                         this.drawButton(canvas, x, y, dz, tid == 257);
+                        break;
+                    // Special wall
+                    case 12:
+                    case 13:
+                        this.drawSpecialWall(canvas, x, y, dz, tid == 13);
                         break;
                     default:
                         break;

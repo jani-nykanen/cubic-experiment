@@ -32,6 +32,7 @@ export class Stage {
     private starShape : Mesh;
     private starShadow : Mesh;
     private button : Mesh;
+    private cross : Mesh;
 
     private starAngle : number;
 
@@ -57,6 +58,10 @@ export class Stage {
             32, 1.0, event);
 
         this.generateStarShadow(event);
+
+        this.cross = gen.addHorizontalPlane(-0.5, 0, -0.1, 1.0, 0.2, 1)    
+            .addHorizontalPlane(-0.1, 0, -0.5, 0.2, 1.0, 1)
+            .generateMesh(event);
 
         this.starAngle = 0;
     }
@@ -200,6 +205,25 @@ export class Stage {
     }
 
 
+    private drawSpecialWall(canvas : Canvas, x : number, y : number, z : number, enabled = false) {
+
+        const BASE_SCALE = 0.80;
+
+        canvas.transform.push();
+        canvas.transform.translate(x + 0.5, y + 0.005, z + 0.5);
+        canvas.transform.rotate(Math.PI/4, new Vector3(0, 1, 0));
+        canvas.transform.scale(BASE_SCALE, BASE_SCALE, BASE_SCALE);
+        canvas.transform.use();
+
+        canvas.setDrawColor(1.0, 0.33, 1.0);
+        canvas.drawMesh(this.cross);
+
+        canvas.transform.pop();
+
+        canvas.setDrawColor();
+    }
+
+
     private drawStaticObjects(canvas : Canvas) {
 
         let tid : number;
@@ -228,6 +252,13 @@ export class Stage {
                 case 11:
                 case 257:
                     this.drawButton(canvas, x, y, dz, tid == 257);
+                    break;
+
+                // Special wall
+                case 12:
+                case 13:
+
+                    this.drawSpecialWall(canvas, x, y, dz, tid == 13);
                     break;
 
                 default:

@@ -175,6 +175,7 @@ export class Player {
 
     private drawShadow(canvas : Canvas) {
 
+        const Y_OFF = 0.001;
         const ALPHA = 0.33;
 
         let t = this.moveTimer / Player.MOVE_TIME;
@@ -186,7 +187,7 @@ export class Player {
             canvas.transform.push();
             canvas.transform.translate(
                 this.renderPos.x + 0.5, 
-                this.targetHeight + 0.001, 
+                this.targetHeight + Y_OFF, 
                 -this.renderPos.z - 0.5);
             canvas.transform.use();
 
@@ -202,7 +203,7 @@ export class Player {
             canvas.transform.push();
             canvas.transform.translate(
                 this.pos.x + 0.5 + this.direction.x * t * 0.5, 
-                this.pos.y + 0.001, 
+                this.pos.y + Y_OFF, 
                 -this.pos.z - 0.5 - this.direction.z * t * 0.5);
             canvas.transform.scale(
                 1.0 - t * Math.abs(this.direction.x), 
@@ -218,7 +219,7 @@ export class Player {
             canvas.transform.push();
             canvas.transform.translate(
                 this.pos.x + 0.5 + this.direction.x * t * 1.0, 
-                this.targetHeight + 0.001, 
+                this.targetHeight + Y_OFF, 
                 -this.pos.z - 0.5 - this.direction.z * t * 1.0);
             canvas.transform.scale(
                 1.0 - (1.0-t) * Math.abs(this.direction.x), 
