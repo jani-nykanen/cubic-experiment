@@ -88,6 +88,8 @@ export class Player {
         this.jump = 1.0 / Math.SQRT2 * Math.sin(t * Math.PI) * (1.0 - 1.0 / Math.SQRT2);
     }
     update(stage, event) {
+        if (stage.isEventHappening())
+            return;
         this.control(stage, event);
         this.move(stage, event);
     }

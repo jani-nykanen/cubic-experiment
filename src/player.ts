@@ -169,6 +169,8 @@ export class Player {
 
     public update(stage : Stage, event : CoreEvent) {
 
+        if (stage.isEventHappening()) return;
+
         this.control(stage, event);
         this.move(stage, event);
     }

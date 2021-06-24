@@ -15,8 +15,18 @@ export enum TileEffect {
 };
 
 
+enum SpecialEvent {
+
+    None = 0,
+    ToggleWalls = 1,
+    RotateArrows = 2
+};
+
 
 export class Stage {
+
+
+    static EVENT_TIME = 30;
 
 
     private baseMap : Tilemap;
@@ -37,6 +47,10 @@ export class Stage {
 
     private starAngle : number;
 
+    private eventHappening : boolean;
+    private eventType : SpecialEvent;
+    private eventTimer : number;
+
 
     constructor(stageIndex : number, event : CoreEvent) {
 
@@ -47,7 +61,6 @@ export class Stage {
         this.height = this.baseMap.max(0);
 
         this.heightMap = this.baseMap.cloneLayer(0);
-        this.objectLayer = this.baseMap.cloneLayer(1);
 
         this.createTerrainMesh(event);
 
@@ -69,16 +82,33 @@ export class Stage {
             .addVerticalPlaneXZ(0.5, -1.0, -0.5, 1.0, 1.0)
             .generateMesh(event);
 
-        this.starAngle = 0;
+        this.reset();
+    }
+
+
+    private computeHeightmap() {
+
+        this.heightMap = this.baseMap.cloneLayer(0);
+        for (let i = 0; i < this.heightMap.length; ++ i) {
+
+            if (this.objectLayer[i] == 13) {
+
+                ++ this.heightMap[i];
+            }
+        }
     }
 
 
     public reset() {
 
-        this.heightMap = this.baseMap.cloneLayer(0);
         this.objectLayer = this.baseMap.cloneLayer(1);
+        this.computeHeightmap();
 
         this.starAngle = 0;
+
+        this.eventHappening = false;
+        this.eventType = SpecialEvent.None;
+        this.eventTimer = 0;
     }
 
 
@@ -161,11 +191,42 @@ export class Stage {
     }
 
 
+    private toggleButtons() {
+
+        for (let i = 0; i < this.objectLayer.length; ++ i) {
+
+            if (this.objectLayer[i] == 257) {
+
+                this.objectLayer[i] = 11;
+                // return;
+            }
+            else if (this.objectLayer[i] == 258) {
+
+                this.objectLayer[i] = 257;
+            }
+        }
+    }
+
+
     public update(event : CoreEvent) {
 
         const STAR_ROTATE_SPEED = 0.05;
 
         this.starAngle = (this.starAngle + STAR_ROTATE_SPEED*event.step) % (Math.PI*2);
+
+        if (this.eventHappening) {
+
+            if ((this.eventTimer -= event.step) <= 0) {
+
+                this.eventHappening = false;
+                this.eventTimer = 0;
+
+                if (this.eventType == SpecialEvent.ToggleWalls) {
+
+                    this.toggleButtons();
+                }
+            }
+        }
     }
 
 
@@ -197,9 +258,21 @@ export class Stage {
         const SCALE_Y = [0.33, 0.05];
         const BASE_SCALE = 0.80;
 
+        let wallEvent = this.eventHappening && 
+            this.eventType == SpecialEvent.ToggleWalls;
+
+        let t = pressed ? 1.0 : 0.0;
+        
+        if (pressed && wallEvent) {
+
+            t = this.eventTimer / Stage.EVENT_TIME;
+        }
+
+        let scale = SCALE_Y[0] * (1-t) + SCALE_Y[1] * t;
+
         canvas.transform.push();
         canvas.transform.translate(x + 0.5, y, z + 0.5);
-        canvas.transform.scale(BASE_SCALE, SCALE_Y[Number(pressed)], BASE_SCALE);
+        canvas.transform.scale(BASE_SCALE, scale, BASE_SCALE);
         canvas.transform.use();
 
         canvas.setDrawColor(1.0, 0.33, 1.0);
@@ -213,24 +286,71 @@ export class Stage {
 
     private drawSpecialWall(canvas : Canvas, x : number, y : number, z : number, enabled = false) {
 
-        const BASE_SCALE = 0.80;
+        const CROSS_SCALE = 0.85;
 
+        let color1 = new Vector3(0.67, 0.33, 1.0);
+        let color2 = new Vector3(1.0, 1.0, 1.0);
+
+        let color3 = new Vector3(1, 1, 1);
+        let color4 = new Vector3(0.67, 0.33, 1.0);
+
+        let res : Vector3;
+
+        let t = 0.0;
+        let wallEvent = this.eventHappening && 
+            this.eventType == SpecialEvent.ToggleWalls;
+
+        if (wallEvent) {
+
+            t = this.eventTimer / Stage.EVENT_TIME;
+
+            if (enabled)
+                y -= t;
+            else {
+
+                y += 1.0;
+                y -= (1.0-t);
+            }
+        }
+        
         canvas.transform.push();
         canvas.transform.translate(x + 0.5, y, z + 0.5);
         
-        if (enabled) {
+        if (enabled || wallEvent) {
+
+            canvas.transform.push();
+
+            if (wallEvent) {
+
+                if (enabled)
+                    canvas.transform.scale(1, 1.0-t, 1);
+                else
+                    canvas.transform.scale(1, t, 1);
+            }
+
+            if (!enabled)
+                res = Vector3.lerp(color3, color4, t);
+            else 
+                res = Vector3.lerp(color4, color3, t);
 
             canvas.transform.use();
-            canvas.setDrawColor(0.67, 0.67, 1.0);
+            canvas.setDrawColor(res.x, res.y, res.z);
             canvas.drawMesh(this.specialWall);
+
+            canvas.transform.pop();
         }
 
         canvas.transform.translate(0, 0.005, 0);
         canvas.transform.rotate(Math.PI/4, new Vector3(0, 1, 0));
-        canvas.transform.scale(BASE_SCALE, BASE_SCALE, BASE_SCALE);
+        canvas.transform.scale(CROSS_SCALE, 1, CROSS_SCALE);
         canvas.transform.use();
 
-        canvas.setDrawColor(1.0, 0.33, 1.0);
+        if (!enabled)
+            res = Vector3.lerp(color1, color2, t);
+        else 
+            res = Vector3.lerp(color2, color1, t);
+
+        canvas.setDrawColor(res.x, res.y, res.z);
         canvas.drawMesh(this.cross);
 
         canvas.transform.pop();
@@ -338,10 +458,7 @@ export class Stage {
 
         for (let i = 0; i < this.objectLayer.length; ++ i) {
 
-            if (this.objectLayer[i] == 257)
-                this.objectLayer[i] = 11;
-
-            else if (this.objectLayer[i] == 12) {
+            if (this.objectLayer[i] == 12) {
 
                 ++ this.heightMap[i];
                 this.objectLayer[i] = 13
@@ -352,6 +469,14 @@ export class Stage {
                 this.objectLayer[i] = 12;
             }
         }
+    }
+
+
+    private startEvent(type : SpecialEvent) {
+
+        this.eventType = type;
+        this.eventTimer = Stage.EVENT_TIME;
+        this.eventHappening = true;
     }
 
 
@@ -373,7 +498,10 @@ export class Stage {
             case 11:
 
                 this.toggleWalls();
-                this.objectLayer[index] = 257;
+                this.objectLayer[index] = 258;
+
+                this.startEvent(SpecialEvent.ToggleWalls);
+
                 return TileEffect.ButtonPressed;
 
             default:
@@ -384,4 +512,7 @@ export class Stage {
 
         return TileEffect.None;
     }
+
+
+    public isEventHappening = () : boolean => this.eventHappening;
 }
