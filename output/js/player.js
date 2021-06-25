@@ -8,6 +8,20 @@ export class Player {
             .addHorizontalPlane(-0.5, 0, -0.5, 1, 1)
             .generateMesh(event);
     }
+    reset() {
+        this.pos = this.startPos.clone();
+        this.target = this.pos.clone();
+        this.renderPos = this.pos.clone();
+        this.direction = new Vector3();
+        this.angle = new Vector3();
+        this.moveTimer = 0;
+        this.moving = false;
+        this.automaticMovement = false;
+        this.falling = false;
+        this.gravity = 0;
+        this.jump = 0;
+        this.targetHeight = this.pos.y;
+    }
     control(stage, event) {
         const EPS = 0.25;
         const EPS2 = 0.01;
@@ -16,6 +30,7 @@ export class Player {
         let dx = 0;
         let dz = 0;
         let automaticDir;
+        this.automaticMovement = false;
         automaticDir = stage.checkAutomaticArrows(this.pos.x, this.pos.y, this.pos.z);
         if (automaticDir != null) {
             if (stage.getHeight(this.pos.x + automaticDir.x, this.pos.z + automaticDir.y) > this.pos.y) {
@@ -24,6 +39,7 @@ export class Player {
             else {
                 dx = automaticDir.x;
                 dz = automaticDir.y;
+                this.automaticMovement = true;
             }
         }
         // Can't use "else if" here, since automaticDir is modified in
@@ -90,6 +106,7 @@ export class Player {
             this.renderPos = this.pos.clone();
             this.angle.zeros();
             this.jump = 0;
+            this.automaticMovement = false;
             this.checkFalling(stage);
             if (!this.falling) {
                 stage.checkTile(this.pos.x, this.pos.y, this.pos.z);
@@ -100,7 +117,9 @@ export class Player {
         this.renderPos = Vector3.lerp(this.pos, this.target, t);
         this.angle.z = t * this.direction.x * Math.PI / 2;
         this.angle.x = t * -this.direction.z * Math.PI / 2;
-        this.jump = 1.0 / Math.SQRT2 * Math.sin(t * Math.PI) * (1.0 - 1.0 / Math.SQRT2);
+        if (!this.automaticMovement) {
+            this.jump = 1.0 / Math.SQRT2 * Math.sin(t * Math.PI) * (1.0 - 1.0 / Math.SQRT2);
+        }
     }
     update(stage, event) {
         if (stage.isEventHappening())
@@ -144,8 +163,10 @@ export class Player {
             this.drawShadow(canvas);
         canvas.transform.push();
         canvas.transform.translate(this.renderPos.x + 0.5, this.renderPos.y + 0.5 + this.jump, -this.renderPos.z - 0.5);
-        canvas.transform.rotate(this.angle.x, new Vector3(1, 0, 0));
-        canvas.transform.rotate(-this.angle.z, new Vector3(0, 0, 1));
+        if (!this.automaticMovement) {
+            canvas.transform.rotate(this.angle.x, new Vector3(1, 0, 0));
+            canvas.transform.rotate(-this.angle.z, new Vector3(0, 0, 1));
+        }
         canvas.transform.use();
         canvas.setDrawColor(1, 0.5, 0.5);
         canvas.drawModel(canvas.getModel("cube"));
@@ -155,19 +176,6 @@ export class Player {
     drawDebug(canvas) {
         let font = canvas.getBitmap("font");
         canvas.drawText(font, "X: " + String(this.pos.x | 0) + "\nZ: " + String(this.pos.z | 0), 8, 8, -32, 0, false, 0.5, 0.5);
-    }
-    reset() {
-        this.pos = this.startPos.clone();
-        this.target = this.pos.clone();
-        this.renderPos = this.pos.clone();
-        this.direction = new Vector3();
-        this.angle = new Vector3();
-        this.moveTimer = 0;
-        this.moving = false;
-        this.falling = false;
-        this.gravity = 0;
-        this.jump = 0;
-        this.targetHeight = this.pos.y;
     }
 }
 Player.MOVE_TIME = 30;

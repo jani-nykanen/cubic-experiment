@@ -379,6 +379,10 @@ export class Stage {
         let angle = BASE_ANGLE[index] * Math.PI/2;
         let color : Vector3;
 
+        let t = (this.arrowBlinkTimer % (Stage.ARROW_BLINK_TIME/2)) / (Stage.ARROW_BLINK_TIME/2);
+        if (this.arrowBlinkTimer >= Stage.ARROW_BLINK_TIME/2)
+            t = 1.0 - t;
+
         canvas.transform.push();
 
         canvas.transform.translate(x+0.5, y+0.005, z+0.5);
@@ -386,8 +390,10 @@ export class Stage {
 
         for (let i = 0; i < 2; ++ i) {
 
-            color = COLORS[
-                (i + ((this.arrowBlinkTimer / (Stage.ARROW_BLINK_TIME/2)) | 0)) % 2];
+            if (i == 0)
+                color = Vector3.lerp(COLORS[0], COLORS[1], t);
+            else
+                color = Vector3.lerp(COLORS[1], COLORS[0], t);
 
             canvas.transform.translate(0, 0, i == 1 ? 0.50 : -0.225);
             canvas.transform.use();

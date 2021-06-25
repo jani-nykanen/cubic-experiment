@@ -213,11 +213,17 @@ export class Stage {
         const COLORS = [new Vector3(0, 0.67, 0.33), new Vector3(0.33, 1, 0.67)];
         let angle = BASE_ANGLE[index] * Math.PI / 2;
         let color;
+        let t = (this.arrowBlinkTimer % (Stage.ARROW_BLINK_TIME / 2)) / (Stage.ARROW_BLINK_TIME / 2);
+        if (this.arrowBlinkTimer >= Stage.ARROW_BLINK_TIME / 2)
+            t = 1.0 - t;
         canvas.transform.push();
         canvas.transform.translate(x + 0.5, y + 0.005, z + 0.5);
         canvas.transform.rotate(angle, new Vector3(0, 1, 0));
         for (let i = 0; i < 2; ++i) {
-            color = COLORS[(i + ((this.arrowBlinkTimer / (Stage.ARROW_BLINK_TIME / 2)) | 0)) % 2];
+            if (i == 0)
+                color = Vector3.lerp(COLORS[0], COLORS[1], t);
+            else
+                color = Vector3.lerp(COLORS[1], COLORS[0], t);
             canvas.transform.translate(0, 0, i == 1 ? 0.50 : -0.225);
             canvas.transform.use();
             canvas.setDrawColor(color.x, color.y, color.z);
