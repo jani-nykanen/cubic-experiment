@@ -59,9 +59,11 @@ export class Player {
         automaticDir = stage.checkAutomaticArrows(this.pos.x, this.pos.y, this.pos.z);
         if (automaticDir != null) {
 
-            if (stage.getHeight(this.pos.x + automaticDir.x, this.pos.y, this.pos.z + automaticDir.y) >= this.pos.y) {
+            if (stage.getHeight(
+                    this.pos.x + automaticDir.x, 
+                    this.pos.z + automaticDir.y) > this.pos.y) {
 
-                automaticDir = null;
+                automaticDir = null;    
             } 
             else {
 
@@ -70,7 +72,7 @@ export class Player {
             }
         }
 
-        // Can't use "else if" here, since automaticDir is modifies in
+        // Can't use "else if" here, since automaticDir is modified in
         // the previous block
         if (automaticDir == null) {
 

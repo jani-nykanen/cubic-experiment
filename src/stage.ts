@@ -569,7 +569,8 @@ export class Stage {
         const DIR_X = [0, 0, 1, -1];
         const DIR_Z = [-1, 1, 0, 0];
 
-        if (y != this.getHeight(x, z)) return null;
+        if (y != this.getHeight(x, z)) 
+            return null;
 
         let tid = this.objectLayer[z * this.width + x];
 
