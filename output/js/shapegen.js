@@ -195,5 +195,6 @@ export class ShapeGenerator {
         for (let i = 0; i < 3; ++i) {
             this.indexBuffer.push(this.indexBuffer.length);
         }
+        return this;
     }
 }

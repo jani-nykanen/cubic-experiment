@@ -34,6 +34,8 @@ export class Stage {
             .addVerticalPlaneXY(-0.5, -1.0, -0.5, 1.0, 1.0)
             .addVerticalPlaneXZ(0.5, -1.0, -0.5, 1.0, 1.0)
             .generateMesh(event);
+        this.arrow = gen.addTriangle(new Vector3(-0.40, 0.0, -0.20), new Vector3(0.0, 0.0, 0.20), new Vector3(0.40, 0.0, -0.20), 1.0)
+            .generateMesh(event);
         this.reset();
     }
     computeHeightmap() {
@@ -48,6 +50,7 @@ export class Stage {
         this.objectLayer = this.baseMap.cloneLayer(1);
         this.computeHeightmap();
         this.starAngle = 0;
+        this.arrowBlinkTimer = 0;
         this.eventHappening = false;
         this.eventType = SpecialEvent.None;
         this.eventTimer = 0;
@@ -118,6 +121,7 @@ export class Stage {
                 }
             }
         }
+        this.arrowBlinkTimer = (this.arrowBlinkTimer + event.step) % (Stage.ARROW_BLINK_TIME);
     }
     drawStar(canvas, x, y, z) {
         let angle = this.starAngle;
@@ -204,6 +208,23 @@ export class Stage {
         canvas.transform.pop();
         canvas.setDrawColor();
     }
+    drawArrows(canvas, x, y, z, index) {
+        const BASE_ANGLE = [0, 2, 1, -1];
+        const COLORS = [new Vector3(0, 0.67, 0.33), new Vector3(0.33, 1, 0.67)];
+        let angle = BASE_ANGLE[index] * Math.PI / 2;
+        let color;
+        canvas.transform.push();
+        canvas.transform.translate(x + 0.5, y + 0.005, z + 0.5);
+        canvas.transform.rotate(angle, new Vector3(0, 1, 0));
+        for (let i = 0; i < 2; ++i) {
+            color = COLORS[(i + ((this.arrowBlinkTimer / (Stage.ARROW_BLINK_TIME / 2)) | 0)) % 2];
+            canvas.transform.translate(0, 0, i == 1 ? 0.50 : -0.225);
+            canvas.transform.use();
+            canvas.setDrawColor(color.x, color.y, color.z);
+            canvas.drawMesh(this.arrow);
+        }
+        canvas.transform.pop();
+    }
     drawStaticObjects(canvas) {
         let tid;
         let y;
@@ -229,6 +250,13 @@ export class Stage {
                     case 12:
                     case 13:
                         this.drawSpecialWall(canvas, x, y, dz, tid == 13);
+                        break;
+                    // Arrows
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                        this.drawArrows(canvas, x, y, dz, tid - 17);
                         break;
                     default:
                         break;
@@ -304,5 +332,17 @@ export class Stage {
         }
         return TileEffect.None;
     }
+    checkAutomaticArrows(x, y, z) {
+        const DIR_X = [0, 0, 1, -1];
+        const DIR_Z = [-1, 1, 0, 0];
+        if (y != this.getHeight(x, z))
+            return null;
+        let tid = this.objectLayer[z * this.width + x];
+        if (tid >= 17 && tid < 21) {
+            return new Vector2(DIR_X[tid - 17], DIR_Z[tid - 17]);
+        }
+        return null;
+    }
 }
 Stage.EVENT_TIME = 30;
+Stage.ARROW_BLINK_TIME = 60;

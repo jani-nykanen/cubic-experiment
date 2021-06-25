@@ -402,7 +402,7 @@ export class ShapeGenerator {
     }
 
 
-    public addTriangle(A : Vector3, B : Vector3, C : Vector3, normalDir = -1) {
+    public addTriangle(A : Vector3, B : Vector3, C : Vector3, normalDir = -1) : ShapeGenerator {
 
         let N = Vector3.scalarMultiply(
             Vector3.cross(
@@ -432,5 +432,7 @@ export class ShapeGenerator {
 
             this.indexBuffer.push(this.indexBuffer.length);
         }
+
+        return this;
     } 
 }

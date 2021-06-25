@@ -15,24 +15,39 @@ export class Player {
             return;
         let dx = 0;
         let dz = 0;
-        if (event.input.getStick().length() < EPS)
-            return;
-        let s = Vector2.max(event.input.getStick(), 1.0);
-        if (Math.abs(s.x) > Math.abs(s.y)) {
-            dx = Math.sign(s.x);
+        let automaticDir;
+        automaticDir = stage.checkAutomaticArrows(this.pos.x, this.pos.y, this.pos.z);
+        if (automaticDir != null) {
+            if (stage.getHeight(this.pos.x + automaticDir.x, this.pos.y, this.pos.z + automaticDir.y) >= this.pos.y) {
+                automaticDir = null;
+            }
+            else {
+                dx = automaticDir.x;
+                dz = automaticDir.y;
+            }
         }
-        else if (Math.abs(s.x) < Math.abs(s.y)) {
-            dz = Math.sign(s.y);
+        // Can't use "else if" here, since automaticDir is modifies in
+        // the previous block
+        if (automaticDir == null) {
+            if (event.input.getStick().length() < EPS)
+                return;
+            let s = Vector2.max(event.input.getStick(), 1.0);
+            if (Math.abs(s.x) > Math.abs(s.y)) {
+                dx = Math.sign(s.x);
+            }
+            else if (Math.abs(s.x) < Math.abs(s.y)) {
+                dz = Math.sign(s.y);
+            }
+            if (Math.abs(dx) < EPS2 && Math.abs(dz) < EPS2)
+                return;
+            if (stage.getHeight(this.pos.x + dx, this.pos.z + dz) > this.pos.y) {
+                this.target = this.pos.clone();
+                this.direction.zeros();
+                return;
+            }
         }
-        if (Math.abs(dx) < EPS2 && Math.abs(dz) < EPS2)
-            return;
         this.direction = new Vector3(dx, 0, dz);
         this.target = Vector3.add(this.pos, this.direction);
-        if (stage.getHeight(this.target.x, this.target.z) > this.pos.y) {
-            this.target = this.pos.clone();
-            this.direction.zeros();
-            return;
-        }
         this.targetHeight = stage.getHeight(this.target.x, this.target.z);
         this.moving = true;
         this.moveTimer = 0;
