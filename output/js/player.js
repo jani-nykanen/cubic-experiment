@@ -1,12 +1,25 @@
 import { Vector2, Vector3 } from "./core/vector.js";
 import { ShapeGenerator } from "./shapegen.js";
 export class Player {
+    /*
+    private meshShadowXY : Mesh;
+    private meshShadowYZ : Mesh;
+    private wallShadows : Array<boolean>;
+    */
     constructor(x, y, z, event) {
         this.startPos = new Vector3(x, y, z);
         this.reset();
-        this.meshShadow = (new ShapeGenerator())
+        this.meshShadowXZ = (new ShapeGenerator())
             .addHorizontalPlane(-0.5, 0, -0.5, 1, 1)
             .generateMesh(event);
+        /*
+        this.meshShadowXY = (new ShapeGenerator())
+            .addVerticalPlaneXY(-0.5, -0.5, 0, 1, 1)
+            .generateMesh(event);
+        this.meshShadowYZ = (new ShapeGenerator())
+            .addVerticalPlaneYZ(0, -0.5, -0.5, 1, 1)
+            .generateMesh(event);
+        */
     }
     reset() {
         this.pos = this.startPos.clone();
@@ -126,6 +139,7 @@ export class Player {
             return;
         this.control(stage, event);
         this.move(stage, event);
+        stage.setSpecialShadow(this.target.x, this.target.z, this.pos.x, this.pos.z, this.moving ? this.moveTimer / Player.MOVE_TIME : 1.0);
     }
     drawShadow(canvas) {
         const Y_OFF = 0.001;
@@ -136,7 +150,7 @@ export class Player {
             canvas.transform.push();
             canvas.transform.translate(this.renderPos.x + 0.5, this.targetHeight + Y_OFF, -this.renderPos.z - 0.5);
             canvas.transform.use();
-            canvas.drawMesh(this.meshShadow);
+            canvas.drawMesh(this.meshShadowXZ);
             canvas.transform.pop();
             canvas.setDrawColor();
         }
@@ -146,14 +160,14 @@ export class Player {
             canvas.transform.translate(this.pos.x + 0.5 + this.direction.x * t * 0.5, this.pos.y + Y_OFF, -this.pos.z - 0.5 - this.direction.z * t * 0.5);
             canvas.transform.scale(1.0 - t * Math.abs(this.direction.x), 1, 1.0 - t * Math.abs(this.direction.z));
             canvas.transform.use();
-            canvas.drawMesh(this.meshShadow);
+            canvas.drawMesh(this.meshShadowXZ);
             canvas.transform.pop();
             // Front
             canvas.transform.push();
             canvas.transform.translate(this.pos.x + 0.5 + this.direction.x * t * 1.0, this.targetHeight + Y_OFF, -this.pos.z - 0.5 - this.direction.z * t * 1.0);
             canvas.transform.scale(1.0 - (1.0 - t) * Math.abs(this.direction.x), 1, 1.0 - (1.0 - t) * Math.abs(this.direction.z));
             canvas.transform.use();
-            canvas.drawMesh(this.meshShadow);
+            canvas.drawMesh(this.meshShadowXZ);
             canvas.transform.pop();
         }
         canvas.setDrawColor();

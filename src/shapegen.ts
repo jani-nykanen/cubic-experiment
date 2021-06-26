@@ -452,7 +452,7 @@ export class ShapeGenerator {
     }
 
 
-    public addVerticalPlaneXZ(x : number, y : number, z : number, 
+    public addVerticalPlaneYZ(x : number, y : number, z : number, 
         depth : number, height : number, front = 1) : ShapeGenerator {
 
         this.vertexBuffer.push(

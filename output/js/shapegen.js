@@ -213,7 +213,7 @@ export class ShapeGenerator {
         this.indexBuffer.push(l, l + 1, l + 2, l + 2, l + 3, l);
         return this;
     }
-    addVerticalPlaneXZ(x, y, z, depth, height, front = 1) {
+    addVerticalPlaneYZ(x, y, z, depth, height, front = 1) {
         this.vertexBuffer.push(x, y, z, x, y, z + depth, x, y + height, z + depth, x, y + height, z);
         this.uvBuffer.push(0, 0, 1, 0, 1, 1, 0, 1);
         this.normalBuffer.push(front, 0, 0, front, 0, 0, front, 0, 0, front, 0, 0);

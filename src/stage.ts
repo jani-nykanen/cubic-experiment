@@ -55,6 +55,9 @@ export class Stage {
     private eventType : SpecialEvent;
     private eventTimer : number;
 
+    private specialShadowPos : Array<Vector2>;
+    private specialShadowValue : number;
+
 
     constructor(stageIndex : number, event : CoreEvent) {
 
@@ -87,7 +90,7 @@ export class Stage {
 
         this.meshSpecialWall = gen.addHorizontalPlane(-0.5, 0.0, -0.5, 1, 1, 1)
             .addVerticalPlaneXY(-0.5, -1.0, -0.5, 1.0, 1.0)
-            .addVerticalPlaneXZ(0.5, -1.0, -0.5, 1.0, 1.0)
+            .addVerticalPlaneYZ(0.5, -1.0, -0.5, 1.0, 1.0)
             .generateMesh(event);
 
         this.meshArrow = gen.addTriangle(
@@ -124,6 +127,9 @@ export class Stage {
         this.eventHappening = false;
         this.eventType = SpecialEvent.None;
         this.eventTimer = 0;
+
+        this.specialShadowValue = 0.0;
+        this.specialShadowPos = (new Array<Vector2>(2)).fill(null).map(i => new Vector2(-1, -1));
     }
 
 
@@ -193,14 +199,14 @@ export class Stage {
 
                     if (height2 < height) {
 
-                        shapeGen.addVerticalPlaneXZ(x+1, height, z, 1, -(height-height2));
+                        shapeGen.addVerticalPlaneYZ(x+1, height, z, 1, -(height-height2));
                     }   
                 }
             }
         }
 
         shapeGen.addVerticalPlaneXY(0, -BOTTOM_HEIGHT, 0, this.width, BOTTOM_HEIGHT);
-        shapeGen.addVerticalPlaneXZ(this.width, -BOTTOM_HEIGHT, 0, this.depth, BOTTOM_HEIGHT);
+        shapeGen.addVerticalPlaneYZ(this.width, -BOTTOM_HEIGHT, 0, this.depth, BOTTOM_HEIGHT);
 
         this.meshTerrain = shapeGen.generateMesh(event);
     }
@@ -303,6 +309,7 @@ export class Stage {
         const SCALE_Y = [0.33, 0.05];
         const BASE_SCALE = 0.80;
         const COLOR = [new Vector3(1.0, 0.33, 1.0), new Vector3(0.0, 1.0, 0.33)];
+        const REDUCE_BRIGHTNESS = 0.33;
 
         let wallEvent = this.eventHappening && 
             ((type == 0 && this.eventType == SpecialEvent.ToggleWalls) ||
@@ -323,8 +330,23 @@ export class Stage {
         canvas.transform.translate(x + 0.5, y, z + 0.5);
         canvas.transform.scale(BASE_SCALE, scale, BASE_SCALE);
         canvas.transform.use();
+  
+        let colorBrightness = 1.0;
+        for (let i = 0; i < 2; ++ i) {
 
-        let color = COLOR[type];
+            if ((x | 0) == (this.specialShadowPos[i].x | 0) &&
+                ((this.depth-1 - z) | 0) == (this.specialShadowPos[i].y | 0)) {
+                    
+                t = i == 0 ? this.specialShadowValue : 1.0 - this.specialShadowValue;
+                    
+                colorBrightness = 1.0 - t * REDUCE_BRIGHTNESS;
+
+                break;
+            }
+        }
+
+        let color = Vector3.scalarMultiply(COLOR[type], colorBrightness);
+
         canvas.setDrawColor(color.x, color.y, color.z);
         canvas.drawMesh(mesh);
 
@@ -651,4 +673,16 @@ export class Stage {
 
 
     public isEventHappening = () : boolean => this.eventHappening;
+
+
+    public setSpecialShadow(x1 : number, z1 : number, x2 : number, z2 : number, amount : number) {
+
+        this.specialShadowPos[0].x = x1;
+        this.specialShadowPos[0].y = z1;
+
+        this.specialShadowPos[1].x = x2;
+        this.specialShadowPos[1].y = z2;
+
+        this.specialShadowValue = amount;
+    }
 }

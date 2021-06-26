@@ -1,6 +1,5 @@
 import { Canvas } from "./core/canvas.js";
 import { CoreEvent } from "./core/core.js";
-import { clamp } from "./core/mathext.js";
 import { Mesh } from "./core/mesh.js";
 import { Vector2, Vector3 } from "./core/vector.js";
 import { ShapeGenerator } from "./shapegen.js";
@@ -16,6 +15,7 @@ export class Player {
     private pos : Vector3
     private startPos : Vector3;
     private target : Vector3;
+    private targetHeight : number;
     private renderPos : Vector3;
 
     private direction : Vector3;
@@ -29,8 +29,13 @@ export class Player {
 
     private jump : number;
 
-    private meshShadow : Mesh;
-    private targetHeight : number;
+    private meshShadowXZ : Mesh;
+    /*
+    private meshShadowXY : Mesh;
+    private meshShadowYZ : Mesh;
+    private wallShadows : Array<boolean>;
+    */
+    
 
 
     constructor(x : number, y : number, z : number, event : CoreEvent) {
@@ -38,9 +43,17 @@ export class Player {
         this.startPos = new Vector3(x, y, z);
         this.reset();
 
-        this.meshShadow = (new ShapeGenerator())
+        this.meshShadowXZ = (new ShapeGenerator())
             .addHorizontalPlane(-0.5, 0, -0.5, 1, 1)
             .generateMesh(event);
+        /*
+        this.meshShadowXY = (new ShapeGenerator())
+            .addVerticalPlaneXY(-0.5, -0.5, 0, 1, 1)
+            .generateMesh(event);
+        this.meshShadowYZ = (new ShapeGenerator())
+            .addVerticalPlaneYZ(0, -0.5, -0.5, 1, 1)
+            .generateMesh(event);
+        */
 
     }
 
@@ -229,6 +242,11 @@ export class Player {
 
         this.control(stage, event);
         this.move(stage, event);
+
+        stage.setSpecialShadow(
+            this.target.x, this.target.z, this.pos.x, this.pos.z,
+            this.moving ? this.moveTimer / Player.MOVE_TIME : 1.0
+        );
     }
 
 
@@ -250,7 +268,7 @@ export class Player {
                 -this.renderPos.z - 0.5);
             canvas.transform.use();
 
-            canvas.drawMesh(this.meshShadow);
+            canvas.drawMesh(this.meshShadowXZ);
 
             canvas.transform.pop();
             canvas.setDrawColor();
@@ -270,7 +288,7 @@ export class Player {
                 1.0 - t * Math.abs(this.direction.z));
             canvas.transform.use();
 
-            canvas.drawMesh(this.meshShadow);
+            canvas.drawMesh(this.meshShadowXZ);
 
             canvas.transform.pop();
 
@@ -286,7 +304,7 @@ export class Player {
                 1.0 - (1.0-t) * Math.abs(this.direction.z));
             canvas.transform.use();
 
-            canvas.drawMesh(this.meshShadow);
+            canvas.drawMesh(this.meshShadowXZ);
 
             canvas.transform.pop();
         }    
