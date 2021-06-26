@@ -39,10 +39,12 @@ export class Stage {
     private heightMap : Array<number>;
     private objectLayer : Array<number>;
 
+    // TODO: Add "mesh" prefix (or post-fix)
     private terrain : Mesh;
     private starShape : Mesh;
     private starShadow : Mesh;
     private button : Mesh;
+    private button2 : Mesh;
     private cross : Mesh;
     private specialWall : Mesh;
     private arrow : Mesh;
@@ -70,9 +72,13 @@ export class Stage {
         let gen = new ShapeGenerator();
 
         this.starShape = gen.generateStar(0.50, 0.5, 5, event);
+
         this.button = gen.generateCylinderFromPath(
-            t => new Vector2(0.5*Math.cos(t * Math.PI*2), 0.5*Math.sin(t * Math.PI*2)), 
+            t => new Vector2(0.45*Math.cos(t * Math.PI*2), 0.45*Math.sin(t * Math.PI*2)), 
             32, 1.0, event);
+
+        this.button2 = gen.generateCylinderFromRegularPolygon(
+            6, 0.50, 1.0, event);
 
         this.generateStarShadow(event);
 
@@ -86,9 +92,9 @@ export class Stage {
             .generateMesh(event);
 
         this.arrow = gen.addTriangle(
-            new Vector3(-0.40, 0.0, -0.20),
-            new Vector3(0.0, 0.0, 0.20),
-            new Vector3(0.40, 0.0, -0.20), 1.0)
+            new Vector3(-0.35, 0.0, -0.175),
+            new Vector3(0.0, 0.0, 0.175),
+            new Vector3(0.35, 0.0, -0.175), 1.0)
             .generateMesh(event);
 
         this.reset();
@@ -201,18 +207,45 @@ export class Stage {
     }
 
 
-    private toggleButtons() {
+    private modifyTiles() {
 
+        const NEW_ARROW = [18, 17, 20, 19];
+
+        let tid : number;
+        
         for (let i = 0; i < this.objectLayer.length; ++ i) {
 
-            if (this.objectLayer[i] == 257) {
+            tid = this.objectLayer[i];
 
-                this.objectLayer[i] = 11;
-                // return;
+            if (this.eventType == SpecialEvent.ToggleWalls) {
+
+                if (tid == 257) {
+
+                    this.objectLayer[i] = 11;
+                    // return;
+                }
+                else if (tid == 258) {
+
+                    this.objectLayer[i] = 257;
+                }
+
             }
-            else if (this.objectLayer[i] == 258) {
+            else if (this.eventType == SpecialEvent.RotateArrows) {
 
-                this.objectLayer[i] = 257;
+                if (tid == 259) {
+
+                    this.objectLayer[i] = 14;
+                    // return;
+                }
+                else if (tid == 260) {
+
+                    this.objectLayer[i] = 259;
+                }
+                // Arrows
+                else if (tid >= 17 && tid < 21) {
+
+                    this.objectLayer[i] = NEW_ARROW[tid-17];
+                }
             }
         }
     }
@@ -231,9 +264,10 @@ export class Stage {
                 this.eventHappening = false;
                 this.eventTimer = 0;
 
-                if (this.eventType == SpecialEvent.ToggleWalls) {
+                if (this.eventType == SpecialEvent.ToggleWalls ||
+                    this.eventType == SpecialEvent.RotateArrows) {
 
-                    this.toggleButtons();
+                    this.modifyTiles();
                 }
             }
         }
@@ -265,13 +299,15 @@ export class Stage {
     }
 
 
-    private drawButton(canvas : Canvas, x : number, y : number, z : number, pressed = false) {
+    private drawButton(canvas : Canvas, x : number, y : number, z : number, pressed = false, type = 0) {
 
         const SCALE_Y = [0.33, 0.05];
         const BASE_SCALE = 0.80;
+        const COLOR = [new Vector3(1.0, 0.33, 1.0), new Vector3(0.0, 1.0, 0.33)];
 
         let wallEvent = this.eventHappening && 
-            this.eventType == SpecialEvent.ToggleWalls;
+            ((type == 0 && this.eventType == SpecialEvent.ToggleWalls) ||
+             (type == 1 && this.eventType == SpecialEvent.RotateArrows));
 
         let t = pressed ? 1.0 : 0.0;
         
@@ -282,13 +318,16 @@ export class Stage {
 
         let scale = SCALE_Y[0] * (1-t) + SCALE_Y[1] * t;
 
+        let mesh = [this.button, this.button2] [type];
+
         canvas.transform.push();
         canvas.transform.translate(x + 0.5, y, z + 0.5);
         canvas.transform.scale(BASE_SCALE, scale, BASE_SCALE);
         canvas.transform.use();
 
-        canvas.setDrawColor(1.0, 0.33, 1.0);
-        canvas.drawMesh(this.button);
+        let color = COLOR[type];
+        canvas.setDrawColor(color.x, color.y, color.z);
+        canvas.drawMesh(mesh);
 
         canvas.transform.pop();
 
@@ -383,6 +422,13 @@ export class Stage {
         if (this.arrowBlinkTimer >= Stage.ARROW_BLINK_TIME/2)
             t = 1.0 - t;
 
+        let wallEvent = this.eventHappening && 
+            this.eventType == SpecialEvent.RotateArrows;
+        if (wallEvent) {
+
+            angle += Math.PI * (1.0 - this.eventTimer/Stage.EVENT_TIME);
+        }
+
         canvas.transform.push();
 
         canvas.transform.translate(x+0.5, y+0.005, z+0.5);
@@ -395,7 +441,7 @@ export class Stage {
             else
                 color = Vector3.lerp(COLORS[1], COLORS[0], t);
 
-            canvas.transform.translate(0, 0, i == 1 ? 0.50 : -0.225);
+            canvas.transform.translate(0, 0, i == 1 ? 0.45 : -0.20);
             canvas.transform.use();
 
             canvas.setDrawColor(color.x, color.y, color.z);
@@ -430,10 +476,16 @@ export class Stage {
                     this.drawStar(canvas, x, y, dz);
                     break;
 
-                // Button
+                // Button (purple)
                 case 11:
                 case 257:
-                    this.drawButton(canvas, x, y, dz, tid == 257);
+                    this.drawButton(canvas, x, y, dz, tid == 257, 0);
+                    break;
+
+                // Button (green)
+                case 14:
+                case 259:
+                    this.drawButton(canvas, x, y, dz, tid == 259, 1);
                     break;
 
                 // Special wall
@@ -550,7 +602,7 @@ export class Stage {
                 this.objectLayer[index] = 0;
                 return TileEffect.StarObtained;
 
-            // Button
+            // Button (purple)
             case 11:
 
                 this.toggleWalls();
@@ -559,6 +611,16 @@ export class Stage {
                 this.startEvent(SpecialEvent.ToggleWalls);
 
                 return TileEffect.ButtonPressed;
+
+            // Button (green)
+            case 14:
+
+                this.objectLayer[index] = 260;
+
+                this.startEvent(SpecialEvent.RotateArrows);
+
+                return TileEffect.ButtonPressed;
+
 
             default:
                 break;

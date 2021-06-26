@@ -82,9 +82,8 @@ export class ShapeGenerator {
     pushDefaultUVs() {
         this.uvBuffer.push(0, 0, 1, 0, 1, 1);
     }
-    // The f**k are those star things called?
-    generateStar(innerRadius, thickness, starThings, event) {
-        let angleStep = Math.PI * 2 / starThings;
+    generateStar(innerRadius, thickness, points, event) {
+        let angleStep = Math.PI * 2 / points;
         let angle;
         let A;
         let B;
@@ -94,7 +93,7 @@ export class ShapeGenerator {
         let N2;
         innerRadius /= 2.0;
         thickness /= 2.0;
-        for (let i = 0; i < starThings; ++i) {
+        for (let i = 0; i < points; ++i) {
             angle = angleStep / 4 + angleStep * i;
             for (let z = -1; z <= 1; z += 2) {
                 A = new Vector3(Math.cos(angle) * 0.5, Math.sin(angle) * 0.5, 0);
@@ -122,9 +121,7 @@ export class ShapeGenerator {
         let A;
         let B;
         let C;
-        let D;
         let N1;
-        let N2;
         let p;
         // "Cap"
         for (let i = 0; i < steps; ++i) {
@@ -160,6 +157,43 @@ export class ShapeGenerator {
                 this.indexBuffer.push(l, l + 1, k + 1, k + 1, k, l);
             }
             l += 2;
+        }
+        return this.generateMesh(event);
+    }
+    generateCylinderFromRegularPolygon(edges, radius, height, event, baseAngle = 0) {
+        let A;
+        let B;
+        let C;
+        let D;
+        let N1;
+        let N2;
+        let angle = 0;
+        let angleStep = Math.PI * 2 / edges;
+        for (let i = 0; i < edges; ++i) {
+            angle = baseAngle + angleStep * i;
+            // "Cap"
+            A = new Vector3(Math.cos(angle) * radius, height, Math.sin(angle) * radius);
+            B = new Vector3();
+            C = new Vector3(Math.cos(angle + angleStep) * radius, height, Math.sin(angle + angleStep) * radius);
+            N1 = new Vector3(0, 1, 0);
+            this.vertexBuffer.push(A.x, A.y, A.z, B.x, B.y, B.z, C.x, C.y, C.z);
+            this.uvBuffer.push(0, 0, 1, 0, 1, 1);
+            this.normalBuffer.push(N1.x, N1.y, N1.z, N1.x, N1.y, N1.z, N1.x, N1.y, N1.z);
+            // Edges
+            B = C.clone();
+            C = new Vector3(B.x, 0, B.z);
+            D = new Vector3(A.x, 0, A.z);
+            N1 = Vector3.scalarMultiply(Vector3.cross(Vector3.direction(C, A), Vector3.direction(C, B)).normalize(), 1);
+            N2 = Vector3.scalarMultiply(Vector3.cross(Vector3.direction(C, D), Vector3.direction(C, A)).normalize(), 1);
+            this.pushVertices4(A, B, C, D);
+            this.pushNormals(N1);
+            this.pushNormals(N2);
+            for (let i = 0; i < 4; ++i) {
+                this.pushDefaultUVs();
+            }
+        }
+        for (let i = 0; i < this.vertexBuffer.length / 3; ++i) {
+            this.indexBuffer.push(this.indexBuffer.length);
         }
         return this.generateMesh(event);
     }
