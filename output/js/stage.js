@@ -24,18 +24,18 @@ export class Stage {
         this.heightMap = this.baseMap.cloneLayer(0);
         this.createTerrainMesh(event);
         let gen = new ShapeGenerator();
-        this.starShape = gen.generateStar(0.50, 0.5, 5, event);
-        this.button = gen.generateCylinderFromPath(t => new Vector2(0.45 * Math.cos(t * Math.PI * 2), 0.45 * Math.sin(t * Math.PI * 2)), 32, 1.0, event);
-        this.button2 = gen.generateCylinderFromRegularPolygon(6, 0.50, 1.0, event);
+        this.meshStarShape = gen.generateStar(0.50, 0.5, 5, event);
+        this.meshButton = gen.generateCylinderFromPath(t => new Vector2(0.45 * Math.cos(t * Math.PI * 2), 0.45 * Math.sin(t * Math.PI * 2)), 32, 1.0, event);
+        this.meshButton2 = gen.generateCylinderFromRegularPolygon(6, 0.50, 1.0, event);
         this.generateStarShadow(event);
-        this.cross = gen.addHorizontalPlane(-0.5, 0, -0.1, 1.0, 0.2, 1)
+        this.meshCross = gen.addHorizontalPlane(-0.5, 0, -0.1, 1.0, 0.2, 1)
             .addHorizontalPlane(-0.1, 0, -0.5, 0.2, 1.0, 1)
             .generateMesh(event);
-        this.specialWall = gen.addHorizontalPlane(-0.5, 0.0, -0.5, 1, 1, 1)
+        this.meshSpecialWall = gen.addHorizontalPlane(-0.5, 0.0, -0.5, 1, 1, 1)
             .addVerticalPlaneXY(-0.5, -1.0, -0.5, 1.0, 1.0)
             .addVerticalPlaneXZ(0.5, -1.0, -0.5, 1.0, 1.0)
             .generateMesh(event);
-        this.arrow = gen.addTriangle(new Vector3(-0.35, 0.0, -0.175), new Vector3(0.0, 0.0, 0.175), new Vector3(0.35, 0.0, -0.175), 1.0)
+        this.meshArrow = gen.addTriangle(new Vector3(-0.35, 0.0, -0.175), new Vector3(0.0, 0.0, 0.175), new Vector3(0.35, 0.0, -0.175), 1.0)
             .generateMesh(event);
         this.reset();
     }
@@ -64,7 +64,7 @@ export class Stage {
         let z = 0.25 * SCALE;
         gen.addTriangle(new Vector3(x, y, 0), new Vector3(0, y, -z), new Vector3(0, y, z));
         gen.addTriangle(new Vector3(-x, y, 0), new Vector3(0, y, -z), new Vector3(0, y, z), 1);
-        this.starShadow = gen.generateMesh(event);
+        this.meshStarShadow = gen.generateMesh(event);
     }
     createTerrainMesh(event) {
         const BOTTOM_HEIGHT = 0.5;
@@ -97,7 +97,7 @@ export class Stage {
         }
         shapeGen.addVerticalPlaneXY(0, -BOTTOM_HEIGHT, 0, this.width, BOTTOM_HEIGHT);
         shapeGen.addVerticalPlaneXZ(this.width, -BOTTOM_HEIGHT, 0, this.depth, BOTTOM_HEIGHT);
-        this.terrain = shapeGen.generateMesh(event);
+        this.meshTerrain = shapeGen.generateMesh(event);
     }
     modifyTiles() {
         const NEW_ARROW = [18, 17, 20, 19];
@@ -152,9 +152,9 @@ export class Stage {
         canvas.transform.rotate(angle, new Vector3(0, 1, 0));
         canvas.transform.use();
         canvas.setDrawColor(0, 0, 0, 0.33);
-        canvas.drawMesh(this.starShadow);
+        canvas.drawMesh(this.meshStarShadow);
         canvas.setDrawColor(1, 1, 0.33);
-        canvas.drawMesh(this.starShape);
+        canvas.drawMesh(this.meshStarShape);
         canvas.transform.pop();
         canvas.setDrawColor();
     }
@@ -170,7 +170,7 @@ export class Stage {
             t = this.eventTimer / Stage.EVENT_TIME;
         }
         let scale = SCALE_Y[0] * (1 - t) + SCALE_Y[1] * t;
-        let mesh = [this.button, this.button2][type];
+        let mesh = [this.meshButton, this.meshButton2][type];
         canvas.transform.push();
         canvas.transform.translate(x + 0.5, y, z + 0.5);
         canvas.transform.scale(BASE_SCALE, scale, BASE_SCALE);
@@ -216,7 +216,7 @@ export class Stage {
                 res = Vector3.lerp(color4, color3, t);
             canvas.transform.use();
             canvas.setDrawColor(res.x, res.y, res.z);
-            canvas.drawMesh(this.specialWall);
+            canvas.drawMesh(this.meshSpecialWall);
             canvas.transform.pop();
         }
         canvas.transform.translate(0, 0.005, 0);
@@ -228,7 +228,7 @@ export class Stage {
         else
             res = Vector3.lerp(color2, color1, t);
         canvas.setDrawColor(res.x, res.y, res.z);
-        canvas.drawMesh(this.cross);
+        canvas.drawMesh(this.meshCross);
         canvas.transform.pop();
         canvas.setDrawColor();
     }
@@ -256,7 +256,7 @@ export class Stage {
             canvas.transform.translate(0, 0, i == 1 ? 0.45 : -0.20);
             canvas.transform.use();
             canvas.setDrawColor(color.x, color.y, color.z);
-            canvas.drawMesh(this.arrow);
+            canvas.drawMesh(this.meshArrow);
         }
         canvas.transform.pop();
     }
@@ -309,7 +309,7 @@ export class Stage {
         canvas.transform.translate(0, 0, -this.depth);
         canvas.transform.use();
         canvas.setDrawColor();
-        canvas.drawMesh(this.terrain);
+        canvas.drawMesh(this.meshTerrain);
         this.drawStaticObjects(canvas);
         canvas.transform.pop();
     }

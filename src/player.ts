@@ -29,7 +29,7 @@ export class Player {
 
     private jump : number;
 
-    private shadow : Mesh;
+    private meshShadow : Mesh;
     private targetHeight : number;
 
 
@@ -38,7 +38,7 @@ export class Player {
         this.startPos = new Vector3(x, y, z);
         this.reset();
 
-        this.shadow = (new ShapeGenerator())
+        this.meshShadow = (new ShapeGenerator())
             .addHorizontalPlane(-0.5, 0, -0.5, 1, 1)
             .generateMesh(event);
 
@@ -250,7 +250,7 @@ export class Player {
                 -this.renderPos.z - 0.5);
             canvas.transform.use();
 
-            canvas.drawMesh(this.shadow);
+            canvas.drawMesh(this.meshShadow);
 
             canvas.transform.pop();
             canvas.setDrawColor();
@@ -270,7 +270,7 @@ export class Player {
                 1.0 - t * Math.abs(this.direction.z));
             canvas.transform.use();
 
-            canvas.drawMesh(this.shadow);
+            canvas.drawMesh(this.meshShadow);
 
             canvas.transform.pop();
 
@@ -286,7 +286,7 @@ export class Player {
                 1.0 - (1.0-t) * Math.abs(this.direction.z));
             canvas.transform.use();
 
-            canvas.drawMesh(this.shadow);
+            canvas.drawMesh(this.meshShadow);
 
             canvas.transform.pop();
         }    

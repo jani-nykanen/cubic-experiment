@@ -4,7 +4,7 @@ export class Player {
     constructor(x, y, z, event) {
         this.startPos = new Vector3(x, y, z);
         this.reset();
-        this.shadow = (new ShapeGenerator())
+        this.meshShadow = (new ShapeGenerator())
             .addHorizontalPlane(-0.5, 0, -0.5, 1, 1)
             .generateMesh(event);
     }
@@ -136,7 +136,7 @@ export class Player {
             canvas.transform.push();
             canvas.transform.translate(this.renderPos.x + 0.5, this.targetHeight + Y_OFF, -this.renderPos.z - 0.5);
             canvas.transform.use();
-            canvas.drawMesh(this.shadow);
+            canvas.drawMesh(this.meshShadow);
             canvas.transform.pop();
             canvas.setDrawColor();
         }
@@ -146,14 +146,14 @@ export class Player {
             canvas.transform.translate(this.pos.x + 0.5 + this.direction.x * t * 0.5, this.pos.y + Y_OFF, -this.pos.z - 0.5 - this.direction.z * t * 0.5);
             canvas.transform.scale(1.0 - t * Math.abs(this.direction.x), 1, 1.0 - t * Math.abs(this.direction.z));
             canvas.transform.use();
-            canvas.drawMesh(this.shadow);
+            canvas.drawMesh(this.meshShadow);
             canvas.transform.pop();
             // Front
             canvas.transform.push();
             canvas.transform.translate(this.pos.x + 0.5 + this.direction.x * t * 1.0, this.targetHeight + Y_OFF, -this.pos.z - 0.5 - this.direction.z * t * 1.0);
             canvas.transform.scale(1.0 - (1.0 - t) * Math.abs(this.direction.x), 1, 1.0 - (1.0 - t) * Math.abs(this.direction.z));
             canvas.transform.use();
-            canvas.drawMesh(this.shadow);
+            canvas.drawMesh(this.meshShadow);
             canvas.transform.pop();
         }
         canvas.setDrawColor();
