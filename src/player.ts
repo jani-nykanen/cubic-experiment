@@ -3,7 +3,7 @@ import { CoreEvent } from "./core/core.js";
 import { Mesh } from "./core/mesh.js";
 import { Vector2, Vector3 } from "./core/vector.js";
 import { ShapeGenerator } from "./shapegen.js";
-import { Stage } from "./stage.js";
+import { Stage, TileEffect } from "./stage.js";
 
 
 export class Player {
@@ -181,7 +181,32 @@ export class Player {
             this.falling = false;
             this.gravity = 0;
 
-            stage.checkTile(this.pos.x, this.pos.y, this.pos.z);
+            this.checkTile(stage);
+        }
+    }
+
+
+    private teleportTo(point : Vector3) {
+
+        this.pos = point.clone();
+        this.target = this.pos.clone();
+        this.renderPos = this.pos.clone();
+    }
+
+
+    private checkTile(stage : Stage) {
+
+        let res = stage.checkTile(this.pos.x, this.pos.y, this.pos.z);
+
+        switch (res) {
+
+        case TileEffect.Teleportation:
+
+            this.teleportTo(stage.findTeleporter(this.pos.x, this.pos.z));
+            break;
+
+        default:
+            break;
         }
     }
 
@@ -216,7 +241,7 @@ export class Player {
 
             if (!this.falling) {
 
-                stage.checkTile(this.pos.x, this.pos.y, this.pos.z);
+                this.checkTile(stage);
             }
 
             return;
@@ -252,7 +277,7 @@ export class Player {
 
     private drawShadow(canvas : Canvas) {
 
-        const Y_OFF = 0.001;
+        const Y_OFF = 0.00125;
         const ALPHA = 0.33;
 
         let t = this.moveTimer / Player.MOVE_TIME;

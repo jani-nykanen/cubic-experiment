@@ -12,6 +12,7 @@ export enum TileEffect {
     None = 0,
     StarObtained = 1,
     ButtonPressed = 2,
+    Teleportation = 3,
 };
 
 
@@ -47,9 +48,11 @@ export class Stage {
     private meshCross : Mesh;
     private meshSpecialWall : Mesh;
     private meshArrow : Mesh;
+    private meshRing : Mesh;
 
     private starAngle : number;
     private arrowBlinkTimer : number;
+    private ringTimer : number;
 
     private eventHappening : boolean;
     private eventType : SpecialEvent;
@@ -99,6 +102,13 @@ export class Stage {
             new Vector3(0.35, 0.0, -0.175), 1.0)
             .generateMesh(event);
 
+        this.meshRing = gen
+            .addHorizontalPlane(-0.5, 0.0, -0.5, 1.0, 0.1, 1)
+            .addHorizontalPlane(-0.5, 0.0, 0.4, 1.0, 0.1, 1)
+            .addHorizontalPlane(-0.5, 0.0, -0.4, 0.1, 0.8, 1)
+            .addHorizontalPlane(0.4, 0.0, -0.4, 0.1, 0.8, 1)
+            .generateMesh(event);
+
         this.reset();
     }
 
@@ -123,6 +133,7 @@ export class Stage {
 
         this.starAngle = 0;
         this.arrowBlinkTimer = 0;
+        this.ringTimer = 0;
 
         this.eventHappening = false;
         this.eventType = SpecialEvent.None;
@@ -259,6 +270,7 @@ export class Stage {
     public update(event : CoreEvent) {
 
         const STAR_ROTATE_SPEED = 0.05;
+        const RING_SPEED = 1.0/60.0;
 
         this.starAngle = (this.starAngle + STAR_ROTATE_SPEED*event.step) % (Math.PI*2);
 
@@ -278,6 +290,7 @@ export class Stage {
         }
 
         this.arrowBlinkTimer = (this.arrowBlinkTimer + event.step) % (Stage.ARROW_BLINK_TIME);
+        this.ringTimer = (this.ringTimer + RING_SPEED * event.step) % 1.0;
     }
 
 
@@ -452,7 +465,7 @@ export class Stage {
 
         canvas.transform.push();
 
-        canvas.transform.translate(x+0.5, y+0.005, z+0.5);
+        canvas.transform.translate(x+0.5, y+0.001, z+0.5);
         canvas.transform.rotate(angle, new Vector3(0, 1, 0));
 
         for (let i = 0; i < 2; ++ i) {
@@ -467,6 +480,43 @@ export class Stage {
 
             canvas.setDrawColor(color.x, color.y, color.z);
             canvas.drawMesh(this.meshArrow);
+        }
+
+        canvas.transform.pop();
+    }
+
+
+    private drawTeleportationRings(canvas : Canvas, x : number, y : number, z : number,) {
+
+        const RING_COUNT = 4;
+        const BASE_COLOR = new Vector3(0, 0.33, 1.0);
+
+        let offset = 1.0 / (RING_COUNT + 1);
+        let dy = this.ringTimer * offset;
+        let alpha : number;
+
+        canvas.transform.push();
+        canvas.transform.translate(x+0.5, y+0.001 + dy, z+0.5);
+
+        for (let i = 0; i < RING_COUNT; ++ i) {
+
+            alpha = 1.0;
+            if (i == 0) {
+
+                alpha = this.ringTimer;
+            }     
+            else if (i == RING_COUNT-1) {
+
+                alpha = 1.0 - this.ringTimer;
+            }
+            canvas.setDrawColor(BASE_COLOR.x, BASE_COLOR.y, BASE_COLOR.z, alpha);
+
+            if (i > 0)
+                canvas.transform.translate(0, offset, 0);
+
+            canvas.transform.use();
+
+            canvas.drawMesh(this.meshRing);
         }
 
         canvas.transform.pop();
@@ -514,6 +564,12 @@ export class Stage {
                 case 13:
 
                     this.drawSpecialWall(canvas, x, y, dz, tid == 13);
+                    break;
+
+                // Teleportation
+                case 15:
+
+                    this.drawTeleportationRings(canvas, x, y, dz,);
                     break;
 
                 // Arrows
@@ -642,6 +698,10 @@ export class Stage {
 
                 return TileEffect.ButtonPressed;
 
+            
+            // Teleporter
+            case 15:
+                return TileEffect.Teleportation;
 
             default:
                 break;
@@ -684,5 +744,22 @@ export class Stage {
         this.specialShadowPos[1].y = z2;
 
         this.specialShadowValue = amount;
+    }
+
+
+    public findTeleporter(dx : number, dz : number) : Vector3 {
+
+        for (let z = 0; z < this.depth; ++ z) {
+
+            for (let x = 0; x < this.width; ++ x) {
+
+                if ( (x != dx || z != dz) &&
+                    this.objectLayer[z * this.width + x] == 15) {
+
+                    return new Vector3(x, this.getHeight(x, z), z);
+                }
+            }
+        }
+        return new Vector3(dx, this.getHeight(dx, dz), dz);
     }
 }

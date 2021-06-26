@@ -5,6 +5,7 @@ export var TileEffect;
     TileEffect[TileEffect["None"] = 0] = "None";
     TileEffect[TileEffect["StarObtained"] = 1] = "StarObtained";
     TileEffect[TileEffect["ButtonPressed"] = 2] = "ButtonPressed";
+    TileEffect[TileEffect["Teleportation"] = 3] = "Teleportation";
 })(TileEffect || (TileEffect = {}));
 ;
 var SpecialEvent;
@@ -37,6 +38,12 @@ export class Stage {
             .generateMesh(event);
         this.meshArrow = gen.addTriangle(new Vector3(-0.35, 0.0, -0.175), new Vector3(0.0, 0.0, 0.175), new Vector3(0.35, 0.0, -0.175), 1.0)
             .generateMesh(event);
+        this.meshRing = gen
+            .addHorizontalPlane(-0.5, 0.0, -0.5, 1.0, 0.1, 1)
+            .addHorizontalPlane(-0.5, 0.0, 0.4, 1.0, 0.1, 1)
+            .addHorizontalPlane(-0.5, 0.0, -0.4, 0.1, 0.8, 1)
+            .addHorizontalPlane(0.4, 0.0, -0.4, 0.1, 0.8, 1)
+            .generateMesh(event);
         this.reset();
     }
     computeHeightmap() {
@@ -52,6 +59,7 @@ export class Stage {
         this.computeHeightmap();
         this.starAngle = 0;
         this.arrowBlinkTimer = 0;
+        this.ringTimer = 0;
         this.eventHappening = false;
         this.eventType = SpecialEvent.None;
         this.eventTimer = 0;
@@ -132,6 +140,7 @@ export class Stage {
     }
     update(event) {
         const STAR_ROTATE_SPEED = 0.05;
+        const RING_SPEED = 1.0 / 60.0;
         this.starAngle = (this.starAngle + STAR_ROTATE_SPEED * event.step) % (Math.PI * 2);
         if (this.eventHappening) {
             if ((this.eventTimer -= event.step) <= 0) {
@@ -144,6 +153,7 @@ export class Stage {
             }
         }
         this.arrowBlinkTimer = (this.arrowBlinkTimer + event.step) % (Stage.ARROW_BLINK_TIME);
+        this.ringTimer = (this.ringTimer + RING_SPEED * event.step) % 1.0;
     }
     drawStar(canvas, x, y, z) {
         let angle = this.starAngle;
@@ -258,7 +268,7 @@ export class Stage {
             angle += Math.PI * (1.0 - this.eventTimer / Stage.EVENT_TIME);
         }
         canvas.transform.push();
-        canvas.transform.translate(x + 0.5, y + 0.005, z + 0.5);
+        canvas.transform.translate(x + 0.5, y + 0.001, z + 0.5);
         canvas.transform.rotate(angle, new Vector3(0, 1, 0));
         for (let i = 0; i < 2; ++i) {
             if (i == 0)
@@ -269,6 +279,30 @@ export class Stage {
             canvas.transform.use();
             canvas.setDrawColor(color.x, color.y, color.z);
             canvas.drawMesh(this.meshArrow);
+        }
+        canvas.transform.pop();
+    }
+    drawTeleportationRings(canvas, x, y, z) {
+        const RING_COUNT = 4;
+        const BASE_COLOR = new Vector3(0, 0.33, 1.0);
+        let offset = 1.0 / (RING_COUNT + 1);
+        let dy = this.ringTimer * offset;
+        let alpha;
+        canvas.transform.push();
+        canvas.transform.translate(x + 0.5, y + 0.001 + dy, z + 0.5);
+        for (let i = 0; i < RING_COUNT; ++i) {
+            alpha = 1.0;
+            if (i == 0) {
+                alpha = this.ringTimer;
+            }
+            else if (i == RING_COUNT - 1) {
+                alpha = 1.0 - this.ringTimer;
+            }
+            canvas.setDrawColor(BASE_COLOR.x, BASE_COLOR.y, BASE_COLOR.z, alpha);
+            if (i > 0)
+                canvas.transform.translate(0, offset, 0);
+            canvas.transform.use();
+            canvas.drawMesh(this.meshRing);
         }
         canvas.transform.pop();
     }
@@ -302,6 +336,10 @@ export class Stage {
                     case 12:
                     case 13:
                         this.drawSpecialWall(canvas, x, y, dz, tid == 13);
+                        break;
+                    // Teleportation
+                    case 15:
+                        this.drawTeleportationRings(canvas, x, y, dz);
                         break;
                     // Arrows
                     case 17:
@@ -383,6 +421,9 @@ export class Stage {
                     this.objectLayer[index] = 260;
                     this.startEvent(SpecialEvent.RotateArrows);
                     return TileEffect.ButtonPressed;
+                // Teleporter
+                case 15:
+                    return TileEffect.Teleportation;
                 default:
                     break;
             }
@@ -406,6 +447,17 @@ export class Stage {
         this.specialShadowPos[1].x = x2;
         this.specialShadowPos[1].y = z2;
         this.specialShadowValue = amount;
+    }
+    findTeleporter(dx, dz) {
+        for (let z = 0; z < this.depth; ++z) {
+            for (let x = 0; x < this.width; ++x) {
+                if ((x != dx || z != dz) &&
+                    this.objectLayer[z * this.width + x] == 15) {
+                    return new Vector3(x, this.getHeight(x, z), z);
+                }
+            }
+        }
+        return new Vector3(dx, this.getHeight(dx, dz), dz);
     }
 }
 Stage.EVENT_TIME = 30;

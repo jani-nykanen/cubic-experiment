@@ -1,5 +1,6 @@
 import { Vector2, Vector3 } from "./core/vector.js";
 import { ShapeGenerator } from "./shapegen.js";
+import { TileEffect } from "./stage.js";
 export class Player {
     /*
     private meshShadowXY : Mesh;
@@ -100,7 +101,22 @@ export class Player {
             this.renderPos = this.pos.clone();
             this.falling = false;
             this.gravity = 0;
-            stage.checkTile(this.pos.x, this.pos.y, this.pos.z);
+            this.checkTile(stage);
+        }
+    }
+    teleportTo(point) {
+        this.pos = point.clone();
+        this.target = this.pos.clone();
+        this.renderPos = this.pos.clone();
+    }
+    checkTile(stage) {
+        let res = stage.checkTile(this.pos.x, this.pos.y, this.pos.z);
+        switch (res) {
+            case TileEffect.Teleportation:
+                this.teleportTo(stage.findTeleporter(this.pos.x, this.pos.z));
+                break;
+            default:
+                break;
         }
     }
     move(stage, event) {
@@ -122,7 +138,7 @@ export class Player {
             this.automaticMovement = false;
             this.checkFalling(stage);
             if (!this.falling) {
-                stage.checkTile(this.pos.x, this.pos.y, this.pos.z);
+                this.checkTile(stage);
             }
             return;
         }
@@ -142,7 +158,7 @@ export class Player {
         stage.setSpecialShadow(this.target.x, this.target.z, this.pos.x, this.pos.z, this.moving ? this.moveTimer / Player.MOVE_TIME : 1.0);
     }
     drawShadow(canvas) {
-        const Y_OFF = 0.001;
+        const Y_OFF = 0.00125;
         const ALPHA = 0.33;
         let t = this.moveTimer / Player.MOVE_TIME;
         canvas.setDrawColor(0, 0, 0, ALPHA);
