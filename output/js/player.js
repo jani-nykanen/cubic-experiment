@@ -35,6 +35,9 @@ export class Player {
         this.gravity = 0;
         this.jump = 0;
         this.targetHeight = this.pos.y;
+        this.shrinkMode = 0;
+        this.shrinkTimer = 0;
+        this.teleportationTarget = this.pos.clone();
     }
     control(stage, event) {
         const EPS = 0.25;
@@ -105,9 +108,14 @@ export class Player {
         }
     }
     teleportTo(point) {
+        this.teleportationTarget = point.clone();
+        this.shrinkMode = 2;
+        this.shrinkTimer = Player.SHRINK_TIME;
+        /*
         this.pos = point.clone();
         this.target = this.pos.clone();
         this.renderPos = this.pos.clone();
+        */
     }
     checkTile(stage) {
         let res = stage.checkTile(this.pos.x, this.pos.y, this.pos.z);
@@ -150,9 +158,26 @@ export class Player {
             this.jump = 1.0 / Math.SQRT2 * Math.sin(t * Math.PI) * (1.0 - 1.0 / Math.SQRT2);
         }
     }
+    shrink(event) {
+        if ((this.shrinkTimer -= event.step) <= 0) {
+            --this.shrinkMode;
+            if (this.shrinkMode > 0) {
+                this.shrinkTimer += Player.SHRINK_TIME;
+            }
+            if (this.shrinkMode == 1) {
+                this.pos = this.teleportationTarget.clone();
+                this.target = this.pos.clone();
+            }
+        }
+        this.renderPos = this.pos.clone();
+    }
     update(stage, event) {
         if (stage.isEventHappening())
             return;
+        if (this.shrinkMode > 0) {
+            this.shrink(event);
+            return;
+        }
         this.control(stage, event);
         this.move(stage, event);
         stage.setSpecialShadow(this.target.x, this.target.z, this.pos.x, this.pos.z, this.moving ? this.moveTimer / Player.MOVE_TIME : 1.0);
@@ -191,14 +216,22 @@ export class Player {
     draw(canvas) {
         if (this.falling || this.moving)
             this.drawShadow(canvas);
+        let t;
         canvas.transform.push();
         canvas.transform.translate(this.renderPos.x + 0.5, this.renderPos.y + 0.5 + this.jump, -this.renderPos.z - 0.5);
+        if (this.shrinkMode > 0) {
+            t = this.shrinkTimer / Player.SHRINK_TIME;
+            if (this.shrinkMode == 1)
+                t = 1.0 - t;
+            canvas.transform.translate(0, -0.5 * (1 - t), 0);
+            canvas.transform.scale(t, t, t);
+        }
         if (!this.automaticMovement) {
             canvas.transform.rotate(this.angle.x, new Vector3(1, 0, 0));
             canvas.transform.rotate(-this.angle.z, new Vector3(0, 0, 1));
         }
         canvas.transform.use();
-        canvas.setDrawColor(1, 0.5, 0.5);
+        canvas.setDrawColor(1, 0.33, 0.33);
         canvas.drawModel(canvas.getModel("cube"));
         canvas.setDrawColor();
         canvas.transform.pop();
@@ -209,3 +242,4 @@ export class Player {
     }
 }
 Player.MOVE_TIME = 30;
+Player.SHRINK_TIME = 20;

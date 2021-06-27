@@ -39,7 +39,7 @@ export class GameScene {
         canvas.transform.setIsometricCamera(canvas.width / canvas.height, 0.25);
         canvas.transform.use();
         canvas.setDrawColor(1, 1, 1);
-        canvas.setLight(0.75, lightDir);
+        canvas.setLight(0.80, lightDir);
         this.stage.draw(canvas);
         this.objects.draw(canvas);
         // 2D

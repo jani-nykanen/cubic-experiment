@@ -10,6 +10,7 @@ export class Player {
 
 
     static MOVE_TIME = 30;
+    static SHRINK_TIME = 20;
 
 
     private pos : Vector3
@@ -27,6 +28,10 @@ export class Player {
     private falling : boolean;
     private gravity : number;
 
+    private shrinkTimer : number;
+    private shrinkMode : number;
+    private teleportationTarget : Vector3;
+
     private jump : number;
 
     private meshShadowXZ : Mesh;
@@ -36,7 +41,6 @@ export class Player {
     private wallShadows : Array<boolean>;
     */
     
-
 
     constructor(x : number, y : number, z : number, event : CoreEvent) {
 
@@ -77,6 +81,10 @@ export class Player {
         this.jump = 0;
 
         this.targetHeight = this.pos.y;
+
+        this.shrinkMode = 0;
+        this.shrinkTimer = 0;
+        this.teleportationTarget = this.pos.clone();
     }
 
 
@@ -188,9 +196,15 @@ export class Player {
 
     private teleportTo(point : Vector3) {
 
+        this.teleportationTarget = point.clone();
+        this.shrinkMode = 2;
+        this.shrinkTimer = Player.SHRINK_TIME;
+
+        /*
         this.pos = point.clone();
         this.target = this.pos.clone();
         this.renderPos = this.pos.clone();
+        */
     }
 
 
@@ -261,9 +275,36 @@ export class Player {
     }
 
 
+    private shrink(event : CoreEvent) {
+
+        if ((this.shrinkTimer -= event.step) <= 0) {
+
+            -- this.shrinkMode;
+            if (this.shrinkMode > 0) {
+
+                this.shrinkTimer += Player.SHRINK_TIME;
+            }
+
+            if (this.shrinkMode == 1) {
+
+                this.pos = this.teleportationTarget.clone();
+                this.target = this.pos.clone();
+            }
+        }
+
+        this.renderPos = this.pos.clone();
+    }
+
+
     public update(stage : Stage, event : CoreEvent) {
 
         if (stage.isEventHappening()) return;
+
+        if (this.shrinkMode > 0) {
+
+            this.shrink(event);
+            return;
+        }
 
         this.control(stage, event);
         this.move(stage, event);
@@ -343,11 +384,23 @@ export class Player {
         if (this.falling || this.moving)
             this.drawShadow(canvas);
 
+        let t : number;
+
         canvas.transform.push();
         canvas.transform.translate(
             this.renderPos.x + 0.5, 
             this.renderPos.y+0.5 + this.jump, 
             -this.renderPos.z - 0.5);
+        if (this.shrinkMode > 0) {
+
+            t = this.shrinkTimer / Player.SHRINK_TIME;
+            if (this.shrinkMode == 1)
+                t = 1.0 - t;
+
+            canvas.transform.translate(0, -0.5 * (1-t), 0);
+
+            canvas.transform.scale(t, t, t);
+        }
 
         if (!this.automaticMovement) {
 
@@ -357,7 +410,7 @@ export class Player {
 
         canvas.transform.use();
 
-        canvas.setDrawColor(1, 0.5, 0.5);
+        canvas.setDrawColor(1, 0.33, 0.33);
         canvas.drawModel(canvas.getModel("cube"));
         canvas.setDrawColor();
 
