@@ -4,6 +4,7 @@ import { Model } from "./core/model.js";
 import { TransitionEffectType } from "./core/transition.js";
 import { State } from "./core/types.js";
 import { RGBA, Vector3 } from "./core/vector.js";
+import { Menu, MenuButton } from "./menu.js";
 import { ObjectManager } from "./objectmanager.js";
 import { ShapeGenerator } from "./shapegen.js";
 import { Stage } from "./stage.js";
@@ -15,6 +16,8 @@ export class GameScene implements Scene {
     private objects : ObjectManager;
     private stage : Stage;
 
+    private pauseMenu : Menu;
+
 
     constructor(param : any, event : CoreEvent) {
 
@@ -25,6 +28,24 @@ export class GameScene implements Scene {
 
         this.stage = new Stage(1, event);
         this.objects = new ObjectManager(this.stage, event);
+
+        this.pauseMenu = new Menu(
+            [
+                new MenuButton("Resume", event => {
+
+                    this.pauseMenu.deactivate();
+                }),
+
+                new MenuButton("Restart", event => {
+
+                    this.pauseMenu.deactivate();
+                    this.restart(event);
+                }),
+
+                new MenuButton("Settings", event => {}),
+
+                new MenuButton("Quit", event => {})
+            ]);
     }   
 
 
@@ -35,18 +56,36 @@ export class GameScene implements Scene {
     }
 
 
+    private restart(event : CoreEvent) {
+
+        event.transition.activate(true, TransitionEffectType.Fade, 1.0/15.0,
+            () => this.reset(), 
+            new RGBA(0.33, 0.66, 1.0));
+    }
+
+
     public update(event : CoreEvent) {
 
         if (event.transition.isActive()) return;
+
+        if (this.pauseMenu.isActive()) {
+
+            this.pauseMenu.update(event);
+            return;
+        }
+
+        if (event.input.getAction("start") == State.Pressed) {
+
+            this.pauseMenu.activate(0);
+            return;
+        }
 
         this.stage.update(event);
         this.objects.update(this.stage, event);
 
         if (event.input.getAction("reset") == State.Pressed) {
 
-            event.transition.activate(true, TransitionEffectType.Fade, 1.0/15.0,
-                () => this.reset(), 
-                new RGBA(0.33, 0.66, 1.0));
+            this.restart(event);
         }
     }
     
@@ -72,12 +111,18 @@ export class GameScene implements Scene {
         this.stage.draw(canvas);
         this.objects.draw(canvas);
 
+        this.stage.postDraw(canvas);
+
         // 2D
         canvas.changeShader(ShaderType.Textured);
         canvas.toggleDepthTest(false);
         canvas.transform.loadIdentity();
         canvas.transform.fitHeight(720.0, canvas.width/canvas.height);
         canvas.transform.use();
+
+
+
+        this.pauseMenu.draw(canvas, 0.5, true);
     }
 
 

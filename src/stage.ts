@@ -29,6 +29,7 @@ export class Stage {
 
     static EVENT_TIME = 30;
     static ARROW_BLINK_TIME = 60;
+    static STAR_TIME = 30;
 
 
     private baseMap : Tilemap;
@@ -60,6 +61,9 @@ export class Stage {
 
     private specialShadowPos : Array<Vector2>;
     private specialShadowValue : number;
+
+    private disappearingStarTimer : number;
+    private starPos : Vector3;
 
 
     constructor(stageIndex : number, event : CoreEvent) {
@@ -141,6 +145,9 @@ export class Stage {
 
         this.specialShadowValue = 0.0;
         this.specialShadowPos = (new Array<Vector2>(2)).fill(null).map(i => new Vector2(-1, -1));
+
+        this.disappearingStarTimer = 0;
+        this.starPos = new Vector3();
     }
 
 
@@ -291,6 +298,11 @@ export class Stage {
 
         this.arrowBlinkTimer = (this.arrowBlinkTimer + event.step) % (Stage.ARROW_BLINK_TIME);
         this.ringTimer = (this.ringTimer + RING_SPEED * event.step) % 1.0;
+
+        if (this.disappearingStarTimer > 0) {
+
+            this.disappearingStarTimer -= event.step;
+        }
     }
 
 
@@ -589,10 +601,16 @@ export class Stage {
     }
 
 
+    private setCamera(canvas : Canvas) {
+
+        canvas.transform.translate(0, 0, -this.depth);
+    }
+
+
     public draw(canvas : Canvas) {
 
         canvas.transform.push();
-        canvas.transform.translate(0, 0, -this.depth);
+        this.setCamera(canvas);
         canvas.transform.use();
 
         canvas.setDrawColor();
@@ -601,6 +619,34 @@ export class Stage {
         this.drawStaticObjects(canvas);
 
         canvas.transform.pop();
+    }
+
+
+    public postDraw(canvas : Canvas) {
+
+        const SCALE_FACTOR = 3.0;
+
+        if (this.disappearingStarTimer <= 0) return;
+
+        let t = 1.0 - this.disappearingStarTimer / Stage.STAR_TIME;
+        let scale = 1.0 + (SCALE_FACTOR-1.0) * t;
+
+        canvas.clearDepth();
+
+        canvas.transform.push();
+        this.setCamera(canvas);
+
+        canvas.transform.translate(this.starPos.x + 0.5, this.starPos.y + 0.5, this.starPos.z + 0.5);
+        canvas.transform.rotate(-Math.PI/4, new Vector3(0, 1, 0));
+        canvas.transform.scale(scale, scale, scale);
+        canvas.transform.use();
+
+        canvas.setDrawColor(1, 1, 0.33, 1.0 - t);
+        canvas.drawMesh(this.meshStarShape);
+
+        canvas.transform.pop();
+
+        canvas.setDrawColor();
     }
 
 
@@ -676,8 +722,15 @@ export class Stage {
             // Star
             case 10:
 
-                this.objectLayer[index] = 0;
-                return TileEffect.StarObtained;
+                if (consumeStars) {
+
+                    this.disappearingStarTimer = Stage.STAR_TIME;
+                    this.starPos = new Vector3(x, y, this.depth-1 - z);
+
+                    this.objectLayer[index] = 0;
+                    return TileEffect.StarObtained;
+                }
+                break;
 
             // Button (purple)
             case 11:

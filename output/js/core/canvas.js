@@ -143,6 +143,10 @@ export class Canvas {
         gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
         gl.clearColor(r, g, b, 1.0);
     }
+    clearDepth() {
+        let gl = this.glCtx;
+        gl.clear(gl.DEPTH_BUFFER_BIT);
+    }
     bindMesh(mesh) {
         if (this.activeMesh == mesh)
             return;

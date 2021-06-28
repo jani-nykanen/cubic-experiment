@@ -65,6 +65,8 @@ export class Stage {
         this.eventTimer = 0;
         this.specialShadowValue = 0.0;
         this.specialShadowPos = (new Array(2)).fill(null).map(i => new Vector2(-1, -1));
+        this.disappearingStarTimer = 0;
+        this.starPos = new Vector3();
     }
     generateStarShadow(event) {
         const SCALE = 0.90;
@@ -154,6 +156,9 @@ export class Stage {
         }
         this.arrowBlinkTimer = (this.arrowBlinkTimer + event.step) % (Stage.ARROW_BLINK_TIME);
         this.ringTimer = (this.ringTimer + RING_SPEED * event.step) % 1.0;
+        if (this.disappearingStarTimer > 0) {
+            this.disappearingStarTimer -= event.step;
+        }
     }
     drawStar(canvas, x, y, z) {
         let angle = this.starAngle;
@@ -354,14 +359,35 @@ export class Stage {
             }
         }
     }
+    setCamera(canvas) {
+        canvas.transform.translate(0, 0, -this.depth);
+    }
     draw(canvas) {
         canvas.transform.push();
-        canvas.transform.translate(0, 0, -this.depth);
+        this.setCamera(canvas);
         canvas.transform.use();
         canvas.setDrawColor();
         canvas.drawMesh(this.meshTerrain);
         this.drawStaticObjects(canvas);
         canvas.transform.pop();
+    }
+    postDraw(canvas) {
+        const SCALE_FACTOR = 3.0;
+        if (this.disappearingStarTimer <= 0)
+            return;
+        let t = 1.0 - this.disappearingStarTimer / Stage.STAR_TIME;
+        let scale = 1.0 + (SCALE_FACTOR - 1.0) * t;
+        canvas.clearDepth();
+        canvas.transform.push();
+        this.setCamera(canvas);
+        canvas.transform.translate(this.starPos.x + 0.5, this.starPos.y + 0.5, this.starPos.z + 0.5);
+        canvas.transform.rotate(-Math.PI / 4, new Vector3(0, 1, 0));
+        canvas.transform.scale(scale, scale, scale);
+        canvas.transform.use();
+        canvas.setDrawColor(1, 1, 0.33, 1.0 - t);
+        canvas.drawMesh(this.meshStarShape);
+        canvas.transform.pop();
+        canvas.setDrawColor();
     }
     parseObjectLayer(objects, event) {
         let tid;
@@ -408,8 +434,13 @@ export class Stage {
             switch (this.objectLayer[index]) {
                 // Star
                 case 10:
-                    this.objectLayer[index] = 0;
-                    return TileEffect.StarObtained;
+                    if (consumeStars) {
+                        this.disappearingStarTimer = Stage.STAR_TIME;
+                        this.starPos = new Vector3(x, y, this.depth - 1 - z);
+                        this.objectLayer[index] = 0;
+                        return TileEffect.StarObtained;
+                    }
+                    break;
                 // Button (purple)
                 case 11:
                     this.toggleWalls();
@@ -462,3 +493,4 @@ export class Stage {
 }
 Stage.EVENT_TIME = 30;
 Stage.ARROW_BLINK_TIME = 60;
+Stage.STAR_TIME = 30;

@@ -230,6 +230,14 @@ export class Canvas {
     }
 
 
+    public clearDepth() {
+
+        let gl = this.glCtx;
+
+        gl.clear(gl.DEPTH_BUFFER_BIT);
+    }
+
+
     public bindMesh(mesh : Mesh) {
 
         if (this.activeMesh == mesh) return;
