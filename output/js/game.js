@@ -5,6 +5,7 @@ import { State } from "./core/types.js";
 import { RGBA, Vector3 } from "./core/vector.js";
 import { Menu, MenuButton } from "./menu.js";
 import { ObjectManager } from "./objectmanager.js";
+import { Settings } from "./settings.js";
 import { ShapeGenerator } from "./shapegen.js";
 import { Stage } from "./stage.js";
 export class GameScene {
@@ -20,16 +21,19 @@ export class GameScene {
                 this.pauseMenu.deactivate();
             }),
             new MenuButton("Restart", event => {
-                this.pauseMenu.deactivate();
                 this.restart(event);
             }),
-            new MenuButton("Settings", event => { }),
+            new MenuButton("Settings", event => {
+                this.settings.activate();
+            }),
             new MenuButton("Quit", event => { })
         ]);
+        this.settings = new Settings(event);
     }
     reset() {
         this.objects.reset();
         this.stage.reset();
+        this.pauseMenu.deactivate();
     }
     restart(event) {
         event.transition.activate(true, TransitionEffectType.Fade, 1.0 / 15.0, () => this.reset(), new RGBA(0.33, 0.66, 1.0));
@@ -37,6 +41,10 @@ export class GameScene {
     update(event) {
         if (event.transition.isActive())
             return;
+        if (this.settings.isActive()) {
+            this.settings.update(event);
+            return;
+        }
         if (this.pauseMenu.isActive()) {
             this.pauseMenu.update(event);
             return;
@@ -73,6 +81,7 @@ export class GameScene {
         canvas.transform.fitHeight(720.0, canvas.width / canvas.height);
         canvas.transform.use();
         this.pauseMenu.draw(canvas, 0.5, true);
+        this.settings.draw(canvas);
     }
     dispose() {
         return null;

@@ -6,6 +6,7 @@ import { State } from "./core/types.js";
 import { RGBA, Vector3 } from "./core/vector.js";
 import { Menu, MenuButton } from "./menu.js";
 import { ObjectManager } from "./objectmanager.js";
+import { Settings } from "./settings.js";
 import { ShapeGenerator } from "./shapegen.js";
 import { Stage } from "./stage.js";
 
@@ -17,6 +18,7 @@ export class GameScene implements Scene {
     private stage : Stage;
 
     private pauseMenu : Menu;
+    private settings : Settings;
 
 
     constructor(param : any, event : CoreEvent) {
@@ -38,14 +40,18 @@ export class GameScene implements Scene {
 
                 new MenuButton("Restart", event => {
 
-                    this.pauseMenu.deactivate();
                     this.restart(event);
                 }),
 
-                new MenuButton("Settings", event => {}),
+                new MenuButton("Settings", event => {
+
+                    this.settings.activate();
+                }),
 
                 new MenuButton("Quit", event => {})
             ]);
+
+        this.settings = new Settings(event);
     }   
 
 
@@ -53,6 +59,8 @@ export class GameScene implements Scene {
 
         this.objects.reset();
         this.stage.reset();
+
+        this.pauseMenu.deactivate();
     }
 
 
@@ -67,6 +75,12 @@ export class GameScene implements Scene {
     public update(event : CoreEvent) {
 
         if (event.transition.isActive()) return;
+
+        if (this.settings.isActive()) {
+
+            this.settings.update(event);
+            return;
+        }
 
         if (this.pauseMenu.isActive()) {
 
@@ -120,9 +134,8 @@ export class GameScene implements Scene {
         canvas.transform.fitHeight(720.0, canvas.width/canvas.height);
         canvas.transform.use();
 
-
-
         this.pauseMenu.draw(canvas, 0.5, true);
+        this.settings.draw(canvas);
     }
 
 

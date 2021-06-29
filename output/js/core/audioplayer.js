@@ -2,6 +2,8 @@ import { clamp } from "./mathext.js";
 export class AudioPlayer {
     constructor() {
         this.getContext = () => this.ctx;
+        this.getGlobalSampleVolume = () => this.globalSampleVol;
+        this.getGlobalMusicVolume = () => this.globalMusicVol;
         this.ctx = new AudioContext();
         this.musicTrack = null;
         this.globalSampleVol = 1.0;

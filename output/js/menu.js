@@ -1,17 +1,19 @@
 import { ShaderType } from "./core/canvas.js";
 import { negMod } from "./core/mathext.js";
 import { State } from "./core/types.js";
+import { Vector3 } from "./core/vector.js";
 export class MenuButton {
-    constructor(text, callback) {
+    constructor(text, callback, controlWithArrows = false) {
         this.getText = () => this.text;
         this.evaluateCallback = (event) => this.callback(event);
         this.getScale = () => this.scale;
         this.text = text;
         this.callback = callback;
         this.scale = 1.0;
+        this.controlWithArrows = controlWithArrows;
     }
     clone() {
-        return new MenuButton(this.text, this.callback);
+        return new MenuButton(this.text, this.callback, this.controlWithArrows);
     }
     setScale(target, force = false) {
         this.scaleTarget = target;
@@ -26,6 +28,9 @@ export class MenuButton {
         else {
             this.scale = Math.max(this.scaleTarget, this.scale - SCALE_SPEED * event.step);
         }
+    }
+    changeText(newText) {
+        this.text = newText;
     }
 }
 export class Menu {
@@ -63,16 +68,22 @@ export class Menu {
             // TODO: Sound effect
             this.cursorPos = negMod(this.cursorPos, this.buttons.length);
         }
-        if (event.input.getAction("fire1") == State.Pressed ||
+        let activeButton = this.buttons[this.cursorPos];
+        if (activeButton.controlWithArrows) {
+            activeButton.evaluateCallback(event);
+        }
+        else if (event.input.getAction("fire1") == State.Pressed ||
             event.input.getAction("start") == State.Pressed) {
-            this.buttons[this.cursorPos].evaluateCallback(event);
+            activeButton.evaluateCallback(event);
         }
         for (let i = 0; i < this.buttons.length; ++i) {
             this.buttons[i].setScale(i == this.cursorPos ? Menu.BASE_SCALE : 1.0);
             this.buttons[i].update(event);
         }
     }
-    draw(canvas, scale = 1, drawBox = false, boxAlpha = 0.67) {
+    draw(canvas, scale = 1, drawBox = false, backgroundAlpha = 0.67, margin = 0) {
+        const FONT_COLOR_1 = new Vector3(1, 1, 1);
+        const FONT_COLOR_2 = new Vector3(1, 1, 0.33);
         const BASE_OFFSET = 80;
         const BOX_MARGIN_X = 32;
         const BOX_MARGIN_Y = 16;
@@ -83,23 +94,29 @@ export class Menu {
         let y = view.y / 2;
         let w = (this.width * (64 + CHAR_OFFSET)) * scale;
         let h = this.buttons.length * BASE_OFFSET * scale;
+        let color;
         if (drawBox) {
             canvas.changeShader(ShaderType.NoTextures);
-            if (boxAlpha > 0) {
-                canvas.setDrawColor(0, 0, 0, boxAlpha);
+            if (backgroundAlpha > 0) {
+                canvas.setDrawColor(0, 0, 0, backgroundAlpha);
                 canvas.drawRectangle(0, 0, canvas.width, canvas.height);
             }
-            canvas.setDrawColor(0.90, 0.90, 0.90);
-            canvas.drawRectangle(view.x / 2 - w / 2 - BOX_MARGIN_X, y - h / 2 - BOX_MARGIN_Y, w + BOX_MARGIN_X * 2, h + BOX_MARGIN_Y * 2);
+            canvas.setDrawColor(0.0, 0.33, 0.67);
+            canvas.drawRectangle(view.x / 2 - w / 2 - (BOX_MARGIN_X + margin), y - h / 2 - BOX_MARGIN_Y, w + (BOX_MARGIN_X + margin) * 2, h + BOX_MARGIN_Y * 2);
             canvas.changeShader(ShaderType.Textured);
         }
-        canvas.setDrawColor(0, 0, 0);
+        // canvas.setDrawColor(0, 0, 0);
         y -= h / 2;
-        for (let i = 0; i < this.buttons.length; ++i) {
-            canvas.drawText(canvas.getBitmap("font"), this.buttons[i].getText(), view.x / 2, y, CHAR_OFFSET, 0, true, this.buttons[i].getScale() * scale, this.buttons[i].getScale() * scale);
+        for (let b of this.buttons) {
+            color = Vector3.lerp(FONT_COLOR_1, FONT_COLOR_2, (b.getScale() - 1.0) / (Menu.BASE_SCALE - 1.0));
+            canvas.setDrawColor(color.x, color.y, color.z);
+            canvas.drawText(canvas.getBitmap("font"), b.getText(), view.x / 2, y, CHAR_OFFSET, 0, true, b.getScale() * scale, b.getScale() * scale);
             y += BASE_OFFSET * scale;
         }
         canvas.setDrawColor();
     }
+    changeButtonText(index, text) {
+        this.buttons[index].changeText(text);
+    }
 }
-Menu.BASE_SCALE = 1.33;
+Menu.BASE_SCALE = 1.25;

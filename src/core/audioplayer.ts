@@ -104,4 +104,7 @@ export class AudioPlayer {
 
 
     public getContext = () : AudioContext => this.ctx;
+
+    public getGlobalSampleVolume = () : number => this.globalSampleVol;
+    public getGlobalMusicVolume = () : number => this.globalMusicVol;
 }
