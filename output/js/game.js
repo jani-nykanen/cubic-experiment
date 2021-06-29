@@ -14,7 +14,8 @@ export class GameScene {
         let cube = (new ShapeGenerator())
             .generateCube(event);
         event.assets.addModel("cube", new Model([cube]));
-        this.stage = new Stage(1, event);
+        this.stageIndex = 1;
+        this.stage = new Stage(this.stageIndex, event);
         this.objects = new ObjectManager(this.stage, event);
         this.pauseMenu = new Menu([
             new MenuButton("Resume", event => {
@@ -80,6 +81,7 @@ export class GameScene {
         canvas.transform.loadIdentity();
         canvas.transform.fitHeight(720.0, canvas.width / canvas.height);
         canvas.transform.use();
+        canvas.drawText(canvas.getBitmap("font"), "STAGE " + String(this.stageIndex), canvas.transform.getViewport().x / 2, 12, -28, 0, true, 0.5, 0.5);
         this.pauseMenu.draw(canvas, 0.5, true);
         this.settings.draw(canvas);
     }

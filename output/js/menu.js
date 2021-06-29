@@ -101,7 +101,7 @@ export class Menu {
                 canvas.setDrawColor(0, 0, 0, backgroundAlpha);
                 canvas.drawRectangle(0, 0, canvas.width, canvas.height);
             }
-            canvas.setDrawColor(0.0, 0.33, 0.67);
+            canvas.setDrawColor(0.33, 0.67, 1.0);
             canvas.drawRectangle(view.x / 2 - w / 2 - (BOX_MARGIN_X + margin), y - h / 2 - BOX_MARGIN_Y, w + (BOX_MARGIN_X + margin) * 2, h + BOX_MARGIN_Y * 2);
             canvas.changeShader(ShaderType.Textured);
         }

@@ -308,9 +308,13 @@ export class Stage {
 
     private drawStar(canvas : Canvas, x : number, y : number, z : number) {
 
+        const REDUCE_BRIGHTNESS = 0.33;
+
         let angle = this.starAngle;
         if (x % 2 == z % 2)
             angle += Math.PI/2;
+
+        let t = 1.0;
 
         canvas.transform.push();
         canvas.transform.translate(x + 0.5, y + 0.5, z + 0.5);
@@ -320,7 +324,13 @@ export class Stage {
         canvas.setDrawColor(0, 0, 0, 0.33);
         canvas.drawMesh(this.meshStarShadow);
 
-        canvas.setDrawColor(1, 1, 0.33);
+        if ((x | 0) == (this.specialShadowPos[0].x | 0) &&
+            ((this.depth-1 - z) | 0) == (this.specialShadowPos[0].y | 0)) {
+
+            t = 1.0 - this.specialShadowValue * REDUCE_BRIGHTNESS;
+        }
+
+        canvas.setDrawColor(1 * t, 1 * t, 0.33 * t);
         canvas.drawMesh(this.meshStarShape);
 
         canvas.transform.pop();

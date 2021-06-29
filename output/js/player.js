@@ -217,6 +217,7 @@ export class Player {
         if (this.falling || this.moving)
             this.drawShadow(canvas);
         let t;
+        let alpha = 1.0;
         canvas.transform.push();
         canvas.transform.translate(this.renderPos.x + 0.5, this.renderPos.y + 0.5 + this.jump, -this.renderPos.z - 0.5);
         if (this.shrinkMode > 0) {
@@ -225,13 +226,14 @@ export class Player {
                 t = 1.0 - t;
             canvas.transform.translate(0, -0.5 * (1 - t), 0);
             canvas.transform.scale(t, t, t);
+            alpha = t;
         }
         if (!this.automaticMovement) {
             canvas.transform.rotate(this.angle.x, new Vector3(1, 0, 0));
             canvas.transform.rotate(-this.angle.z, new Vector3(0, 0, 1));
         }
         canvas.transform.use();
-        canvas.setDrawColor(1, 0.33, 0.33);
+        canvas.setDrawColor(1, 0.33, 0.33, alpha);
         canvas.drawModel(canvas.getModel("cube"));
         canvas.setDrawColor();
         canvas.transform.pop();

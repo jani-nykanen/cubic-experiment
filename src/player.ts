@@ -386,6 +386,8 @@ export class Player {
 
         let t : number;
 
+        let alpha = 1.0;
+
         canvas.transform.push();
         canvas.transform.translate(
             this.renderPos.x + 0.5, 
@@ -400,6 +402,8 @@ export class Player {
             canvas.transform.translate(0, -0.5 * (1-t), 0);
 
             canvas.transform.scale(t, t, t);
+
+            alpha = t;
         }
 
         if (!this.automaticMovement) {
@@ -410,7 +414,7 @@ export class Player {
 
         canvas.transform.use();
 
-        canvas.setDrawColor(1, 0.33, 0.33);
+        canvas.setDrawColor(1, 0.33, 0.33, alpha);
         canvas.drawModel(canvas.getModel("cube"));
         canvas.setDrawColor();
 
