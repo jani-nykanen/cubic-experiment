@@ -48,6 +48,8 @@ export class Canvas {
 
     private depthTestState : boolean;
 
+    private activeColor : Vector3;
+
     public readonly transform : Transformations;
 
 
@@ -111,6 +113,8 @@ export class Canvas {
         this.depthTestState = true;
 
         this.assets = assets;
+        
+        this.activeColor = new Vector3(1, 1, 1);
     }
 
 
@@ -309,6 +313,8 @@ export class Canvas {
     public setDrawColor(r = 1, g = 1, b = 1, a = 1) {
 
         this.activeShader.setColor(r, g, b, a);
+
+        this.activeColor = new Vector3(r, g, b);
     }
 
 
@@ -387,6 +393,27 @@ export class Canvas {
 
             x += (cw + xoff) * scalex;
         }
+    }
+
+
+    public drawTextWithShadow(font : Bitmap, str : string, 
+        dx : number, dy : number, 
+        xoff = 0.0, yoff = 0.0, center = false, scalex = 1, scaley = 1,
+        shadowOffX = 0, shadowOffY = 0, shadowAlpha = 1.0,
+        wave = 0.0, amplitude = 0.0, period = 0.0) {
+
+        let color = this.activeColor.clone();
+
+        this.setDrawColor(0, 0, 0, shadowAlpha);
+        this.drawText(font, str, dx + shadowOffX, dy + shadowOffY, 
+            xoff, yoff, center, scalex, scaley, 
+            wave, amplitude, period);
+
+        this.setDrawColor(color.x, color.y, color.z, 1.0);
+        this.drawText(font, str, dx , dy, 
+            xoff, yoff, center, scalex, scaley, 
+            wave, amplitude, period);
+
     }
 
 

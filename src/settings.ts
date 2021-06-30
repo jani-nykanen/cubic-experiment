@@ -29,6 +29,8 @@ export class Settings {
 
                         newVol = this.modifySFXVolume(amount*10, event) | 0;
                         this.menu.changeButtonText(0, "SFX Volume: " + String(newVol));
+
+                        event.audio.playSample(event.getSample("select"), 0.70);
                     }
                 }, true),
 
@@ -48,6 +50,8 @@ export class Settings {
 
                         newVol = this.modifyMusicVolume(amount*10, event) | 0;
                         this.menu.changeButtonText(1, "Music Volume: " + String(newVol));
+
+                        event.audio.playSample(event.getSample("select"), 0.70);
                     }
                 }, true),
 
@@ -80,7 +84,7 @@ export class Settings {
 
     public update = (event : CoreEvent) : void => this.menu.update(event);
 
-    public draw = (canvas : Canvas) : void => this.menu.draw(canvas, 0.5, true, 0.33, 16);
+    public draw = (canvas : Canvas) : void => this.menu.draw(canvas, 0.5, true, 0.33, 24);
 
 
     public isActive = () : boolean => this.menu.isActive();

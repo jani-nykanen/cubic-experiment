@@ -94,6 +94,8 @@ export class GameScene implements Scene {
 
         if (event.input.getAction("start") == State.Pressed) {
 
+            event.audio.playSample(event.getSample("pause"), 0.70);
+
             this.pauseMenu.activate(0);
             return;
         }
@@ -103,6 +105,7 @@ export class GameScene implements Scene {
 
         if (event.input.getAction("reset") == State.Pressed) {
 
+            event.audio.playSample(event.getSample("choose"), 0.70);
             this.restart(event);
         }
     }
@@ -138,8 +141,9 @@ export class GameScene implements Scene {
         canvas.transform.fitHeight(720.0, canvas.width/canvas.height);
         canvas.transform.use();
 
-        canvas.drawText(canvas.getBitmap("font"), "STAGE " + String(this.stageIndex),
-            canvas.transform.getViewport().x/2, 12, -28, 0, true, 0.5, 0.5);
+        canvas.drawTextWithShadow(canvas.getBitmap("font"), "STAGE " + String(this.stageIndex),
+            canvas.transform.getViewport().x/2, 12, -28, 0, true, 0.5, 0.5,
+            4, 4, 0.33);
 
         this.pauseMenu.draw(canvas, 0.5, true);
         this.settings.draw(canvas);

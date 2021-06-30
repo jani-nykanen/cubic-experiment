@@ -11,7 +11,8 @@ export class AudioPlayer {
         this.enabled = false;
     }
     playSample(sample, vol = 1.0) {
-        if (!this.enabled)
+        const EPS = 0.001;
+        if (!this.enabled || this.globalSampleVol <= EPS)
             return;
         sample.play(this.ctx, this.globalSampleVol * vol, false, 0);
     }
@@ -19,7 +20,8 @@ export class AudioPlayer {
         this.fadeInMusic(sample, vol, null);
     }
     fadeInMusic(sample, vol = 1.0, fadeTime = 0.0) {
-        if (!this.enabled)
+        const EPS = 0.001;
+        if (!this.enabled || this.globalMusicVol <= EPS)
             return;
         if (this.musicTrack != null) {
             this.musicTrack.stop();

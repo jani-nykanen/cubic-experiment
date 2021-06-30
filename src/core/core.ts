@@ -3,6 +3,7 @@ import { AudioPlayer } from "./audioplayer.js";
 import { Canvas, ShaderType } from "./canvas.js";
 import { InputManager } from "./input.js";
 import { Mesh } from "./mesh.js";
+import { AudioSample } from "./sample.js";
 import { TransitionEffectManager } from "./transition.js";
 
 
@@ -45,6 +46,9 @@ export class CoreEvent {
         normals : Float32Array,
         indices : Uint16Array) : Mesh =>
         this.canvas.constructMesh(vertices, textureCoordinates, normals, indices);
+
+
+    public getSample = (name : string) : AudioSample => this.assets.getSample(name);
 }
 
 

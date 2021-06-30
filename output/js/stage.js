@@ -388,6 +388,7 @@ export class Stage {
         this.setCamera(canvas);
         canvas.transform.translate(this.starPos.x + 0.5, this.starPos.y + 0.5, this.starPos.z + 0.5);
         canvas.transform.rotate(-Math.PI / 4, new Vector3(0, 1, 0));
+        canvas.transform.rotate(Math.PI / 4, new Vector3(1, 0, 0));
         canvas.transform.scale(scale, scale, scale);
         canvas.transform.use();
         canvas.setDrawColor(1, 1, 0.33, 1.0 - t);

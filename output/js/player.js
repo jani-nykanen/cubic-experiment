@@ -104,7 +104,8 @@ export class Player {
             this.renderPos = this.pos.clone();
             this.falling = false;
             this.gravity = 0;
-            this.checkTile(stage);
+            this.checkTile(stage, event);
+            event.audio.playSample(event.getSample("thump"), 1.0);
         }
     }
     teleportTo(point) {
@@ -117,10 +118,17 @@ export class Player {
         this.renderPos = this.pos.clone();
         */
     }
-    checkTile(stage) {
+    checkTile(stage, event) {
         let res = stage.checkTile(this.pos.x, this.pos.y, this.pos.z);
         switch (res) {
+            case TileEffect.StarObtained:
+                event.audio.playSample(event.getSample("star"), 0.90);
+                break;
+            case TileEffect.ButtonPressed:
+                event.audio.playSample(event.getSample("button1"), 0.70);
+                break;
             case TileEffect.Teleportation:
+                event.audio.playSample(event.getSample("teleport1"), 0.60);
                 this.teleportTo(stage.findTeleporter(this.pos.x, this.pos.z));
                 break;
             default:
@@ -136,6 +144,7 @@ export class Player {
             this.moveTimer = 0;
             return;
         }
+        let playKnock = !this.automaticMovement;
         if ((this.moveTimer += event.step) >= Player.MOVE_TIME) {
             this.moveTimer -= Player.MOVE_TIME;
             this.moving = false;
@@ -146,7 +155,9 @@ export class Player {
             this.automaticMovement = false;
             this.checkFalling(stage);
             if (!this.falling) {
-                this.checkTile(stage);
+                this.checkTile(stage, event);
+                if (playKnock)
+                    event.audio.playSample(event.getSample("knock"), 1.0);
             }
             return;
         }
@@ -167,6 +178,7 @@ export class Player {
             if (this.shrinkMode == 1) {
                 this.pos = this.teleportationTarget.clone();
                 this.target = this.pos.clone();
+                // event.audio.playSample(event.getSample("teleport2"), 0.70);
             }
         }
         this.renderPos = this.pos.clone();

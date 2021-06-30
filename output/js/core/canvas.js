@@ -4,6 +4,7 @@ import { Model } from "./model.js";
 import { Shader } from "./shader.js";
 import { FragmentSource, VertexSource } from "./shadersource.js";
 import { Transformations } from "./transformations.js";
+import { Vector3 } from "./vector.js";
 export var Flip;
 (function (Flip) {
     Flip[Flip["None"] = 0] = "None";
@@ -65,6 +66,7 @@ export class Canvas {
         this.activeMesh = null;
         this.depthTestState = true;
         this.assets = assets;
+        this.activeColor = new Vector3(1, 1, 1);
     }
     get width() {
         return this.canvas.width;
@@ -191,6 +193,7 @@ export class Canvas {
     }
     setDrawColor(r = 1, g = 1, b = 1, a = 1) {
         this.activeShader.setColor(r, g, b, a);
+        this.activeColor = new Vector3(r, g, b);
     }
     drawRectangle(x, y, w, h) {
         this.activeShader.setVertexTransform(x, y, 0, w, h, 1);
@@ -229,6 +232,13 @@ export class Canvas {
             this.drawBitmapRegion(font, (chr % 16) * cw, ((chr / 16) | 0) * ch, cw, ch, x, y + yoffset, cw * scalex, ch * scaley);
             x += (cw + xoff) * scalex;
         }
+    }
+    drawTextWithShadow(font, str, dx, dy, xoff = 0.0, yoff = 0.0, center = false, scalex = 1, scaley = 1, shadowOffX = 0, shadowOffY = 0, shadowAlpha = 1.0, wave = 0.0, amplitude = 0.0, period = 0.0) {
+        let color = this.activeColor.clone();
+        this.setDrawColor(0, 0, 0, shadowAlpha);
+        this.drawText(font, str, dx + shadowOffX, dy + shadowOffY, xoff, yoff, center, scalex, scaley, wave, amplitude, period);
+        this.setDrawColor(color.x, color.y, color.z, 1.0);
+        this.drawText(font, str, dx, dy, xoff, yoff, center, scalex, scaley, wave, amplitude, period);
     }
     drawSpriteFrame(spr, bmp, column, row, dx, dy, dw = spr.width, dh = spr.height, flip = Flip.None) {
         if (flip == Flip.Horizontal) {

@@ -5,6 +5,19 @@
         {"name": "font", "path": "font.png"}
     ],
 
+    "samplePath" : "assets/audio/",
+    "samples" : [
+
+        {"name": "button1", "path": "button1.wav"},
+        {"name": "star", "path": "star.wav"},
+        {"name": "choose", "path": "choose.wav"},
+        {"name": "knock", "path": "knock.wav"},
+        {"name": "thump", "path": "thump.wav"},
+        {"name": "pause", "path": "pause.wav"},
+        {"name": "teleport1", "path": "teleport1.wav"},
+        {"name": "select", "path": "select.wav"}
+    ],
+
     "tilemapPath" : "assets/maps/",
     "tilemaps" : [
 

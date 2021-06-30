@@ -139,7 +139,7 @@ export class Menu {
 
         if (oldPos != this.cursorPos) {
 
-            // TODO: Sound effect
+            event.audio.playSample(event.getSample("select"), 0.70);
 
             this.cursorPos = negMod(this.cursorPos, this.buttons.length);
         }
@@ -154,6 +154,7 @@ export class Menu {
             event.input.getAction("start") == State.Pressed) {
 
             activeButton.evaluateCallback(event);
+            event.audio.playSample(event.getSample("choose"), 0.70);
         }
 
         for (let i = 0; i < this.buttons.length; ++ i) {
@@ -173,6 +174,8 @@ export class Menu {
         const BOX_MARGIN_X = 32;
         const BOX_MARGIN_Y = 16;
         const CHAR_OFFSET = -28;
+
+        const SHADOW_OFFSET = 8;
 
         if (!this.active) return;
 
@@ -213,10 +216,10 @@ export class Menu {
 
             canvas.setDrawColor(color.x, color.y, color.z);
 
-            canvas.drawText(canvas.getBitmap("font"), b.getText(),
+            canvas.drawTextWithShadow(canvas.getBitmap("font"), b.getText(),
                 view.x/2, y, CHAR_OFFSET, 0, true, 
                 b.getScale() * scale, 
-                b.getScale() * scale);
+                b.getScale() * scale, SHADOW_OFFSET*scale, SHADOW_OFFSET*scale, 0.33);
 
             y += BASE_OFFSET * scale;
         }

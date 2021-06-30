@@ -1,5 +1,5 @@
+import { AudioIntro } from "./audiointro.js";
 import { Core } from "./core/core.js"
-import { GameScene } from "./game.js";
 
 
 window.onload = () : void => (new Core())
@@ -9,5 +9,11 @@ window.onload = () : void => (new Core())
     .addInputAction("back", "Escape", 8, 6)
     .addInputAction("reset", "KeyR", 3)
     .loadAssets("assets/index.json")
-    .run(GameScene);
+    .run(AudioIntro,
+        event => {
+
+            event.audio.setGlobalMusicVolume(0.0);
+            event.audio.setGlobalSampleVolume(0.0);
+            event.audio.toggle(true);
+        });
 

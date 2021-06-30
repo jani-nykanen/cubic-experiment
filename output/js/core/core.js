@@ -6,6 +6,7 @@ import { TransitionEffectManager } from "./transition.js";
 export class CoreEvent {
     constructor(step, core, input, assets, canvas, transition, audio) {
         this.constructMesh = (vertices, textureCoordinates, normals, indices) => this.canvas.constructMesh(vertices, textureCoordinates, normals, indices);
+        this.getSample = (name) => this.assets.getSample(name);
         this.core = core;
         this.step = step;
         this.input = input;
