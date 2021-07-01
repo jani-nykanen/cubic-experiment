@@ -21,7 +21,8 @@
     "tilemapPath" : "assets/maps/",
     "tilemaps" : [
 
-        {"name": "1", "path": "1.tmx"}
+        {"name": "1", "path": "1.tmx"},
+        {"name": "2", "path": "2.tmx"}
     ]
 
 }

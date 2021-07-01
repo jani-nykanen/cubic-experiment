@@ -14,6 +14,10 @@ import { Stage } from "./stage.js";
 export class GameScene implements Scene {
 
 
+    static STAGE_CLEAR_ANIMATION_TIME = 90;
+    static STAGE_EXTRA_WAIT_TIME = 15;
+
+
     private objects : ObjectManager;
     private stage : Stage;
 
@@ -21,6 +25,12 @@ export class GameScene implements Scene {
 
     private pauseMenu : Menu;
     private settings : Settings;
+
+    private stageClear : boolean;
+    private stageClearTimer : number;
+    private fadeScale : number;
+
+    private restarting : boolean;
 
 
     constructor(param : any, event : CoreEvent) {
@@ -56,6 +66,14 @@ export class GameScene implements Scene {
             ]);
 
         this.settings = new Settings(event);
+
+        this.stageClear = false;
+        this.stageClearTimer = 0;
+        this.fadeScale = 2.0;
+        this.restarting = false;
+
+        event.transition.activate(false, TransitionEffectType.Fade,
+            1.0/30.0, null, new RGBA(0.33, 0.67, 1.0));
     }   
 
 
@@ -65,10 +83,33 @@ export class GameScene implements Scene {
         this.stage.reset();
 
         this.pauseMenu.deactivate();
+
+        this.stageClear = false;
+        this.stageClearTimer = 0;
+        this.fadeScale = 1.0;
+
+        this.restarting = true;
+    }
+
+
+    private nextStage(event : CoreEvent) {
+
+        ++ this.stageIndex;
+
+        this.stage.nextStage(event);
+        this.stage.parseObjectLayer(this.objects, event);
+
+        this.pauseMenu.deactivate();
+
+        this.stageClear = false;
+        this.stageClearTimer = 0;
+        this.fadeScale = 2.0;
     }
 
 
     private restart(event : CoreEvent) {
+
+        this.restarting = true;
 
         event.transition.activate(true, TransitionEffectType.Fade, 1.0/15.0,
             () => this.reset(), 
@@ -78,7 +119,53 @@ export class GameScene implements Scene {
 
     public update(event : CoreEvent) {
 
-        if (event.transition.isActive()) return;
+        const FADE_OUT_SCALE_SPEED = 1.0 / 30.0;
+        const FADE_IN_SCALE_SPEED = 0.5 / 30.0;
+
+        if (event.transition.isActive()) {
+
+            if (!this.restarting) {
+
+                if (this.stageClear) {
+
+                    this.fadeScale -= FADE_IN_SCALE_SPEED * event.step;
+                }
+                else {
+
+                    this.fadeScale -= FADE_OUT_SCALE_SPEED * event.step;
+                }
+            }
+
+            return;
+        }
+
+        if (this.stageClear) {
+
+            this.stage.update(event);
+
+            if ((this.stageClearTimer += event.step) >= 
+                GameScene.STAGE_CLEAR_ANIMATION_TIME + 
+                GameScene.STAGE_EXTRA_WAIT_TIME) {
+
+                event.transition.activate(true, TransitionEffectType.Fade,
+                    1.0/30.0, event => {
+                        this.nextStage(event);
+                    }, new RGBA(0.33, 0.67, 1.0));
+            }
+
+            return;
+        }
+
+        if (this.stage.getStarCount() <= 0) {
+
+            this.fadeScale = 1.0;
+            this.stageClearTimer = 0;
+            this.stageClear = true;
+            return;
+        }
+
+        this.fadeScale = 1.0;
+        this.restarting = false;
 
         if (this.settings.isActive()) {
 
@@ -109,6 +196,46 @@ export class GameScene implements Scene {
             this.restart(event);
         }
     }
+
+
+    private drawStageClear(canvas : Canvas) {
+
+        const TEXT = "STAGE CLEAR";
+        const CHAR_OFFSET = -28;
+        const APPEAR_SCALE = 3.0;
+
+        let view = canvas.transform.getViewport();
+
+        canvas.changeShader(ShaderType.NoTextures);
+        canvas.setDrawColor(0, 0, 0, 0.33);
+        canvas.drawRectangle(0, 0, view.x, view.y);
+
+        canvas.changeShader(ShaderType.Textured);
+
+        let charIndex = ((this.stageClearTimer / GameScene.STAGE_CLEAR_ANIMATION_TIME) * TEXT.length) | 0;
+        let d = GameScene.STAGE_CLEAR_ANIMATION_TIME / TEXT.length;
+        let alpha = (this.stageClearTimer % d) / d;
+
+        let x = view.x/2 - (TEXT.length * (64 + CHAR_OFFSET))/2;
+        let scale = 1.0;
+
+        if (charIndex >= 5)
+            ++ charIndex;
+
+        canvas.setDrawColor(1, 1, 0.67);
+        canvas.drawTextWithShadow(canvas.getBitmap("font"), TEXT.substr(0, charIndex),
+            x, view.y/2-32, CHAR_OFFSET, 0, false, 1, 1, 4, 4, 0.33);
+
+        if (charIndex < TEXT.length) {
+
+            scale = 1.0 + (APPEAR_SCALE-1.0) * (1.0 - alpha);
+
+            canvas.setDrawColor(1, 1, 0.67, alpha);
+            canvas.drawTextWithShadow(canvas.getBitmap("font"), TEXT.substr(charIndex, 1),
+                x + (64 + CHAR_OFFSET) * (charIndex) - (64 + CHAR_OFFSET)/2 * (scale-1), 
+                view.y/2-32*scale, CHAR_OFFSET, 0, false, scale, scale, 4, 4, 0.33);
+        }
+    }
     
 
     public redraw(canvas : Canvas) {
@@ -123,7 +250,8 @@ export class GameScene implements Scene {
         canvas.changeShader(ShaderType.NoTexturesLight);
         
         canvas.transform.loadIdentity();
-        canvas.transform.setIsometricCamera(canvas.width/canvas.height, 0.25);
+        canvas.transform.setIsometricCamera(canvas.width/canvas.height, 
+            this.stage.getCameraScale() * this.fadeScale);
         canvas.transform.use();
 
         canvas.setDrawColor(1, 1, 1);
@@ -147,6 +275,11 @@ export class GameScene implements Scene {
 
         this.pauseMenu.draw(canvas, 0.5, true);
         this.settings.draw(canvas);
+
+        if (this.stageClear) {
+
+            this.drawStageClear(canvas);
+        }
     }
 
 

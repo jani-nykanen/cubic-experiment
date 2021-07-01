@@ -22,7 +22,10 @@ export class Player {
             .generateMesh(event);
         */
     }
-    reset() {
+    reset(newStartPos = null) {
+        if (newStartPos != null) {
+            this.startPos = newStartPos.clone();
+        }
         this.pos = this.startPos.clone();
         this.target = this.pos.clone();
         this.renderPos = this.pos.clone();

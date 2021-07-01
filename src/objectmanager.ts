@@ -1,5 +1,6 @@
 import { Canvas } from "./core/canvas.js";
 import { Core, CoreEvent } from "./core/core.js";
+import { Vector3 } from "./core/vector.js";
 import { Player } from "./player.js";
 import { Stage } from "./stage.js";
 
@@ -31,7 +32,14 @@ export class ObjectManager {
 
     public createPlayer(x : number, y : number, z : number, event : CoreEvent) {
 
-        this.player = new Player(x, y, z, event);
+        if (this.player == null) {
+
+            this.player = new Player(x, y, z, event);
+        }
+        else {
+
+            this.player.reset(new Vector3(x, y, z));
+        }
     }
 
 
@@ -39,4 +47,5 @@ export class ObjectManager {
 
         this.player.reset();
     }
+
 }

@@ -18,12 +18,10 @@ var SpecialEvent;
 export class Stage {
     constructor(stageIndex, event) {
         this.isEventHappening = () => this.eventHappening;
-        this.baseMap = event.assets.getTilemap(String(stageIndex));
-        this.width = this.baseMap.width;
-        this.depth = this.baseMap.height;
-        this.height = this.baseMap.max(0);
-        this.heightMap = this.baseMap.cloneLayer(0);
-        this.createTerrainMesh(event);
+        this.getStarCount = () => this.totalStars;
+        this.getCameraScale = () => this.cameraScale;
+        this.index = stageIndex - 1;
+        this.nextStage(event);
         let gen = new ShapeGenerator();
         this.meshStarShape = gen.generateStar(0.50, 0.5, 5, event);
         this.meshButton = gen.generateCylinderFromPath(t => new Vector2(0.45 * Math.cos(t * Math.PI * 2), 0.45 * Math.sin(t * Math.PI * 2)), 32, 1.0, event);
@@ -44,7 +42,28 @@ export class Stage {
             .addHorizontalPlane(-0.5, 0.0, -0.4, 0.1, 0.8, 1)
             .addHorizontalPlane(0.4, 0.0, -0.4, 0.1, 0.8, 1)
             .generateMesh(event);
+    }
+    nextStage(event) {
+        if (this.meshTerrain != null) {
+            event.disposeMesh(this.meshTerrain);
+            this.meshTerrain = null;
+        }
+        ++this.index;
+        this.baseMap = event.assets.getTilemap(String(this.index));
+        this.width = this.baseMap.width;
+        this.depth = this.baseMap.height;
+        this.height = this.baseMap.max(0);
+        this.cameraScale = 0.25; // TODO: Compute this from the stage
+        this.heightMap = this.baseMap.cloneLayer(0);
+        this.createTerrainMesh(event);
         this.reset();
+    }
+    computeInitialStarCount() {
+        this.totalStars = 0;
+        for (let i of this.objectLayer) {
+            if (i == 10)
+                ++this.totalStars;
+        }
     }
     computeHeightmap() {
         this.heightMap = this.baseMap.cloneLayer(0);
@@ -67,6 +86,7 @@ export class Stage {
         this.specialShadowPos = (new Array(2)).fill(null).map(i => new Vector2(-1, -1));
         this.disappearingStarTimer = 0;
         this.starPos = new Vector3();
+        this.computeInitialStarCount();
     }
     generateStarShadow(event) {
         const SCALE = 0.90;
@@ -442,6 +462,7 @@ export class Stage {
                 // Star
                 case 10:
                     if (consumeStars) {
+                        --this.totalStars;
                         this.disappearingStarTimer = Stage.STAR_TIME;
                         this.starPos = new Vector3(x, y, this.depth - 1 - z);
                         this.objectLayer[index] = 0;

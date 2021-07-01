@@ -26,4 +26,10 @@ export class Mesh {
     draw(gl) {
         gl.drawElements(gl.TRIANGLES, this.elementCount, gl.UNSIGNED_SHORT, 0);
     }
+    dispose(gl) {
+        gl.deleteBuffer(this.vertexBuffer);
+        gl.deleteBuffer(this.uvBuffer);
+        gl.deleteBuffer(this.normalBuffer);
+        gl.deleteBuffer(this.indexBuffer);
+    }
 }

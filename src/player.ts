@@ -62,7 +62,12 @@ export class Player {
     }
 
 
-    public reset() {
+    public reset(newStartPos = <Vector3>null) {
+
+        if (newStartPos != null) {
+
+            this.startPos = newStartPos.clone();
+        }
 
         this.pos = this.startPos.clone();
         this.target = this.pos.clone();

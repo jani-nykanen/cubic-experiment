@@ -47,6 +47,7 @@ export class CoreEvent {
         indices : Uint16Array) : Mesh =>
         this.canvas.constructMesh(vertices, textureCoordinates, normals, indices);
 
+    public disposeMesh = (mesh : Mesh) : void => this.canvas.destroyMesh(mesh);
 
     public getSample = (name : string) : AudioSample => this.assets.getSample(name);
 }
@@ -58,6 +59,7 @@ export interface Scene {
     redraw(canvas : Canvas) : void;
 
     // TODO: Replace any with... something 
+    // Maybe generics? (Generic interface...?)
     dispose() : any;
 }
 

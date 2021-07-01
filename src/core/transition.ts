@@ -21,7 +21,7 @@ export class TransitionEffectManager {
     private speed : number;
     private wait : boolean;
     
-    private callback : ((state : CoreEvent) => void);
+    private callback : ((event : CoreEvent) => void);
 
 
     constructor() {
@@ -39,7 +39,7 @@ export class TransitionEffectManager {
 
 
     public activate(fadeIn : boolean, type : TransitionEffectType, speed : number, 
-        callback : (state : CoreEvent) => any, color = new RGBA()) : TransitionEffectManager {
+        callback : (event : CoreEvent) => any, color = new RGBA()) : TransitionEffectManager {
 
         this.fadeIn = fadeIn;
         this.speed = speed;
@@ -55,9 +55,9 @@ export class TransitionEffectManager {
     }
 
 
-    public toggleWaiting(state : boolean) {
+    public toggleWaiting(event : boolean) {
 
-        this.wait = state;
+        this.wait = event;
     }
 
 

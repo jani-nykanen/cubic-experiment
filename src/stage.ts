@@ -31,12 +31,13 @@ export class Stage {
     static ARROW_BLINK_TIME = 60;
     static STAR_TIME = 30;
 
-
     private baseMap : Tilemap;
+    private index : number;
 
     private width : number;
     private height : number;
     private depth : number;
+    private cameraScale : number;
 
     private heightMap : Array<number>;
     private objectLayer : Array<number>;
@@ -65,18 +66,14 @@ export class Stage {
     private disappearingStarTimer : number;
     private starPos : Vector3;
 
+    private totalStars : number;
+
 
     constructor(stageIndex : number, event : CoreEvent) {
 
-        this.baseMap = event.assets.getTilemap(String(stageIndex));
+        this.index = stageIndex-1;
 
-        this.width = this.baseMap.width;
-        this.depth = this.baseMap.height;
-        this.height = this.baseMap.max(0);
-
-        this.heightMap = this.baseMap.cloneLayer(0);
-
-        this.createTerrainMesh(event);
+        this.nextStage(event);
 
         let gen = new ShapeGenerator();
 
@@ -112,8 +109,41 @@ export class Stage {
             .addHorizontalPlane(-0.5, 0.0, -0.4, 0.1, 0.8, 1)
             .addHorizontalPlane(0.4, 0.0, -0.4, 0.1, 0.8, 1)
             .generateMesh(event);
+    }
+
+
+    public nextStage(event : CoreEvent) {
+
+        if (this.meshTerrain != null) {
+
+            event.disposeMesh(this.meshTerrain);
+            this.meshTerrain = null;
+        }
+
+        ++ this.index;
+
+        this.baseMap = event.assets.getTilemap(String(this.index));
+
+        this.width = this.baseMap.width;
+        this.depth = this.baseMap.height;
+        this.height = this.baseMap.max(0);
+        this.cameraScale = 0.25; // TODO: Compute this from the stage
+
+        this.heightMap = this.baseMap.cloneLayer(0);
+
+        this.createTerrainMesh(event);
 
         this.reset();
+    }
+
+
+    private computeInitialStarCount() {
+
+        this.totalStars = 0;
+        for (let i of this.objectLayer) {
+
+            if (i == 10) ++ this.totalStars;
+        }
     }
 
 
@@ -148,6 +178,8 @@ export class Stage {
 
         this.disappearingStarTimer = 0;
         this.starPos = new Vector3();
+
+        this.computeInitialStarCount();
     }
 
 
@@ -735,6 +767,8 @@ export class Stage {
 
                 if (consumeStars) {
 
+                    -- this.totalStars;
+
                     this.disappearingStarTimer = Stage.STAR_TIME;
                     this.starPos = new Vector3(x, y, this.depth-1 - z);
 
@@ -826,4 +860,8 @@ export class Stage {
         }
         return new Vector3(dx, this.getHeight(dx, dz), dz);
     }
+
+
+    public getStarCount = () : number => this.totalStars;
+    public getCameraScale = () : number => this.cameraScale;
 }

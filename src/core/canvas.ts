@@ -48,7 +48,7 @@ export class Canvas {
 
     private depthTestState : boolean;
 
-    private activeColor : Vector3;
+    private activeColor : RGBA;
 
     public readonly transform : Transformations;
 
@@ -114,7 +114,7 @@ export class Canvas {
 
         this.assets = assets;
         
-        this.activeColor = new Vector3(1, 1, 1);
+        this.activeColor = new RGBA(1, 1, 1, 1);
     }
 
 
@@ -314,7 +314,7 @@ export class Canvas {
 
         this.activeShader.setColor(r, g, b, a);
 
-        this.activeColor = new Vector3(r, g, b);
+        this.activeColor = new RGBA(r, g, b, a);
     }
 
 
@@ -404,12 +404,12 @@ export class Canvas {
 
         let color = this.activeColor.clone();
 
-        this.setDrawColor(0, 0, 0, shadowAlpha);
+        this.setDrawColor(0, 0, 0, shadowAlpha * color.a);
         this.drawText(font, str, dx + shadowOffX, dy + shadowOffY, 
             xoff, yoff, center, scalex, scaley, 
             wave, amplitude, period);
 
-        this.setDrawColor(color.x, color.y, color.z, 1.0);
+        this.setDrawColor(color.r, color.g, color.b, color.a);
         this.drawText(font, str, dx , dy, 
             xoff, yoff, center, scalex, scaley, 
             wave, amplitude, period);
@@ -520,10 +520,8 @@ export class Canvas {
     public setLight = (mag : number, dir : Vector3) : void => this.activeShader.setLight(mag, dir);
 
 
-    public drawToTexture(texture : Bitmap, callback : (canvas : Canvas) => any) {
+    public destroyMesh(mesh : Mesh) {
 
-        if (texture == null) {
-            
-        }
+        mesh.dispose(this.glCtx);
     }
 }

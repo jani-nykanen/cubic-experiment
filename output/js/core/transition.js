@@ -28,8 +28,8 @@ export class TransitionEffectManager {
         this.wait = false;
         return this;
     }
-    toggleWaiting(state) {
-        this.wait = state;
+    toggleWaiting(event) {
+        this.wait = event;
     }
     update(ev) {
         if (!this.active || this.wait)

@@ -64,4 +64,13 @@ export class Mesh {
             this.elementCount, 
             gl.UNSIGNED_SHORT, 0);
     }
+
+
+    public dispose(gl : WebGLRenderingContext) {
+        
+        gl.deleteBuffer(this.vertexBuffer);
+        gl.deleteBuffer(this.uvBuffer);
+        gl.deleteBuffer(this.normalBuffer);
+        gl.deleteBuffer(this.indexBuffer);
+    }
 }
