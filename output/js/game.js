@@ -8,6 +8,10 @@ import { ObjectManager } from "./objectmanager.js";
 import { Settings } from "./settings.js";
 import { ShapeGenerator } from "./shapegen.js";
 import { Stage } from "./stage.js";
+const HINTS = [
+    "Use arrow keys to move.",
+    "Press R to reset the stage."
+];
 export class GameScene {
     constructor(param, event) {
         // TODO: Create models in "ModelGen"?
@@ -136,6 +140,21 @@ export class GameScene {
             canvas.drawTextWithShadow(canvas.getBitmap("font"), TEXT.substr(charIndex, 1), x + (64 + CHAR_OFFSET) * (charIndex) - (64 + CHAR_OFFSET) / 2 * (scale - 1), view.y / 2 - 32 * scale, CHAR_OFFSET, 0, false, scale, scale, 4, 4, 0.33);
         }
     }
+    drawHint(canvas) {
+        const CHAR_OFFSET = -28;
+        const SCALE = 0.33;
+        let view = canvas.transform.getViewport();
+        let len = HINTS[this.stageIndex - 1].length;
+        let w = (len * (64 + CHAR_OFFSET)) * SCALE + 16;
+        let h = 64;
+        canvas.changeShader(ShaderType.NoTextures);
+        canvas.setDrawColor(0, 0, 0, 0.33);
+        canvas.drawRectangle(0, view.y - h, w, h);
+        canvas.changeShader(ShaderType.Textured);
+        canvas.setDrawColor();
+        canvas.drawTextWithShadow(canvas.getBitmap("font"), "HINT:", 8, view.y - 56, CHAR_OFFSET, 0, false, SCALE, SCALE, 2, 2, 0.33);
+        canvas.drawTextWithShadow(canvas.getBitmap("font"), HINTS[this.stageIndex - 1], 8, view.y - 32, CHAR_OFFSET, 0, false, SCALE, SCALE, 2, 2, 0.33);
+    }
     redraw(canvas) {
         let lightDir = Vector3.normalize(new Vector3(-0.5, -1.5, 1));
         canvas.toggleDepthTest(true);
@@ -158,6 +177,9 @@ export class GameScene {
         canvas.transform.fitHeight(720.0, canvas.width / canvas.height);
         canvas.transform.use();
         canvas.drawTextWithShadow(canvas.getBitmap("font"), "STAGE " + String(this.stageIndex), canvas.transform.getViewport().x / 2, 12, -28, 0, true, 0.5, 0.5, 4, 4, 0.33);
+        if (this.stageIndex <= HINTS.length) {
+            this.drawHint(canvas);
+        }
         this.pauseMenu.draw(canvas, 0.5, true);
         this.settings.draw(canvas);
         if (this.stageClear) {

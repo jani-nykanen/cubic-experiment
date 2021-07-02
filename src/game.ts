@@ -11,6 +11,13 @@ import { ShapeGenerator } from "./shapegen.js";
 import { Stage } from "./stage.js";
 
 
+const HINTS = [
+
+    "Use arrow keys to move.",
+    "Press R to reset the stage."
+];
+
+
 export class GameScene implements Scene {
 
 
@@ -239,6 +246,30 @@ export class GameScene implements Scene {
                 view.y/2-32*scale, CHAR_OFFSET, 0, false, scale, scale, 4, 4, 0.33);
         }
     }
+
+
+    private drawHint(canvas : Canvas) {
+
+        const CHAR_OFFSET = -28;
+        const SCALE = 0.33;
+
+        let view = canvas.transform.getViewport();
+
+        let len = HINTS[this.stageIndex-1].length;
+        let w = (len * (64 + CHAR_OFFSET)) * SCALE + 16;
+        let h = 64;
+
+        canvas.changeShader(ShaderType.NoTextures);
+        canvas.setDrawColor(0, 0, 0, 0.33);
+        canvas.drawRectangle(0, view.y-h, w, h);
+
+        canvas.changeShader(ShaderType.Textured);
+        canvas.setDrawColor();
+        canvas.drawTextWithShadow(canvas.getBitmap("font"), "HINT:",
+            8, view.y - 56, CHAR_OFFSET, 0, false, SCALE, SCALE, 2, 2, 0.33);
+        canvas.drawTextWithShadow(canvas.getBitmap("font"), HINTS[this.stageIndex-1],
+            8, view.y - 32, CHAR_OFFSET, 0, false, SCALE, SCALE, 2, 2, 0.33);
+    }
     
 
     public redraw(canvas : Canvas) {
@@ -275,6 +306,11 @@ export class GameScene implements Scene {
         canvas.drawTextWithShadow(canvas.getBitmap("font"), "STAGE " + String(this.stageIndex),
             canvas.transform.getViewport().x/2, 12, -28, 0, true, 0.5, 0.5,
             4, 4, 0.33);
+
+        if (this.stageIndex <= HINTS.length) {
+
+            this.drawHint(canvas);
+        }
 
         this.pauseMenu.draw(canvas, 0.5, true);
         this.settings.draw(canvas);
