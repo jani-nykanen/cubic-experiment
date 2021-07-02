@@ -37,7 +37,7 @@ export class AudioIntro {
         canvas.clear(0.33, 0.67, 1.0);
         canvas.resetVertexAndFragmentTransforms();
         canvas.transform.loadIdentity();
-        canvas.transform.fitHeight(720.0, canvas.width / canvas.height);
+        canvas.transform.fitGivenDimension(720.0, canvas.width / canvas.height);
         canvas.transform.use();
         let x = canvas.transform.getViewport().x / 2 -
             (this.width * (64 + OFFSET) * SCALE) / 2;

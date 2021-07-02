@@ -141,6 +141,19 @@ export class Transformations {
     }
 
 
+    public fitGivenDimension(dimension : number, aspectRatio : number) {
+
+        if (aspectRatio >= 1) {
+
+            this.fitHeight(dimension, aspectRatio);
+        }
+        else {
+
+            this.setView2D(dimension, dimension / aspectRatio);
+        }
+    }
+
+
     public setCamera(center : Vector3, target : Vector3, up = new Vector3(0, 1, 0)) {
 
         this.view = Matrix4.lookAt(center, target, up);

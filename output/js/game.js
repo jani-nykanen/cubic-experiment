@@ -174,7 +174,7 @@ export class GameScene {
         canvas.changeShader(ShaderType.Textured);
         canvas.toggleDepthTest(false);
         canvas.transform.loadIdentity();
-        canvas.transform.fitHeight(720.0, canvas.width / canvas.height);
+        canvas.transform.fitGivenDimension(720.0, canvas.width / canvas.height);
         canvas.transform.use();
         canvas.drawTextWithShadow(canvas.getBitmap("font"), "STAGE " + String(this.stageIndex), canvas.transform.getViewport().x / 2, 12, -28, 0, true, 0.5, 0.5, 4, 4, 0.33);
         if (this.stageIndex <= HINTS.length) {

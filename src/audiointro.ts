@@ -73,7 +73,7 @@ export class AudioIntro implements Scene {
         canvas.resetVertexAndFragmentTransforms();
 
         canvas.transform.loadIdentity();
-        canvas.transform.fitHeight(720.0, canvas.width/canvas.height);
+        canvas.transform.fitGivenDimension(720.0, canvas.width/canvas.height);
         canvas.transform.use();
 
         let x = canvas.transform.getViewport().x/2 -

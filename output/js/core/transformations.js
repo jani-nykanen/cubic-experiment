@@ -69,6 +69,14 @@ export class Transformations {
         let width = height * aspectRatio;
         this.setView2D(width, height);
     }
+    fitGivenDimension(dimension, aspectRatio) {
+        if (aspectRatio >= 1) {
+            this.fitHeight(dimension, aspectRatio);
+        }
+        else {
+            this.setView2D(dimension, dimension / aspectRatio);
+        }
+    }
     setCamera(center, target, up = new Vector3(0, 1, 0)) {
         this.view = Matrix4.lookAt(center, target, up);
         this.productComputed = false;
