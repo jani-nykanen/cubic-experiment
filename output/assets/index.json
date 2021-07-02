@@ -15,7 +15,9 @@
         {"name": "thump", "path": "thump.wav"},
         {"name": "pause", "path": "pause.wav"},
         {"name": "teleport1", "path": "teleport1.wav"},
-        {"name": "select", "path": "select.wav"}
+        {"name": "select", "path": "select.wav"},
+
+        {"name": "victory", "path": "victory.ogg"}
     ],
 
     "tilemapPath" : "assets/maps/",

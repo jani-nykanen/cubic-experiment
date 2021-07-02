@@ -13,8 +13,8 @@ export class AudioIntro {
         this.dispose = () => null;
         this.yesNoMenu = new Menu([
             new MenuButton("Yes", event => {
-                event.audio.setGlobalMusicVolume(AudioIntro.INITIAL_VOLUME);
-                event.audio.setGlobalSampleVolume(AudioIntro.INITIAL_VOLUME);
+                event.audio.setGlobalMusicVolume(AudioIntro.INITIAL_MUSIC_VOLUME);
+                event.audio.setGlobalSampleVolume(AudioIntro.INITIAL_SAMPLE_VOLUME);
                 event.changeScene(GameScene);
             }),
             new MenuButton("No", event => {
@@ -47,4 +47,5 @@ export class AudioIntro {
         this.yesNoMenu.draw(canvas, 0.5, false, 0.0);
     }
 }
-AudioIntro.INITIAL_VOLUME = 0.70;
+AudioIntro.INITIAL_SAMPLE_VOLUME = 0.60;
+AudioIntro.INITIAL_MUSIC_VOLUME = 0.70;

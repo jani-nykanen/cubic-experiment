@@ -53,7 +53,7 @@ export class Stage {
         this.width = this.baseMap.width;
         this.depth = this.baseMap.height;
         this.height = this.baseMap.max(0);
-        this.cameraScale = 0.25; // TODO: Compute this from the stage
+        this.cameraScale = Number(this.baseMap.getProperty("scale"));
         this.heightMap = this.baseMap.cloneLayer(0);
         this.createTerrainMesh(event);
         this.reset();

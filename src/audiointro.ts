@@ -17,7 +17,8 @@ Press Enter to confirm.
 export class AudioIntro implements Scene {
 
 
-    static INITIAL_VOLUME = 0.70;
+    static INITIAL_SAMPLE_VOLUME = 0.60;
+    static INITIAL_MUSIC_VOLUME = 0.70;
 
 
     private yesNoMenu : Menu;
@@ -31,8 +32,8 @@ export class AudioIntro implements Scene {
                 new MenuButton("Yes",
                     event => {
 
-                        event.audio.setGlobalMusicVolume(AudioIntro.INITIAL_VOLUME);
-                        event.audio.setGlobalSampleVolume(AudioIntro.INITIAL_VOLUME);
+                        event.audio.setGlobalMusicVolume(AudioIntro.INITIAL_MUSIC_VOLUME);
+                        event.audio.setGlobalSampleVolume(AudioIntro.INITIAL_SAMPLE_VOLUME);
 
                         event.changeScene(GameScene);
                     }),

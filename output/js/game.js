@@ -87,6 +87,7 @@ export class GameScene {
             this.fadeScale = 1.0;
             this.stageClearTimer = 0;
             this.stageClear = true;
+            event.audio.playSample(event.getSample("victory"), 0.80);
             return;
         }
         this.fadeScale = 1.0;
