@@ -18,7 +18,7 @@ export class GameScene {
         let cube = (new ShapeGenerator())
             .generateCube(event);
         event.assets.addModel("cube", new Model([cube]));
-        this.stageIndex = 1;
+        this.stageIndex = this.findLastStage(event);
         this.stage = new Stage(this.stageIndex, event);
         this.objects = new ObjectManager(this.stage, event);
         this.pauseMenu = new Menu([
@@ -39,6 +39,13 @@ export class GameScene {
         this.fadeScale = 2.0;
         this.restarting = false;
         event.transition.activate(false, TransitionEffectType.Fade, 1.0 / 30.0, null, new RGBA(0.33, 0.67, 1.0));
+    }
+    findLastStage(event) {
+        let num = 1;
+        while (event.assets.getTilemap(String(num)) != null) {
+            ++num;
+        }
+        return num - 1;
     }
     reset() {
         this.objects.reset();

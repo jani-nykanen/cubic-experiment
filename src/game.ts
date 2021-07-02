@@ -47,7 +47,7 @@ export class GameScene implements Scene {
             .generateCube(event);
         event.assets.addModel("cube", new Model([cube]));
 
-        this.stageIndex = 1;
+        this.stageIndex = this.findLastStage(event);
 
         this.stage = new Stage(this.stageIndex, event);
         this.objects = new ObjectManager(this.stage, event);
@@ -82,6 +82,18 @@ export class GameScene implements Scene {
         event.transition.activate(false, TransitionEffectType.Fade,
             1.0/30.0, null, new RGBA(0.33, 0.67, 1.0));
     }   
+
+
+    private findLastStage(event : CoreEvent) : number {
+
+        let num = 1;
+
+        while (event.assets.getTilemap(String(num)) != null) {
+
+            ++ num;
+        }
+        return num-1;
+    }
 
 
     private reset() {

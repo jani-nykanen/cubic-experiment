@@ -6,16 +6,16 @@
  <tileset firstgid="1" source="../../../dev/editor_tiles.tsx"/>
  <layer id="1" name="base" width="3" height="3">
   <data encoding="csv">
-2,2,1,
 2,1,1,
-2,1,0
+1,1,0,
+1,1,0
 </data>
  </layer>
  <layer id="2" name="objects" width="3" height="3" opacity="0.67">
   <data encoding="csv">
-9,0,10,
-0,0,0,
-10,0,10
+9,13,10,
+10,0,0,
+11,0,10
 </data>
  </layer>
 </map>
