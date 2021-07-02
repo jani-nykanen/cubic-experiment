@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.5" tiledversion="1.7.0" orientation="orthogonal" renderorder="right-down" width="3" height="3" tilewidth="16" tileheight="16" infinite="0" nextlayerid="3" nextobjectid="1">
+ <properties>
+  <property name="scale" value="0.40"/>
+ </properties>
+ <tileset firstgid="1" source="../../../dev/editor_tiles.tsx"/>
+ <layer id="1" name="base" width="3" height="3">
+  <data encoding="csv">
+2,2,2,
+1,1,1,
+2,1,0
+</data>
+ </layer>
+ <layer id="2" name="objects" width="3" height="3" opacity="0.67">
+  <data encoding="csv">
+15,11,10,
+12,9,0,
+10,0,15
+</data>
+ </layer>
+</map>
