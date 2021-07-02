@@ -32,7 +32,9 @@
         {"name": "7", "path": "7.tmx"},
         {"name": "8", "path": "8.tmx"},
         {"name": "9", "path": "9.tmx"},
-        {"name": "10", "path": "10.tmx"}
+        {"name": "10", "path": "10.tmx"},
+        {"name": "11", "path": "11.tmx"},
+        {"name": "12", "path": "12.tmx"}
     ]
 
 }
