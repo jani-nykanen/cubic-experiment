@@ -112,7 +112,7 @@ export class Tilemap {
     public max = (layer : number) : number => Math.max(...this.layers[clamp(layer, 0, this.layers.length)]);
 
 
-    public getProperty(name : string) : string {
+    public getProperty(name : string, def = "") : string {
 
         for (let p of this.properties) {
 
@@ -120,6 +120,6 @@ export class Tilemap {
                 return p.value;
         }
 
-        return "";
+        return def;
     }
 }

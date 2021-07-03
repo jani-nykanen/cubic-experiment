@@ -58,6 +58,7 @@ export class Stage {
         this.depth = this.baseMap.height;
         this.height = this.baseMap.max(0);
         this.cameraScale = Number(this.baseMap.getProperty("scale"));
+        this.cameraMoveY = Number(this.baseMap.getProperty("cameray", "0.0"));
         this.heightMap = this.baseMap.cloneLayer(0);
         this.createTerrainMesh(event);
         this.reset();
@@ -425,7 +426,7 @@ export class Stage {
         }
     }
     setCamera(canvas) {
-        canvas.transform.translate(0, 0, -this.depth);
+        canvas.transform.translate(0, this.cameraMoveY, -this.depth);
     }
     draw(canvas) {
         canvas.transform.push();

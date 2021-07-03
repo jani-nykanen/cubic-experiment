@@ -67,11 +67,11 @@ export class Tilemap {
             .fill(null)
             .map((a, i) => this.cloneLayer(i));
     }
-    getProperty(name) {
+    getProperty(name, def = "") {
         for (let p of this.properties) {
             if (p.key == name)
                 return p.value;
         }
-        return "";
+        return def;
     }
 }
