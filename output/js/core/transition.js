@@ -8,6 +8,7 @@ export var TransitionEffectType;
 export class TransitionEffectManager {
     constructor() {
         this.isActive = () => this.active;
+        this.getSpeed = () => this.speed;
         this.timer = 0;
         this.fadeIn = false;
         this.effectType = TransitionEffectType.None;

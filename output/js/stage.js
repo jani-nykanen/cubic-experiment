@@ -23,6 +23,7 @@ export class Stage {
         this.getStarCount = () => this.totalStars;
         this.getCameraScale = () => this.cameraScale;
         this.getScaledEventTime = () => 1.0 - this.eventTimer / Stage.EVENT_TIME;
+        this.isFinalStage = () => this.isFinal;
         this.index = stageIndex - 1;
         this.nextStage(event);
         let gen = new ShapeGenerator();
@@ -60,6 +61,7 @@ export class Stage {
         this.depth = this.baseMap.height;
         this.height = this.baseMap.max(0);
         this.cameraScale = Number(this.baseMap.getProperty("scale"));
+        this.isFinal = Boolean(this.baseMap.getProperty("isfinal", "false"));
         this.heightMap = this.baseMap.cloneLayer(0);
         this.createTerrainMesh(event);
         this.reset();

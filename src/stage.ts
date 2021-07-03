@@ -76,6 +76,8 @@ export class Stage {
 
     private totalStars : number;
 
+    private isFinal : boolean;
+
 
     constructor(stageIndex : number, event : CoreEvent) {
 
@@ -141,6 +143,7 @@ export class Stage {
         this.depth = this.baseMap.height;
         this.height = this.baseMap.max(0);
         this.cameraScale = Number(this.baseMap.getProperty("scale"));
+        this.isFinal = Boolean(this.baseMap.getProperty("isfinal", "false"));
 
         this.heightMap = this.baseMap.cloneLayer(0);
 
@@ -991,4 +994,5 @@ export class Stage {
     public getStarCount = () : number => this.totalStars;
     public getCameraScale = () : number => this.cameraScale;
     public getScaledEventTime = () : number => 1.0 - this.eventTimer/Stage.EVENT_TIME;
+    public isFinalStage = () : boolean => this.isFinal;
 }

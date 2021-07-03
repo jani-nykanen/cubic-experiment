@@ -116,4 +116,5 @@ export class TransitionEffectManager {
 
 
     public isActive = () : boolean => this.active;
+    public getSpeed = () : number => this.speed;
 }

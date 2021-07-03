@@ -72,13 +72,18 @@ export class GameScene {
     update(event) {
         const FADE_OUT_SCALE_SPEED = 1.0 / 30.0;
         const FADE_IN_SCALE_SPEED = 0.5 / 30.0;
+        let speed;
         if (event.transition.isActive()) {
             if (!this.restarting) {
+                speed = 1.0;
+                if (this.stageClear &&
+                    this.stage.isFinalStage())
+                    speed = 1.0 / 4.0;
                 if (this.stageClear) {
-                    this.fadeScale -= FADE_IN_SCALE_SPEED * event.step;
+                    this.fadeScale -= FADE_IN_SCALE_SPEED * speed * event.step;
                 }
                 else {
-                    this.fadeScale -= FADE_OUT_SCALE_SPEED * event.step;
+                    this.fadeScale -= FADE_OUT_SCALE_SPEED * speed * event.step;
                 }
             }
             return;
@@ -88,7 +93,8 @@ export class GameScene {
             if ((this.stageClearTimer += event.step) >=
                 GameScene.STAGE_CLEAR_ANIMATION_TIME +
                     GameScene.STAGE_EXTRA_WAIT_TIME) {
-                event.transition.activate(true, TransitionEffectType.Fade, 1.0 / 30.0, event => {
+                speed = this.stage.isFinalStage() ? 1.0 / 120.0 : 1.0 / 30.0;
+                event.transition.activate(true, TransitionEffectType.Fade, speed, event => {
                     this.nextStage(event);
                 }, new RGBA(0.33, 0.67, 1.0));
             }
@@ -98,7 +104,12 @@ export class GameScene {
             this.fadeScale = 1.0;
             this.stageClearTimer = 0;
             this.stageClear = true;
-            event.audio.playSample(event.getSample("victory"), 0.80);
+            if (!this.stage.isFinalStage()) {
+                event.audio.playSample(event.getSample("victory"), 0.80);
+            }
+            else {
+                this.stageClearTimer = GameScene.STAGE_CLEAR_ANIMATION_TIME / 2;
+            }
             return;
         }
         this.fadeScale = 1.0;
@@ -183,13 +194,16 @@ export class GameScene {
         canvas.transform.loadIdentity();
         canvas.transform.fitGivenDimension(720.0, canvas.width / canvas.height);
         canvas.transform.use();
-        canvas.drawTextWithShadow(canvas.getBitmap("font"), "STAGE " + String(this.stageIndex), canvas.transform.getViewport().x / 2, 12, -28, 0, true, 0.5, 0.5, 4, 4, 0.33);
+        if (!this.stage.isFinalStage()) {
+            canvas.drawTextWithShadow(canvas.getBitmap("font"), "STAGE " + String(this.stageIndex), canvas.transform.getViewport().x / 2, 12, -28, 0, true, 0.5, 0.5, 4, 4, 0.33);
+        }
         if (this.stageIndex <= HINTS.length) {
             this.drawHint(canvas);
         }
         this.pauseMenu.draw(canvas, 0.5, true);
         this.settings.draw(canvas);
-        if (this.stageClear) {
+        if (!this.stage.isFinalStage() &&
+            this.stageClear) {
             this.drawStageClear(canvas);
         }
     }
