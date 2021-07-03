@@ -89,6 +89,6 @@ export class AudioIntro implements Scene {
     }
 
 
-    public dispose = () : any => null;
+    public dispose = (event : CoreEvent) : any => null;
 
 }

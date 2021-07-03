@@ -7,6 +7,7 @@ export var TileEffect;
     TileEffect[TileEffect["ButtonPressed"] = 2] = "ButtonPressed";
     TileEffect[TileEffect["Teleportation"] = 3] = "Teleportation";
     TileEffect[TileEffect["IncreasingWall"] = 4] = "IncreasingWall";
+    TileEffect[TileEffect["GemObtained"] = 5] = "GemObtained";
 })(TileEffect || (TileEffect = {}));
 ;
 var SpecialEvent;
@@ -61,7 +62,8 @@ export class Stage {
         this.depth = this.baseMap.height;
         this.height = this.baseMap.max(0);
         this.cameraScale = Number(this.baseMap.getProperty("scale"));
-        this.isFinal = Boolean(this.baseMap.getProperty("isfinal", "false"));
+        // Stupid js, cannot typecast to Boolean
+        this.isFinal = this.baseMap.getProperty("isfinal", "false") == "true";
         this.heightMap = this.baseMap.cloneLayer(0);
         this.createTerrainMesh(event);
         this.reset();
@@ -549,7 +551,7 @@ export class Stage {
                         this.isGemDisappearing = tid == 21;
                         this.starPos = new Vector3(x, y, this.depth - 1 - z);
                         this.objectLayer[index] = 0;
-                        return TileEffect.StarObtained;
+                        return tid == 21 ? TileEffect.GemObtained : TileEffect.StarObtained;
                     }
                     break;
                 // Button (purple)
@@ -605,6 +607,20 @@ export class Stage {
             }
         }
         return new Vector3(dx, this.getHeight(dx, dz), dz);
+    }
+    dispose(event) {
+        event.disposeMesh(this.meshTerrain);
+        event.disposeMesh(this.meshStarShape);
+        event.disposeMesh(this.meshStarShadow);
+        event.disposeMesh(this.meshButton);
+        event.disposeMesh(this.meshButton2);
+        event.disposeMesh(this.meshCross);
+        event.disposeMesh(this.meshSpecialWall);
+        event.disposeMesh(this.meshArrow);
+        event.disposeMesh(this.meshRing);
+        event.disposeMesh(this.meshCircle);
+        event.disposeMesh(this.meshGem);
+        event.disposeMesh(this.meshGemShadow);
     }
 }
 Stage.EVENT_TIME = 30;

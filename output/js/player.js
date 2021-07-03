@@ -10,7 +10,8 @@ export class Player {
     constructor(x, y, z, event) {
         this.startPos = new Vector3(x, y, z);
         this.reset();
-        this.meshShadowXZ = (new ShapeGenerator())
+        let gen = new ShapeGenerator();
+        this.meshShadowXZ = gen
             .addHorizontalPlane(-0.5, 0, -0.5, 1, 1)
             .generateMesh(event);
         /*
@@ -21,6 +22,8 @@ export class Player {
             .addVerticalPlaneYZ(0, -0.5, -0.5, 1, 1)
             .generateMesh(event);
         */
+        this.meshCube = gen
+            .generateCube(event);
     }
     reset(newStartPos = null) {
         if (newStartPos != null) {
@@ -127,6 +130,9 @@ export class Player {
         switch (res) {
             case TileEffect.StarObtained:
                 event.audio.playSample(event.getSample("star"), 0.90);
+                break;
+            case TileEffect.GemObtained:
+                event.audio.playSample(event.getSample("gem"), 0.80);
                 break;
             case TileEffect.ButtonPressed:
                 event.audio.playSample(event.getSample("button1"), 0.70);
@@ -267,13 +273,17 @@ export class Player {
         }
         canvas.transform.use();
         canvas.setDrawColor(1, 0.33, 0.33, alpha);
-        canvas.drawModel(canvas.getModel("cube"));
+        canvas.drawMesh(this.meshCube);
         canvas.setDrawColor();
         canvas.transform.pop();
     }
     drawDebug(canvas) {
         let font = canvas.getBitmap("font");
         canvas.drawText(font, "X: " + String(this.pos.x | 0) + "\nZ: " + String(this.pos.z | 0), 8, 8, -32, 0, false, 0.5, 0.5);
+    }
+    dispose(event) {
+        event.disposeMesh(this.meshCube);
+        event.disposeMesh(this.meshShadowXZ);
     }
 }
 Player.MOVE_TIME = 30;

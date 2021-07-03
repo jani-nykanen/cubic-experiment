@@ -1,24 +1,20 @@
 import { ShaderType } from "./core/canvas.js";
-import { Model } from "./core/model.js";
 import { TransitionEffectType } from "./core/transition.js";
 import { State } from "./core/types.js";
 import { RGBA, Vector3 } from "./core/vector.js";
+import { Ending } from "./ending.js";
 import { Menu, MenuButton } from "./menu.js";
 import { ObjectManager } from "./objectmanager.js";
 import { Settings } from "./settings.js";
-import { ShapeGenerator } from "./shapegen.js";
 import { Stage } from "./stage.js";
+import { TitleScreen } from "./titlescreen.js";
 const HINTS = [
     "Use arrow keys to move.",
     "Press R to reset the stage."
 ];
 export class GameScene {
     constructor(param, event) {
-        // TODO: Create models in "ModelGen"?
-        let cube = (new ShapeGenerator())
-            .generateCube(event);
-        event.assets.addModel("cube", new Model([cube]));
-        this.stageIndex = this.findLastStage(event);
+        this.stageIndex = 1; // this.findLastStage(event);
         this.stage = new Stage(this.stageIndex, event);
         this.objects = new ObjectManager(this.stage, event);
         this.pauseMenu = new Menu([
@@ -31,7 +27,12 @@ export class GameScene {
             new MenuButton("Settings", event => {
                 this.settings.activate();
             }),
-            new MenuButton("Quit", event => { })
+            new MenuButton("Quit", event => {
+                this.restarting = true;
+                event.transition.activate(true, TransitionEffectType.Fade, 1.0 / 30.0, event => {
+                    event.changeScene(TitleScreen);
+                }, new RGBA(0.33, 0.66, 1.0));
+            })
         ]);
         this.settings = new Settings(event);
         this.stageClear = false;
@@ -40,13 +41,18 @@ export class GameScene {
         this.restarting = false;
         event.transition.activate(false, TransitionEffectType.Fade, 1.0 / 30.0, null, new RGBA(0.33, 0.67, 1.0));
     }
-    findLastStage(event) {
-        let num = 1;
-        while (event.assets.getTilemap(String(num)) != null) {
-            ++num;
+    /*
+        private findLastStage(event : CoreEvent) : number {
+    
+            let num = 1;
+    
+            while (event.assets.getTilemap(String(num)) != null) {
+    
+                ++ num;
+            }
+            return num-1;
         }
-        return num - 1;
-    }
+    */
     reset() {
         this.objects.reset();
         this.stage.reset();
@@ -57,6 +63,10 @@ export class GameScene {
         this.restarting = true;
     }
     nextStage(event) {
+        if (this.stage.isFinalStage()) {
+            event.changeScene(Ending);
+            return;
+        }
         ++this.stageIndex;
         this.stage.nextStage(event);
         this.stage.parseObjectLayer(this.objects, event);
@@ -108,7 +118,9 @@ export class GameScene {
                 event.audio.playSample(event.getSample("victory"), 0.80);
             }
             else {
-                this.stageClearTimer = GameScene.STAGE_CLEAR_ANIMATION_TIME / 2;
+                this.stageClearTimer =
+                    (GameScene.STAGE_CLEAR_ANIMATION_TIME + GameScene.STAGE_EXTRA_WAIT_TIME)
+                        - Stage.STAR_TIME;
             }
             return;
         }
@@ -207,7 +219,9 @@ export class GameScene {
             this.drawStageClear(canvas);
         }
     }
-    dispose() {
+    dispose(event) {
+        this.stage.dispose(event);
+        this.objects.dispose(event);
         return null;
     }
 }

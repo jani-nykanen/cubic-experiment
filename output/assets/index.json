@@ -17,6 +17,7 @@
         {"name": "teleport1", "path": "teleport1.wav"},
         {"name": "select", "path": "select.wav"},
         {"name": "increase", "path": "increase.wav"},
+        {"name": "gem", "path": "gem.wav"},
 
         {"name": "victory", "path": "victory.ogg"}
     ],

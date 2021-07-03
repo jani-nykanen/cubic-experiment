@@ -14,6 +14,7 @@ export enum TileEffect {
     ButtonPressed = 2,
     Teleportation = 3,
     IncreasingWall = 4,
+    GemObtained = 5,
 };
 
 
@@ -143,7 +144,8 @@ export class Stage {
         this.depth = this.baseMap.height;
         this.height = this.baseMap.max(0);
         this.cameraScale = Number(this.baseMap.getProperty("scale"));
-        this.isFinal = Boolean(this.baseMap.getProperty("isfinal", "false"));
+        // Stupid js, cannot typecast to Boolean
+        this.isFinal = this.baseMap.getProperty("isfinal", "false") == "true";
 
         this.heightMap = this.baseMap.cloneLayer(0);
 
@@ -894,7 +896,7 @@ export class Stage {
                     this.starPos = new Vector3(x, y, this.depth-1 - z);
 
                     this.objectLayer[index] = 0;
-                    return TileEffect.StarObtained;
+                    return tid == 21 ? TileEffect.GemObtained : TileEffect.StarObtained;
                 }
                 break;
 
@@ -995,4 +997,21 @@ export class Stage {
     public getCameraScale = () : number => this.cameraScale;
     public getScaledEventTime = () : number => 1.0 - this.eventTimer/Stage.EVENT_TIME;
     public isFinalStage = () : boolean => this.isFinal;
+
+
+    public dispose(event : CoreEvent) {
+
+        event.disposeMesh(this.meshTerrain);
+        event.disposeMesh(this.meshStarShape);
+        event.disposeMesh(this.meshStarShadow);
+        event.disposeMesh(this.meshButton);
+        event.disposeMesh(this.meshButton2);
+        event.disposeMesh(this.meshCross);
+        event.disposeMesh(this.meshSpecialWall);
+        event.disposeMesh(this.meshArrow);
+        event.disposeMesh(this.meshRing);
+        event.disposeMesh(this.meshCircle);
+        event.disposeMesh(this.meshGem);
+        event.disposeMesh(this.meshGemShadow);
+    }
 }

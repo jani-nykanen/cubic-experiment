@@ -10,7 +10,7 @@ Press Enter to confirm.
 `;
 export class AudioIntro {
     constructor(param, event) {
-        this.dispose = () => null;
+        this.dispose = (event) => null;
         this.yesNoMenu = new Menu([
             new MenuButton("Yes", event => {
                 event.audio.setGlobalMusicVolume(AudioIntro.INITIAL_MUSIC_VOLUME);

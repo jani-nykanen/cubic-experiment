@@ -110,7 +110,7 @@ export class Core {
         this.loop(0, onLoad);
     }
     changeScene(newScene) {
-        let param = this.activeScene.dispose();
+        let param = this.activeScene.dispose(this.event);
         this.activeScene = new newScene.prototype.constructor(param, this.event);
     }
 }

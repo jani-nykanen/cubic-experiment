@@ -60,7 +60,7 @@ export interface Scene {
 
     // TODO: Replace any with... something 
     // Maybe generics? (Generic interface...?)
-    dispose() : any;
+    dispose(event : CoreEvent) : any;
 }
 
 
@@ -228,7 +228,7 @@ export class Core {
 
     public changeScene(newScene : Function) {
 
-        let param = this.activeScene.dispose();
+        let param = this.activeScene.dispose(this.event);
         this.activeScene = new newScene.prototype.constructor(param, this.event);
     }
     

@@ -21,4 +21,7 @@ export class ObjectManager {
     reset() {
         this.player.reset();
     }
+    dispose(event) {
+        this.player.dispose(event);
+    }
 }

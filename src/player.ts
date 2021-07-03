@@ -36,6 +36,7 @@ export class Player {
 
     private jump : number;
 
+    private meshCube : Mesh;
     private meshShadowXZ : Mesh;
     /*
     private meshShadowXY : Mesh;
@@ -49,7 +50,9 @@ export class Player {
         this.startPos = new Vector3(x, y, z);
         this.reset();
 
-        this.meshShadowXZ = (new ShapeGenerator())
+        let gen = new ShapeGenerator();
+
+        this.meshShadowXZ = gen
             .addHorizontalPlane(-0.5, 0, -0.5, 1, 1)
             .generateMesh(event);
         /*
@@ -61,6 +64,8 @@ export class Player {
             .generateMesh(event);
         */
 
+        this.meshCube = gen
+            .generateCube(event);
     }
 
 
@@ -228,6 +233,11 @@ export class Player {
         case TileEffect.StarObtained:
 
             event.audio.playSample(event.getSample("star"), 0.90);
+            break;
+
+        case TileEffect.GemObtained:
+
+            event.audio.playSample(event.getSample("gem"), 0.80);
             break;
 
         case TileEffect.ButtonPressed:
@@ -472,7 +482,7 @@ export class Player {
         canvas.transform.use();
 
         canvas.setDrawColor(1, 0.33, 0.33, alpha);
-        canvas.drawModel(canvas.getModel("cube"));
+        canvas.drawMesh(this.meshCube);
         canvas.setDrawColor();
 
         canvas.transform.pop();
@@ -487,4 +497,10 @@ export class Player {
             8, 8, -32, 0, false, 0.5, 0.5);
     }
 
+
+    public dispose(event : CoreEvent) {
+
+        event.disposeMesh(this.meshCube);
+        event.disposeMesh(this.meshShadowXZ);
+    }
 }

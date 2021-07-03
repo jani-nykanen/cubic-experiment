@@ -48,4 +48,9 @@ export class ObjectManager {
         this.player.reset();
     }
 
+
+    public dispose(event : CoreEvent) {
+
+        this.player.dispose(event);
+    }
 }
