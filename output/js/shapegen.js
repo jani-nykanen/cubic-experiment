@@ -219,7 +219,7 @@ export class ShapeGenerator {
         }
         return this.generateMesh(event);
     }
-    generateGem(radius, capRadius, middleLevel, steps, event) {
+    generateGem(radius, capRadius, heightScale, middleLevel, steps, event) {
         let angle;
         let angleStep = Math.PI * 2 / steps;
         let c1;
@@ -233,12 +233,12 @@ export class ShapeGenerator {
             s1 = Math.sin(angle);
             s2 = Math.sin(angle + angleStep);
             // Cap
-            this.addTriangle(new Vector3(c1 * capRadius, 0.5, s1 * capRadius), new Vector3(c2 * capRadius, 0.5, s2 * capRadius), new Vector3(0, 0.5, 0), -1);
+            this.addTriangle(new Vector3(c1 * capRadius, 0.5 * heightScale, s1 * capRadius), new Vector3(c2 * capRadius, 0.5 * heightScale, s2 * capRadius), new Vector3(0, 0.5 * heightScale, 0), -1);
             // Middle "ring"
-            this.addTriangle(new Vector3(c1 * capRadius, 0.5, s1 * capRadius), new Vector3(c2 * capRadius, 0.5, s2 * capRadius), new Vector3(c2, middleLevel, s2), -1);
-            this.addTriangle(new Vector3(c2, middleLevel, s2), new Vector3(c1, middleLevel, s1), new Vector3(c1 * capRadius, 0.5, s1 * capRadius), -1);
+            this.addTriangle(new Vector3(c1 * capRadius, 0.5 * heightScale, s1 * capRadius), new Vector3(c2 * capRadius, 0.5 * heightScale, s2 * capRadius), new Vector3(c2 * radius, middleLevel, s2 * radius), 1);
+            this.addTriangle(new Vector3(c2 * radius, middleLevel, s2 * radius), new Vector3(c1 * radius, middleLevel, s1 * radius), new Vector3(c1 * capRadius, 0.5 * heightScale, s1 * capRadius), 1);
             // Bottom
-            this.addTriangle(new Vector3(c1, middleLevel, s1), new Vector3(c2, middleLevel, s2), new Vector3(0, -0.5, 0), -1);
+            this.addTriangle(new Vector3(c1 * radius, middleLevel, s1 * radius), new Vector3(c2 * radius, middleLevel, s2 * radius), new Vector3(0, -0.5 * heightScale, 0), 1);
         }
         return this.generateMesh(event);
     }

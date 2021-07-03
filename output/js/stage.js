@@ -46,6 +46,8 @@ export class Stage {
             .addHorizontalPlane(0.4, 0.0, -0.4, 0.1, 0.8, 1)
             .generateMesh(event);
         this.meshCircle = gen.generateCircle(0.35, 0.20, 32, event, -1);
+        this.meshGem = gen.generateGem(0.50, 0.40, 0.75, 0.20, 8, event);
+        this.meshGemShadow = gen.generateCircle(0.45, 0.0, 8, event, -1);
     }
     nextStage(event) {
         if (this.meshTerrain != null) {
@@ -65,7 +67,7 @@ export class Stage {
     computeInitialStarCount() {
         this.totalStars = 0;
         for (let i of this.objectLayer) {
-            if (i == 10)
+            if (i == 10 || i == 21)
                 ++this.totalStars;
         }
     }
@@ -90,6 +92,7 @@ export class Stage {
         this.specialShadowPos = (new Array(2)).fill(null).map(i => new Vector2(-1, -1));
         this.disappearingStarTimer = 0;
         this.starPos = new Vector3();
+        this.isGemDisappearing = false;
         this.computeInitialStarCount();
     }
     generateStarShadow(event) {
@@ -192,6 +195,7 @@ export class Stage {
     }
     drawStar(canvas, x, y, z) {
         const REDUCE_BRIGHTNESS = 0.33;
+        const BASE_COLOR = new Vector3(1, 1, 0.33);
         let angle = this.starAngle;
         if (x % 2 == z % 2)
             angle += Math.PI / 2;
@@ -206,8 +210,33 @@ export class Stage {
             ((this.depth - 1 - z) | 0) == (this.specialShadowPos[0].y | 0)) {
             t = 1.0 - this.specialShadowValue * REDUCE_BRIGHTNESS;
         }
-        canvas.setDrawColor(1 * t, 1 * t, 0.33 * t);
+        let col = BASE_COLOR;
+        canvas.setDrawColor(1 * col.x, 1 * col.y, 0.33 * col.z);
         canvas.drawMesh(this.meshStarShape);
+        canvas.transform.pop();
+        canvas.setDrawColor();
+    }
+    drawGem(canvas, x, y, z) {
+        const BASE_COLOR = new Vector3(0.33, 1, 0.0);
+        let angle = this.starAngle;
+        if (x % 2 == z % 2)
+            angle += Math.PI / 2;
+        let t = 1.0;
+        canvas.transform.push();
+        canvas.transform.translate(x + 0.5, y + 0.005, z + 0.5);
+        canvas.transform.rotate(angle, new Vector3(0, 1, 0));
+        canvas.transform.use();
+        canvas.setDrawColor(0, 0, 0, 0.33);
+        canvas.drawMesh(this.meshGemShadow);
+        canvas.transform.pop();
+        canvas.transform.push();
+        canvas.transform.translate(x + 0.5, y + 0.325, z + 0.5);
+        canvas.transform.rotate(angle, new Vector3(0, 1, 0));
+        canvas.transform.rotate(Math.PI / 6, new Vector3(1, 0, 0));
+        canvas.transform.use();
+        let col = BASE_COLOR;
+        canvas.setDrawColor(1 * col.x, 1 * col.y, 0.33 * col.z);
+        canvas.drawMesh(this.meshGem);
         canvas.transform.pop();
         canvas.setDrawColor();
     }
@@ -418,6 +447,10 @@ export class Stage {
                     case 20:
                         this.drawArrows(canvas, x, y, dz, tid - 17);
                         break;
+                    // Gem
+                    case 21:
+                        this.drawGem(canvas, x, y, dz);
+                        break;
                     default:
                         break;
                 }
@@ -438,6 +471,10 @@ export class Stage {
     }
     postDraw(canvas) {
         const SCALE_FACTOR = 3.0;
+        const COLOR = [
+            new Vector3(1, 1, 0.33),
+            new Vector3(0.33, 1, 0)
+        ];
         if (this.disappearingStarTimer <= 0)
             return;
         let t = 1.0 - this.disappearingStarTimer / Stage.STAR_TIME;
@@ -450,8 +487,9 @@ export class Stage {
         canvas.transform.rotate(Math.PI / 4, new Vector3(1, 0, 0));
         canvas.transform.scale(scale, scale, scale);
         canvas.transform.use();
-        canvas.setDrawColor(1, 1, 0.33, 1.0 - t);
-        canvas.drawMesh(this.meshStarShape);
+        let col = COLOR[Number(this.isGemDisappearing)];
+        canvas.setDrawColor(col.x, col.y, col.z, 1.0 - t);
+        canvas.drawMesh(this.isGemDisappearing ? this.meshGem : this.meshStarShape);
         canvas.transform.pop();
         canvas.setDrawColor();
     }
@@ -496,13 +534,17 @@ export class Stage {
     }
     checkTile(x, y, z, consumeStars = true) {
         let index = z * this.width + x;
+        let tid;
         if (this.getHeight(x, z) == y) {
-            switch (this.objectLayer[index]) {
+            tid = this.objectLayer[index];
+            switch (tid) {
                 // Star
                 case 10:
+                case 21:
                     if (consumeStars) {
                         --this.totalStars;
                         this.disappearingStarTimer = Stage.STAR_TIME;
+                        this.isGemDisappearing = tid == 21;
                         this.starPos = new Vector3(x, y, this.depth - 1 - z);
                         this.objectLayer[index] = 0;
                         return TileEffect.StarObtained;

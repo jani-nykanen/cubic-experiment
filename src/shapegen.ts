@@ -436,7 +436,7 @@ export class ShapeGenerator {
     }
 
 
-    public generateGem(radius : number, capRadius : number,
+    public generateGem(radius : number, capRadius : number, heightScale : number,
         middleLevel : number, steps : number, event : CoreEvent) : Mesh {
 
         let angle : number;
@@ -458,29 +458,29 @@ export class ShapeGenerator {
 
             // Cap
             this.addTriangle(
-                new Vector3(c1 * capRadius, 0.5,  s1 * capRadius),
-                new Vector3(c2 * capRadius, 0.5,  s2 * capRadius),
-                new Vector3(0, 0.5, 0),
+                new Vector3(c1 * capRadius, 0.5*heightScale,  s1 * capRadius),
+                new Vector3(c2 * capRadius, 0.5*heightScale,  s2 * capRadius),
+                new Vector3(0, 0.5*heightScale, 0),
                 -1);
 
             // Middle "ring"
             this.addTriangle(
-                new Vector3(c1 * capRadius, 0.5,  s1 * capRadius),
-                new Vector3(c2 * capRadius, 0.5,  s2 * capRadius),
-                new Vector3(c2, middleLevel,  s2),
-                -1);
+                new Vector3(c1 * capRadius, 0.5*heightScale,  s1 * capRadius),
+                new Vector3(c2 * capRadius, 0.5*heightScale,  s2 * capRadius),
+                new Vector3(c2* radius, middleLevel,  s2* radius),
+                1);
             this.addTriangle(
-                new Vector3(c2, middleLevel,  s2),
-                new Vector3(c1, middleLevel,  s1),
-                new Vector3(c1 * capRadius, 0.5,  s1 * capRadius),
-                -1);
+                new Vector3(c2 * radius, middleLevel,  s2 * radius),
+                new Vector3(c1 * radius, middleLevel,  s1 * radius),
+                new Vector3(c1 * capRadius, 0.5*heightScale,  s1 * capRadius),
+                1);
 
             // Bottom
             this.addTriangle(
-                new Vector3(c1, middleLevel,  s1),
-                new Vector3(c2, middleLevel,  s2),
-                new Vector3(0, -0.5, 0),
-                -1);
+                new Vector3(c1 * radius, middleLevel,  s1 * radius),
+                new Vector3(c2 * radius, middleLevel,  s2 * radius),
+                new Vector3(0, -0.5*heightScale, 0),
+                1);
         }
 
         return this.generateMesh(event);
