@@ -1,4 +1,8 @@
 import { Vector3 } from "./core/vector.js";
+//
+// TODO: A lot of methods do not use addTriangle even if they could,
+// mostly because addTriangle was added after those methods
+//
 export class ShapeGenerator {
     constructor() {
         this.vertexBuffer = new Array();
@@ -212,6 +216,29 @@ export class ShapeGenerator {
             D = new Vector3(Math.cos(angle) * innerRadius, 0, Math.sin(angle) * innerRadius);
             this.addTriangle(A, B, C, up);
             this.addTriangle(C, D, A, up);
+        }
+        return this.generateMesh(event);
+    }
+    generateGem(radius, capRadius, middleLevel, steps, event) {
+        let angle;
+        let angleStep = Math.PI * 2 / steps;
+        let c1;
+        let s1;
+        let c2;
+        let s2;
+        for (let i = 0; i < steps; ++i) {
+            angle = i * angleStep;
+            c1 = Math.cos(angle);
+            c2 = Math.cos(angle + angleStep);
+            s1 = Math.sin(angle);
+            s2 = Math.sin(angle + angleStep);
+            // Cap
+            this.addTriangle(new Vector3(c1 * capRadius, 0.5, s1 * capRadius), new Vector3(c2 * capRadius, 0.5, s2 * capRadius), new Vector3(0, 0.5, 0), -1);
+            // Middle "ring"
+            this.addTriangle(new Vector3(c1 * capRadius, 0.5, s1 * capRadius), new Vector3(c2 * capRadius, 0.5, s2 * capRadius), new Vector3(c2, middleLevel, s2), -1);
+            this.addTriangle(new Vector3(c2, middleLevel, s2), new Vector3(c1, middleLevel, s1), new Vector3(c1 * capRadius, 0.5, s1 * capRadius), -1);
+            // Bottom
+            this.addTriangle(new Vector3(c1, middleLevel, s1), new Vector3(c2, middleLevel, s2), new Vector3(0, -0.5, 0), -1);
         }
         return this.generateMesh(event);
     }

@@ -1,6 +1,12 @@
-import { Core, CoreEvent } from "./core/core.js";
+import { CoreEvent } from "./core/core.js";
 import { Mesh } from "./core/mesh.js";
 import { Vector2, Vector3 } from "./core/vector.js";
+
+
+//
+// TODO: A lot of methods do not use addTriangle even if they could,
+// mostly because addTriangle was added after those methods
+//
 
 
 export class ShapeGenerator {
@@ -424,6 +430,57 @@ export class ShapeGenerator {
 
             this.addTriangle(A, B, C, up);
             this.addTriangle(C, D, A, up);
+        }
+
+        return this.generateMesh(event);
+    }
+
+
+    public generateGem(radius : number, capRadius : number,
+        middleLevel : number, steps : number, event : CoreEvent) : Mesh {
+
+        let angle : number;
+        let angleStep = Math.PI*2 / steps;
+
+        let c1 : number;
+        let s1 : number;
+        let c2 : number;
+        let s2 : number;
+
+        for (let i = 0; i < steps; ++ i) {
+
+            angle = i * angleStep;
+
+            c1 = Math.cos(angle);
+            c2 = Math.cos(angle + angleStep);
+            s1 = Math.sin(angle);
+            s2 = Math.sin(angle + angleStep);
+
+            // Cap
+            this.addTriangle(
+                new Vector3(c1 * capRadius, 0.5,  s1 * capRadius),
+                new Vector3(c2 * capRadius, 0.5,  s2 * capRadius),
+                new Vector3(0, 0.5, 0),
+                -1);
+
+            // Middle "ring"
+            this.addTriangle(
+                new Vector3(c1 * capRadius, 0.5,  s1 * capRadius),
+                new Vector3(c2 * capRadius, 0.5,  s2 * capRadius),
+                new Vector3(c2, middleLevel,  s2),
+                -1);
+            this.addTriangle(
+                new Vector3(c2, middleLevel,  s2),
+                new Vector3(c1, middleLevel,  s1),
+                new Vector3(c1 * capRadius, 0.5,  s1 * capRadius),
+                -1);
+
+            // Bottom
+            this.addTriangle(
+                new Vector3(c1, middleLevel,  s1),
+                new Vector3(c2, middleLevel,  s2),
+                new Vector3(0, -0.5, 0),
+                -1);
         }
 
         return this.generateMesh(event);
