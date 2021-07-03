@@ -41,6 +41,7 @@ export class Player {
         this.shrinkMode = 0;
         this.shrinkTimer = 0;
         this.teleportationTarget = this.pos.clone();
+        this.goingUp = false;
     }
     control(stage, event) {
         const EPS = 0.25;
@@ -134,6 +135,10 @@ export class Player {
                 event.audio.playSample(event.getSample("teleport1"), 0.60);
                 this.teleportTo(stage.findTeleporter(this.pos.x, this.pos.z));
                 break;
+            case TileEffect.IncreasingWall:
+                event.audio.playSample(event.getSample("increase"), 0.70);
+                this.goingUp = true;
+                break;
             default:
                 break;
         }
@@ -186,9 +191,22 @@ export class Player {
         }
         this.renderPos = this.pos.clone();
     }
+    goUp(stage, event) {
+        this.renderPos.y = this.pos.y + stage.getScaledEventTime();
+    }
     update(stage, event) {
-        if (stage.isEventHappening())
+        if (stage.isEventHappening()) {
+            if (this.goingUp) {
+                this.goUp(stage, event);
+            }
             return;
+        }
+        if (this.goingUp) {
+            ++this.pos.y;
+            ++this.target.y;
+            this.renderPos.y = this.pos.y;
+            this.goingUp = false;
+        }
         if (this.shrinkMode > 0) {
             this.shrink(event);
             return;

@@ -6,6 +6,7 @@ export var TileEffect;
     TileEffect[TileEffect["StarObtained"] = 1] = "StarObtained";
     TileEffect[TileEffect["ButtonPressed"] = 2] = "ButtonPressed";
     TileEffect[TileEffect["Teleportation"] = 3] = "Teleportation";
+    TileEffect[TileEffect["IncreasingWall"] = 4] = "IncreasingWall";
 })(TileEffect || (TileEffect = {}));
 ;
 var SpecialEvent;
@@ -13,6 +14,7 @@ var SpecialEvent;
     SpecialEvent[SpecialEvent["None"] = 0] = "None";
     SpecialEvent[SpecialEvent["ToggleWalls"] = 1] = "ToggleWalls";
     SpecialEvent[SpecialEvent["RotateArrows"] = 2] = "RotateArrows";
+    SpecialEvent[SpecialEvent["IncreasingWall"] = 3] = "IncreasingWall";
 })(SpecialEvent || (SpecialEvent = {}));
 ;
 export class Stage {
@@ -20,6 +22,7 @@ export class Stage {
         this.isEventHappening = () => this.eventHappening;
         this.getStarCount = () => this.totalStars;
         this.getCameraScale = () => this.cameraScale;
+        this.getScaledEventTime = () => 1.0 - this.eventTimer / Stage.EVENT_TIME;
         this.index = stageIndex - 1;
         this.nextStage(event);
         let gen = new ShapeGenerator();
@@ -42,6 +45,7 @@ export class Stage {
             .addHorizontalPlane(-0.5, 0.0, -0.4, 0.1, 0.8, 1)
             .addHorizontalPlane(0.4, 0.0, -0.4, 0.1, 0.8, 1)
             .generateMesh(event);
+        this.meshCircle = gen.generateCircle(0.35, 0.20, 32, event, -1);
     }
     nextStage(event) {
         if (this.meshTerrain != null) {
@@ -134,8 +138,10 @@ export class Stage {
     modifyTiles() {
         const NEW_ARROW = [18, 17, 20, 19];
         let tid;
+        let j;
         for (let i = 0; i < this.objectLayer.length; ++i) {
             tid = this.objectLayer[i];
+            // TODO: Replace with switch
             if (this.eventType == SpecialEvent.ToggleWalls) {
                 if (tid == 257) {
                     this.objectLayer[i] = 11;
@@ -158,6 +164,13 @@ export class Stage {
                     this.objectLayer[i] = NEW_ARROW[tid - 17];
                 }
             }
+            else if (this.eventType == SpecialEvent.IncreasingWall) {
+                j = (this.depth - 1 - this.increasingWallPos.y) * this.width + this.increasingWallPos.x;
+                if (this.objectLayer[j] == 16) {
+                    this.objectLayer[j] = 261;
+                    ++this.heightMap[j];
+                }
+            }
         }
     }
     update(event) {
@@ -168,10 +181,7 @@ export class Stage {
             if ((this.eventTimer -= event.step) <= 0) {
                 this.eventHappening = false;
                 this.eventTimer = 0;
-                if (this.eventType == SpecialEvent.ToggleWalls ||
-                    this.eventType == SpecialEvent.RotateArrows) {
-                    this.modifyTiles();
-                }
+                this.modifyTiles();
             }
         }
         this.arrowBlinkTimer = (this.arrowBlinkTimer + event.step) % (Stage.ARROW_BLINK_TIME);
@@ -285,6 +295,30 @@ export class Stage {
         canvas.transform.pop();
         canvas.setDrawColor();
     }
+    drawIncreasingWall(canvas, x, y, z, up = false) {
+        let t = 0.0;
+        if (up)
+            y -= 1.0;
+        if (up || (this.eventHappening &&
+            this.eventType == SpecialEvent.IncreasingWall &&
+            this.increasingWallPos.x == x &&
+            this.increasingWallPos.y == z)) {
+            t = up ? 1.0 : 1.0 - this.eventTimer / Stage.EVENT_TIME;
+            canvas.transform.push();
+            canvas.transform.translate(x + 0.5, y + t, z + 0.5);
+            canvas.transform.scale(1, t, 1);
+            canvas.transform.use();
+            canvas.setDrawColor(1.0, 0.67, 0);
+            canvas.drawMesh(this.meshSpecialWall);
+            canvas.transform.pop();
+        }
+        canvas.transform.push();
+        canvas.transform.translate(x + 0.5, y + t + 0.005, z + 0.5);
+        canvas.transform.use();
+        canvas.setDrawColor(0.67, 0.0, 0);
+        canvas.drawMesh(this.meshCircle);
+        canvas.transform.pop();
+    }
     drawArrows(canvas, x, y, z, index) {
         const BASE_ANGLE = [0, 2, 1, -1];
         const COLORS = [new Vector3(0, 0.67, 0.33), new Vector3(0.33, 1, 0.67)];
@@ -371,6 +405,11 @@ export class Stage {
                     // Teleportation
                     case 15:
                         this.drawTeleportationRings(canvas, x, y, dz);
+                        break;
+                    // Increasing wall
+                    case 16:
+                    case 261:
+                        this.drawIncreasingWall(canvas, x, y, dz, tid == 261);
                         break;
                     // Arrows
                     case 17:
@@ -483,6 +522,11 @@ export class Stage {
                 // Teleporter
                 case 15:
                     return TileEffect.Teleportation;
+                // Increasing wall
+                case 16:
+                    this.increasingWallPos = new Vector2(x, this.depth - 1 - z);
+                    this.startEvent(SpecialEvent.IncreasingWall);
+                    return TileEffect.IncreasingWall;
                 default:
                     break;
             }

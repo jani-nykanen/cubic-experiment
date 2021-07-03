@@ -32,6 +32,8 @@ export class Player {
     private shrinkMode : number;
     private teleportationTarget : Vector3;
 
+    private goingUp : boolean;
+
     private jump : number;
 
     private meshShadowXZ : Mesh;
@@ -90,6 +92,8 @@ export class Player {
         this.shrinkMode = 0;
         this.shrinkTimer = 0;
         this.teleportationTarget = this.pos.clone();
+    
+        this.goingUp = false;
     }
 
 
@@ -237,6 +241,12 @@ export class Player {
             this.teleportTo(stage.findTeleporter(this.pos.x, this.pos.z));
             break;
 
+        case TileEffect.IncreasingWall:
+
+            event.audio.playSample(event.getSample("increase"), 0.70);
+            this.goingUp = true;
+            break;
+
         default:
             break;
         }
@@ -320,9 +330,32 @@ export class Player {
     }
 
 
+    private goUp(stage : Stage, event : CoreEvent) {
+
+        this.renderPos.y = this.pos.y + stage.getScaledEventTime();
+    }
+
+
     public update(stage : Stage, event : CoreEvent) {
 
-        if (stage.isEventHappening()) return;
+        if (stage.isEventHappening()) {
+
+            if (this.goingUp) {
+
+                this.goUp(stage, event);
+            }
+
+            return;
+        }
+
+        if (this.goingUp) {
+
+            ++ this.pos.y;
+            ++ this.target.y;
+            this.renderPos.y = this.pos.y;
+            
+            this.goingUp = false;
+        }
 
         if (this.shrinkMode > 0) {
 

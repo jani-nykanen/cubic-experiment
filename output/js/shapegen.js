@@ -197,6 +197,24 @@ export class ShapeGenerator {
         }
         return this.generateMesh(event);
     }
+    generateCircle(outerRadius, innerRadius, steps, event, up = 1) {
+        let angle;
+        let angleStep = Math.PI * 2 / steps;
+        let A;
+        let B;
+        let C;
+        let D;
+        for (let i = 0; i < steps; ++i) {
+            angle = angleStep * i;
+            A = new Vector3(Math.cos(angle) * outerRadius, 0, Math.sin(angle) * outerRadius);
+            B = new Vector3(Math.cos(angle + angleStep) * outerRadius, 0, Math.sin(angle + angleStep) * outerRadius);
+            C = new Vector3(Math.cos(angle + angleStep) * innerRadius, 0, Math.sin(angle + angleStep) * innerRadius);
+            D = new Vector3(Math.cos(angle) * innerRadius, 0, Math.sin(angle) * innerRadius);
+            this.addTriangle(A, B, C, up);
+            this.addTriangle(C, D, A, up);
+        }
+        return this.generateMesh(event);
+    }
     addHorizontalPlane(x, y, z, width, depth, up = -1) {
         this.vertexBuffer.push(x, y, z, x + width, y, z, x + width, y, z + depth, x, y, z + depth);
         this.uvBuffer.push(0, 0, 1, 0, 1, 1, 0, 1);

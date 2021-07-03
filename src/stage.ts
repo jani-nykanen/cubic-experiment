@@ -13,6 +13,7 @@ export enum TileEffect {
     StarObtained = 1,
     ButtonPressed = 2,
     Teleportation = 3,
+    IncreasingWall = 4,
 };
 
 
@@ -20,7 +21,8 @@ enum SpecialEvent {
 
     None = 0,
     ToggleWalls = 1,
-    RotateArrows = 2
+    RotateArrows = 2,
+    IncreasingWall = 3,
 };
 
 
@@ -51,6 +53,7 @@ export class Stage {
     private meshSpecialWall : Mesh;
     private meshArrow : Mesh;
     private meshRing : Mesh;
+    private meshCircle : Mesh;
 
     private starAngle : number;
     private arrowBlinkTimer : number;
@@ -65,6 +68,8 @@ export class Stage {
 
     private disappearingStarTimer : number;
     private starPos : Vector3;
+
+    private increasingWallPos : Vector2;
 
     private totalStars : number;
 
@@ -109,6 +114,8 @@ export class Stage {
             .addHorizontalPlane(-0.5, 0.0, -0.4, 0.1, 0.8, 1)
             .addHorizontalPlane(0.4, 0.0, -0.4, 0.1, 0.8, 1)
             .generateMesh(event);
+
+        this.meshCircle = gen.generateCircle(0.35, 0.20, 32, event, -1);
     }
 
 
@@ -267,11 +274,13 @@ export class Stage {
         const NEW_ARROW = [18, 17, 20, 19];
 
         let tid : number;
+        let j : number;
         
         for (let i = 0; i < this.objectLayer.length; ++ i) {
 
             tid = this.objectLayer[i];
 
+            // TODO: Replace with switch
             if (this.eventType == SpecialEvent.ToggleWalls) {
 
                 if (tid == 257) {
@@ -302,6 +311,16 @@ export class Stage {
                     this.objectLayer[i] = NEW_ARROW[tid-17];
                 }
             }
+            else if (this.eventType == SpecialEvent.IncreasingWall) {
+
+                j = (this.depth-1 - this.increasingWallPos.y)*this.width + this.increasingWallPos.x;
+
+                if (this.objectLayer[j] == 16) {
+                    
+                    this.objectLayer[j] = 261;
+                    ++ this.heightMap[j]; 
+                }
+            }
         }
     }
 
@@ -320,11 +339,7 @@ export class Stage {
                 this.eventHappening = false;
                 this.eventTimer = 0;
 
-                if (this.eventType == SpecialEvent.ToggleWalls ||
-                    this.eventType == SpecialEvent.RotateArrows) {
-
-                    this.modifyTiles();
-                }
+                this.modifyTiles();
             }
         }
 
@@ -498,6 +513,42 @@ export class Stage {
     }
 
 
+    private drawIncreasingWall(canvas : Canvas, x : number, y : number, z : number, up = false) {
+
+        let t = 0.0;
+
+        if (up) y -= 1.0;
+
+        if (up || (
+            this.eventHappening &&
+            this.eventType == SpecialEvent.IncreasingWall &&
+            this.increasingWallPos.x == x &&
+            this.increasingWallPos.y == z)) {
+
+            t = up ? 1.0 : 1.0 - this.eventTimer / Stage.EVENT_TIME;
+
+            canvas.transform.push();
+            canvas.transform.translate(x + 0.5, y+t, z + 0.5);
+            canvas.transform.scale(1, t, 1);
+            canvas.transform.use();
+
+            canvas.setDrawColor(1.0, 0.67, 0);
+            canvas.drawMesh(this.meshSpecialWall);
+
+            canvas.transform.pop();
+        }
+
+        canvas.transform.push();
+        canvas.transform.translate(x + 0.5, y + t + 0.005, z + 0.5);
+        canvas.transform.use();
+
+        canvas.setDrawColor(0.67, 0.0, 0);
+        canvas.drawMesh(this.meshCircle);
+
+        canvas.transform.pop();
+    }
+
+
     private drawArrows(canvas : Canvas, x : number, y : number, z : number, index : number) {
 
         const BASE_ANGLE = [0, 2, 1, -1];
@@ -623,7 +674,14 @@ export class Stage {
                 // Teleportation
                 case 15:
 
-                    this.drawTeleportationRings(canvas, x, y, dz,);
+                    this.drawTeleportationRings(canvas, x, y, dz);
+                    break;
+
+                // Increasing wall
+                case 16:
+                case 261:
+
+                    this.drawIncreasingWall(canvas, x, y, dz, tid == 261);
                     break;
 
                 // Arrows
@@ -801,6 +859,14 @@ export class Stage {
             case 15:
                 return TileEffect.Teleportation;
 
+            // Increasing wall
+            case 16:
+
+                this.increasingWallPos = new Vector2(x, this.depth-1 - z);
+                this.startEvent(SpecialEvent.IncreasingWall);
+
+                return TileEffect.IncreasingWall;
+
             default:
                 break;
             }
@@ -864,4 +930,5 @@ export class Stage {
 
     public getStarCount = () : number => this.totalStars;
     public getCameraScale = () : number => this.cameraScale;
+    public getScaledEventTime = () : number => 1.0 - this.eventTimer/Stage.EVENT_TIME;
 }
