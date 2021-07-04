@@ -19,6 +19,7 @@
         {"name": "select", "path": "select.wav"},
         {"name": "increase", "path": "increase.wav"},
         {"name": "gem", "path": "gem.wav"},
+        {"name": "soft", "path": "soft.wav"},
 
         {"name": "victory", "path": "victory.ogg"}
     ],

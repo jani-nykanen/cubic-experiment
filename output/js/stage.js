@@ -315,7 +315,7 @@ export class Stage {
             canvas.drawMesh(this.meshSpecialWall);
             canvas.transform.pop();
         }
-        canvas.transform.translate(0, 0.005, 0);
+        canvas.transform.translate(0, 0.0010, 0);
         canvas.transform.rotate(Math.PI / 4, new Vector3(0, 1, 0));
         canvas.transform.scale(CROSS_SCALE, 1, CROSS_SCALE);
         canvas.transform.use();
