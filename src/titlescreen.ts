@@ -55,11 +55,11 @@ export class TitleScreen implements Scene {
 
         event.transition.activate(false, TransitionEffectType.Fade,
             1.0/30.0, null, new RGBA(0.33, 0.67, 1));
-        this.phase = 0;
+        this.phase = 1;
 
         if (param != null && <number>param > 0) {
 
-            this.phase = 1;
+            this.phase = 2;
         }
 
         this.enterTimer = 0;
@@ -72,7 +72,7 @@ export class TitleScreen implements Scene {
 
         if (event.transition.isActive()) return;
 
-        if (this.phase == 0) {
+        if (this.phase == 1) {
 
             if (event.input.getAction("start") == State.Pressed ||
                 event.input.getAction("fire1") == State.Pressed) {
@@ -98,6 +98,9 @@ export class TitleScreen implements Scene {
 
     public redraw(canvas : Canvas) {
 
+        const LOGO_SCALE = 0.75;
+        const LOGO_SHADOW_OFFSET = 4;
+
         canvas.changeShader(ShaderType.Textured);
         canvas.toggleDepthTest(false);
 
@@ -114,7 +117,24 @@ export class TitleScreen implements Scene {
         canvas.drawTextWithShadow(canvas.getBitmap("font"), "(c)2021 Jani Nyk@nen",
             view.x/2, view.y-28, -28, 0, true, 0.33, 0.33, 2, 2, 0.33);
 
-        if (this.phase == 0) {
+        canvas.setDrawColor();
+
+        let bmp = canvas.getBitmap("logo");
+
+        for (let i = 1; i >= 0; -- i) {
+
+            if (i == 1)
+                canvas.setDrawColor(0, 0, 0, 0.33);
+            else
+                canvas.setDrawColor(0.67, 1.0, 0.67);
+
+            canvas.drawBitmap(bmp, 
+                view.x/2 - bmp.width/2*LOGO_SCALE + i * LOGO_SHADOW_OFFSET, 
+                64 + i * LOGO_SHADOW_OFFSET,
+                bmp.width*LOGO_SCALE, bmp.height*LOGO_SCALE);
+        }
+
+        if (this.phase == 1) {
 
             canvas.setDrawColor(1, 1, 1,
                 0.75 + 0.25*Math.cos(this.enterTimer));
@@ -125,10 +145,6 @@ export class TitleScreen implements Scene {
 
             return;
         }
-
-        canvas.setDrawColor();
-        canvas.drawTextWithShadow(canvas.getBitmap("font"), "This is the title screen",
-            view.x/2, view.y/3-16, -28, 0, true, 0.5, 0.5, 4, 4, 0.33);
 
         canvas.transform.push();
         canvas.transform.translate(0, view.y/4, 0);
