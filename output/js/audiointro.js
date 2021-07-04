@@ -1,6 +1,6 @@
 import { ShaderType } from "./core/canvas.js";
-import { GameScene } from "./game.js";
 import { Menu, MenuButton } from "./menu.js";
+import { TitleScreen } from "./titlescreen.js";
 const TEXT = `
 Would you like to enable audio?
 You can change this later in the
@@ -15,12 +15,12 @@ export class AudioIntro {
             new MenuButton("Yes", event => {
                 event.audio.setGlobalMusicVolume(AudioIntro.INITIAL_MUSIC_VOLUME);
                 event.audio.setGlobalSampleVolume(AudioIntro.INITIAL_SAMPLE_VOLUME);
-                event.changeScene(GameScene);
+                event.changeScene(TitleScreen);
             }),
             new MenuButton("No", event => {
                 event.audio.setGlobalMusicVolume(0);
                 event.audio.setGlobalSampleVolume(0);
-                event.changeScene(GameScene);
+                event.changeScene(TitleScreen);
             })
         ]);
         this.yesNoMenu.activate(0);

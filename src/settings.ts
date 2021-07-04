@@ -84,7 +84,7 @@ export class Settings {
 
     public update = (event : CoreEvent) : void => this.menu.update(event);
 
-    public draw = (canvas : Canvas) : void => this.menu.draw(canvas, 0.5, true, 0.33, 24);
+    public draw = (canvas : Canvas, bgAlpha = 0.33) : void => this.menu.draw(canvas, 0.5, true, bgAlpha, 24);
 
 
     public isActive = () : boolean => this.menu.isActive();

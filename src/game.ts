@@ -1,5 +1,6 @@
 import { Canvas, ShaderType } from "./core/canvas.js";
 import { CoreEvent, Scene } from "./core/core.js";
+import { clamp } from "./core/mathext.js";
 import { TransitionEffectType } from "./core/transition.js";
 import { State } from "./core/types.js";
 import { RGBA, Vector3 } from "./core/vector.js";
@@ -42,7 +43,29 @@ export class GameScene implements Scene {
 
     constructor(param : any, event : CoreEvent) {
 
-        this.stageIndex = 1; // this.findLastStage(event);
+
+        let index = 1;
+        let str : string;
+        if (<boolean>param == true) {
+
+            try {
+
+                str = window.localStorage.getItem("boxpuzzle__levelindex");
+                if (str == null)
+                    index = 1;
+                else
+                    index = clamp(
+                        Number(window.localStorage.getItem("boxpuzzle__levelindex")), 
+                        1, this.findLastStage(event));
+
+            }
+            catch(e) {
+
+                console.log(e);
+                index = 1;
+            }
+        }
+        this.stageIndex = index;
 
         this.stage = new Stage(this.stageIndex, event);
         this.objects = new ObjectManager(this.stage, event);
@@ -87,7 +110,7 @@ export class GameScene implements Scene {
             1.0/30.0, null, new RGBA(0.33, 0.67, 1.0));
     }   
 
-/*
+
     private findLastStage(event : CoreEvent) : number {
 
         let num = 1;
@@ -98,7 +121,7 @@ export class GameScene implements Scene {
         }
         return num-1;
     }
-*/
+
 
     private reset() {
 
@@ -133,6 +156,15 @@ export class GameScene implements Scene {
         this.stageClear = false;
         this.stageClearTimer = 0;
         this.fadeScale = 2.0;
+
+        try {
+
+            window.localStorage.setItem("boxpuzzle__levelindex", String(this.stageIndex));
+        }
+        catch(e) {
+
+            console.log(e);
+        }
     }
 
 
@@ -372,6 +404,6 @@ export class GameScene implements Scene {
         this.stage.dispose(event);
         this.objects.dispose(event);
 
-        return null;
+        return <any>1; // Heh, any-one
     }
 }

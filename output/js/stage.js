@@ -215,7 +215,7 @@ export class Stage {
             t = 1.0 - this.specialShadowValue * REDUCE_BRIGHTNESS;
         }
         let col = BASE_COLOR;
-        canvas.setDrawColor(1 * col.x, 1 * col.y, 0.33 * col.z);
+        canvas.setDrawColor(t * col.x, t * col.y, t * col.z);
         canvas.drawMesh(this.meshStarShape);
         canvas.transform.pop();
         canvas.setDrawColor();
@@ -239,7 +239,7 @@ export class Stage {
         canvas.transform.rotate(Math.PI / 6, new Vector3(1, 0, 0));
         canvas.transform.use();
         let col = BASE_COLOR;
-        canvas.setDrawColor(1 * col.x, 1 * col.y, 0.33 * col.z);
+        canvas.setDrawColor(t * col.x, t * col.y, t * col.z);
         canvas.drawMesh(this.meshGem);
         canvas.transform.pop();
         canvas.setDrawColor();

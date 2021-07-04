@@ -1,4 +1,5 @@
 import { ShaderType } from "./core/canvas.js";
+import { clamp } from "./core/mathext.js";
 import { TransitionEffectType } from "./core/transition.js";
 import { State } from "./core/types.js";
 import { RGBA, Vector3 } from "./core/vector.js";
@@ -14,7 +15,22 @@ const HINTS = [
 ];
 export class GameScene {
     constructor(param, event) {
-        this.stageIndex = 1; // this.findLastStage(event);
+        let index = 1;
+        let str;
+        if (param == true) {
+            try {
+                str = window.localStorage.getItem("boxpuzzle__levelindex");
+                if (str == null)
+                    index = 1;
+                else
+                    index = clamp(Number(window.localStorage.getItem("boxpuzzle__levelindex")), 1, this.findLastStage(event));
+            }
+            catch (e) {
+                console.log(e);
+                index = 1;
+            }
+        }
+        this.stageIndex = index;
         this.stage = new Stage(this.stageIndex, event);
         this.objects = new ObjectManager(this.stage, event);
         this.pauseMenu = new Menu([
@@ -41,18 +57,13 @@ export class GameScene {
         this.restarting = false;
         event.transition.activate(false, TransitionEffectType.Fade, 1.0 / 30.0, null, new RGBA(0.33, 0.67, 1.0));
     }
-    /*
-        private findLastStage(event : CoreEvent) : number {
-    
-            let num = 1;
-    
-            while (event.assets.getTilemap(String(num)) != null) {
-    
-                ++ num;
-            }
-            return num-1;
+    findLastStage(event) {
+        let num = 1;
+        while (event.assets.getTilemap(String(num)) != null) {
+            ++num;
         }
-    */
+        return num - 1;
+    }
     reset() {
         this.objects.reset();
         this.stage.reset();
@@ -74,6 +85,12 @@ export class GameScene {
         this.stageClear = false;
         this.stageClearTimer = 0;
         this.fadeScale = 2.0;
+        try {
+            window.localStorage.setItem("boxpuzzle__levelindex", String(this.stageIndex));
+        }
+        catch (e) {
+            console.log(e);
+        }
     }
     restart(event) {
         this.restarting = true;
@@ -222,7 +239,7 @@ export class GameScene {
     dispose(event) {
         this.stage.dispose(event);
         this.objects.dispose(event);
-        return null;
+        return 1; // Heh, any-one
     }
 }
 GameScene.STAGE_CLEAR_ANIMATION_TIME = 90;

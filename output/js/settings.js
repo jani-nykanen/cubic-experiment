@@ -3,7 +3,7 @@ import { Menu, MenuButton } from "./menu.js";
 export class Settings {
     constructor(event) {
         this.update = (event) => this.menu.update(event);
-        this.draw = (canvas) => this.menu.draw(canvas, 0.5, true, 0.33, 24);
+        this.draw = (canvas, bgAlpha = 0.33) => this.menu.draw(canvas, 0.5, true, bgAlpha, 24);
         this.isActive = () => this.menu.isActive();
         this.activate = () => this.menu.activate(2);
         this.deactivate = () => this.menu.deactivate();
