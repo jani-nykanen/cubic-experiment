@@ -4,6 +4,7 @@
 
         {"name": "logo", "path": "logo.png"},
         {"name": "createdby", "path": "createdby.png"},
+        {"name": "end", "path": "end.png"},
         {"name": "font", "path": "font.png"}
     ],
 

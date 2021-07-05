@@ -17,8 +17,8 @@ Press Enter to confirm.
 export class AudioIntro implements Scene {
 
 
-    static INITIAL_SAMPLE_VOLUME = 0.60;
-    static INITIAL_MUSIC_VOLUME = 0.70;
+    static INITIAL_SAMPLE_VOLUME = 0.50;
+    static INITIAL_MUSIC_VOLUME = 0.50;
 
 
     private yesNoMenu : Menu;
@@ -89,6 +89,6 @@ export class AudioIntro implements Scene {
     }
 
 
-    public dispose = (event : CoreEvent) : any => null;
+    public dispose = (event : CoreEvent) : any => <any>0;
 
 }

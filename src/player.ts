@@ -237,7 +237,7 @@ export class Player {
 
         case TileEffect.GemObtained:
 
-            event.audio.playSample(event.getSample("gem"), 0.80);
+            event.audio.playSample(event.getSample("gem"), 0.70);
             break;
 
         case TileEffect.ButtonPressed:
