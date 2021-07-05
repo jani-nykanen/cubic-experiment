@@ -8,6 +8,7 @@ export class CoreEvent {
         this.constructMesh = (vertices, textureCoordinates, normals, indices) => this.canvas.constructMesh(vertices, textureCoordinates, normals, indices);
         this.disposeMesh = (mesh) => this.canvas.destroyMesh(mesh);
         this.getSample = (name) => this.assets.getSample(name);
+        this.getControlMode = () => this.controlMode;
         this.core = core;
         this.step = step;
         this.input = input;
@@ -15,9 +16,13 @@ export class CoreEvent {
         this.transition = transition;
         this.audio = audio;
         this.canvas = canvas;
+        this.controlMode = 0;
     }
     changeScene(newScene) {
         this.core.changeScene(newScene);
+    }
+    changeControlMode(newMode) {
+        this.controlMode = newMode;
     }
 }
 export class Core {

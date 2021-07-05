@@ -136,6 +136,7 @@ export class Player {
 
         // Can't use "else if" here, since automaticDir is modified in
         // the previous block
+        let temp : number;
         if (automaticDir == null) {
 
             if (event.input.getStick().length() < EPS) return;
@@ -153,6 +154,13 @@ export class Player {
 
             if (Math.abs(dx) < EPS2 && Math.abs(dz) < EPS2)
                 return;
+
+            if (event.getControlMode() == 1) {
+
+                temp = dz;
+                dz = -dx;
+                dx = temp;
+            }
 
             if (stage.getHeight(this.pos.x + dx, this.pos.z + dz) > this.pos.y) {
 

@@ -55,6 +55,25 @@ export class Settings {
                     }
                 }, true),
 
+                new MenuButton("Control Mode: " + ["A", "B"][clamp(event.getControlMode(), 0, 1)] ,
+                event => {
+
+                    let mode = event.getControlMode();
+                    let oldMode = mode;
+                    if (event.input.leftPress() || event.input.rightPress())
+                        mode = Number(!Boolean(mode));
+
+                    if (oldMode != mode) {
+
+                        event.changeControlMode(mode);
+                        this.menu.changeButtonText(2, 
+                            "Control Mode: " + ["A", "B"][clamp(event.getControlMode(), 0, 1)]);
+
+                         event.audio.playSample(event.getSample("select"), 0.70);
+                    }
+
+                }, true),
+
                 new MenuButton("Back", event => this.menu.deactivate())
             ]
         );
@@ -88,6 +107,6 @@ export class Settings {
 
 
     public isActive = () : boolean => this.menu.isActive();
-    public activate = () : void => this.menu.activate(2);
+    public activate = () : void => this.menu.activate(3);
     public deactivate = () : void => this.menu.deactivate();
 }

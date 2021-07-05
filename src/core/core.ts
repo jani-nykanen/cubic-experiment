@@ -19,6 +19,8 @@ export class CoreEvent {
     private readonly canvas : Canvas;
     private readonly core : Core;
 
+    private controlMode : number;
+
 
     constructor(step : number, core : Core,
         input : InputManager, assets : AssetManager,
@@ -32,6 +34,8 @@ export class CoreEvent {
         this.transition = transition;
         this.audio = audio;
         this.canvas = canvas;
+
+        this.controlMode = 0;
     }
 
 
@@ -50,6 +54,13 @@ export class CoreEvent {
     public disposeMesh = (mesh : Mesh) : void => this.canvas.destroyMesh(mesh);
 
     public getSample = (name : string) : AudioSample => this.assets.getSample(name);
+
+    public changeControlMode(newMode : number) {
+
+        this.controlMode = newMode;
+    }
+
+    public getControlMode = () : number => this.controlMode;
 }
 
 
