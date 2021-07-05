@@ -5,7 +5,7 @@ import { RGBA } from "./core/vector.js";
 import { GameScene } from "./game.js";
 
 
-export class Intro implements Scene {
+export class StoryIntro implements Scene {
 
 
     private waitTimer : number;

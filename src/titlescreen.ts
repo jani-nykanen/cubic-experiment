@@ -4,7 +4,7 @@ import { TransitionEffectType } from "./core/transition.js";
 import { State } from "./core/types.js";
 import { RGBA } from "./core/vector.js";
 import { GameScene } from "./game.js";
-import { Intro } from "./intro.js";
+import { StoryIntro } from "./storyintro.js";
 import { Menu, MenuButton } from "./menu.js";
 import { Settings } from "./settings.js";
 
@@ -34,7 +34,7 @@ export class TitleScreen implements Scene {
                 event => {
 
                     event.transition.activate(true, TransitionEffectType.Fade,
-                        1.0/30.0, event => event.changeScene(Intro),
+                        1.0/30.0, event => event.changeScene(StoryIntro),
                         new RGBA(0.33, 0.67, 1.0));
                 }),
 
@@ -57,9 +57,6 @@ export class TitleScreen implements Scene {
         this.options.activate(0);
 
         this.settings = new Settings(event);
-
-        event.transition.activate(false, TransitionEffectType.Fade,
-            1.0/30.0, null, new RGBA(0.33, 0.67, 1));
 
         this.phase = 0;
         this.logoPos = -384;

@@ -3,6 +3,7 @@
     "bitmaps" : [
 
         {"name": "logo", "path": "logo.png"},
+        {"name": "createdby", "path": "createdby.png"},
         {"name": "font", "path": "font.png"}
     ],
 

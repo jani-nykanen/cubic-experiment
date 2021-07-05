@@ -3,7 +3,7 @@ import { TransitionEffectType } from "./core/transition.js";
 import { State } from "./core/types.js";
 import { RGBA } from "./core/vector.js";
 import { GameScene } from "./game.js";
-import { Intro } from "./intro.js";
+import { StoryIntro } from "./storyintro.js";
 import { Menu, MenuButton } from "./menu.js";
 import { Settings } from "./settings.js";
 const LOGO_TARGET_POS = 64;
@@ -12,7 +12,7 @@ export class TitleScreen {
         this.dispose = (event) => 1;
         this.options = new Menu([
             new MenuButton("New Game", event => {
-                event.transition.activate(true, TransitionEffectType.Fade, 1.0 / 30.0, event => event.changeScene(Intro), new RGBA(0.33, 0.67, 1.0));
+                event.transition.activate(true, TransitionEffectType.Fade, 1.0 / 30.0, event => event.changeScene(StoryIntro), new RGBA(0.33, 0.67, 1.0));
             }),
             new MenuButton("Continue", event => {
                 event.transition.activate(true, TransitionEffectType.Fade, 1.0 / 30.0, event => event.changeScene(GameScene), new RGBA(0.33, 0.67, 1.0));
@@ -23,7 +23,6 @@ export class TitleScreen {
         ]);
         this.options.activate(0);
         this.settings = new Settings(event);
-        event.transition.activate(false, TransitionEffectType.Fade, 1.0 / 30.0, null, new RGBA(0.33, 0.67, 1));
         this.phase = 0;
         this.logoPos = -384;
         if (param != null && param > 0) {

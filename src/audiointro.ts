@@ -1,8 +1,7 @@
 import { Canvas, ShaderType } from "./core/canvas.js";
 import { CoreEvent, Scene } from "./core/core.js";
-import { GameScene } from "./game.js";
 import { Menu, MenuButton } from "./menu.js";
-import { TitleScreen } from "./titlescreen.js";
+import { StartIntro } from "./startintro.js";
 
 
 const TEXT =
@@ -36,7 +35,7 @@ export class AudioIntro implements Scene {
                         event.audio.setGlobalMusicVolume(AudioIntro.INITIAL_MUSIC_VOLUME);
                         event.audio.setGlobalSampleVolume(AudioIntro.INITIAL_SAMPLE_VOLUME);
 
-                        event.changeScene(TitleScreen);
+                        event.changeScene(StartIntro);
                     }),
 
                 new MenuButton("No",
@@ -45,7 +44,7 @@ export class AudioIntro implements Scene {
                         event.audio.setGlobalMusicVolume(0);
                         event.audio.setGlobalSampleVolume(0);
 
-                        event.changeScene(TitleScreen);
+                        event.changeScene(StartIntro);
                     })
             ]
         );

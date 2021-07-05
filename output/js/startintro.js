@@ -1,20 +1,23 @@
 import { ShaderType } from "./core/canvas.js";
 import { TransitionEffectType } from "./core/transition.js";
 import { RGBA } from "./core/vector.js";
-import { GameScene } from "./game.js";
-export class Intro {
+import { TitleScreen } from "./titlescreen.js";
+export class StartIntro {
     constructor(param, event) {
         this.dispose = (event) => 0;
         this.waitTimer = 120.0;
+        event.transition.activate(false, TransitionEffectType.Fade, 1.0 / 30.0, null, new RGBA(0.33, 0.67, 1));
     }
     update(event) {
         if (event.transition.isActive())
             return;
-        if ((this.waitTimer -= event.step) <= 0) {
-            event.transition.activate(true, TransitionEffectType.Fade, 1.0 / 30.0, event => event.changeScene(GameScene), new RGBA(0.33, 0.67, 1.0));
+        if ((this.waitTimer -= event.step) <= 0 ||
+            event.input.anyPressed()) {
+            event.transition.activate(true, TransitionEffectType.Fade, 1.0 / 30.0, event => event.changeScene(TitleScreen), new RGBA(0.33, 0.67, 1.0));
         }
     }
     redraw(canvas) {
+        const SCALE = 0.5;
         canvas.changeShader(ShaderType.Textured);
         canvas.toggleDepthTest(false);
         canvas.clear(0.33, 0.67, 1.0);
@@ -24,6 +27,7 @@ export class Intro {
         canvas.transform.use();
         let view = canvas.transform.getViewport();
         canvas.setDrawColor();
-        canvas.drawTextWithShadow(canvas.getBitmap("font"), "Reach for the stars!", view.x / 2, view.y / 2 - 16, -28, 0, true, 0.5, 0.5, 4, 4, 0.33);
+        let bmp = canvas.getBitmap("createdby");
+        canvas.drawBitmap(bmp, view.x / 2 - bmp.width / 2 * SCALE, view.y / 2 - bmp.height / 2 * SCALE, bmp.width * SCALE, bmp.height * SCALE);
     }
 }
