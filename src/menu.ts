@@ -165,7 +165,8 @@ export class Menu {
     }
 
 
-    public draw(canvas : Canvas, scale = 1, drawBox = false, backgroundAlpha = 0.67, margin = 0) {
+    public draw(canvas : Canvas, scale = 1, drawBox = false, backgroundAlpha = 0.67, margin = 0,
+        header? : string) {
 
         const FONT_COLOR_1 = new Vector3(1, 1, 1);
         const FONT_COLOR_2 = new Vector3(1, 1, 0.33);
@@ -183,8 +184,16 @@ export class Menu {
 
         let y = view.y / 2;
 
-        let w = (this.width * (64 + CHAR_OFFSET)) * scale;
-        let h = this.buttons.length * BASE_OFFSET * scale;
+        let len = this.buttons.length;
+        
+        let width = this.width;
+        if (header != null) {
+
+            len += 2;
+            width = Math.max(width, header.length);
+        }
+        let w = (width * (64 + CHAR_OFFSET)) * scale;
+        let h = len * BASE_OFFSET * scale;
 
         let color : Vector3;
 
@@ -209,6 +218,17 @@ export class Menu {
         // canvas.setDrawColor(0, 0, 0);
 
         y -= h/2;
+
+        if (header != null) {  
+        
+            canvas.setDrawColor();
+            canvas.drawTextWithShadow(canvas.getBitmap("font"), header,
+                view.x/2, y + BASE_OFFSET * scale / 2, CHAR_OFFSET, 0, true, 
+                0.5, 0.5, 4, 4, 0.33);
+
+            y += BASE_OFFSET * 2 * scale;
+        }
+
         for (let b of this.buttons) {
 
             color = Vector3.lerp(FONT_COLOR_1, FONT_COLOR_2,

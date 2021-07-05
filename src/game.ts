@@ -1,3 +1,4 @@
+import { ConfirmationBox } from "./confirmationbox.js";
 import { Canvas, ShaderType } from "./core/canvas.js";
 import { CoreEvent, Scene } from "./core/core.js";
 import { clamp } from "./core/mathext.js";
@@ -32,6 +33,7 @@ export class GameScene implements Scene {
     private stageIndex : number;
 
     private pauseMenu : Menu;
+    private yesNoMenu : ConfirmationBox;
     private settings : Settings;
 
     private stageClear : boolean;
@@ -70,6 +72,24 @@ export class GameScene implements Scene {
         this.stage = new Stage(this.stageIndex, event);
         this.objects = new ObjectManager(this.stage, event);
 
+        this.yesNoMenu = new ConfirmationBox(
+            event => {
+
+                this.restarting = true;
+                    event.transition.activate(true, TransitionEffectType.Fade, 1.0/30.0,
+                        event => {
+                            
+                            event.changeScene(TitleScreen);
+                        },
+                        new RGBA(0.33, 0.66, 1.0));
+            },
+            event => {
+
+                this.yesNoMenu.deactivate();
+
+            }, event
+        );
+
         this.pauseMenu = new Menu(
             [
                 new MenuButton("Resume", event => {
@@ -89,13 +109,7 @@ export class GameScene implements Scene {
 
                 new MenuButton("Quit", event => {
 
-                    this.restarting = true;
-                    event.transition.activate(true, TransitionEffectType.Fade, 1.0/30.0,
-                        event => {
-                            
-                            event.changeScene(TitleScreen);
-                        },
-                        new RGBA(0.33, 0.66, 1.0));
+                    this.yesNoMenu.activate();
                 })
             ]);
 
@@ -250,6 +264,12 @@ export class GameScene implements Scene {
         this.fadeScale = 1.0;
         this.restarting = false;
 
+        if (this.yesNoMenu.isActive()) {
+
+            this.yesNoMenu.update(event);
+            return;
+        }
+
         if (this.settings.isActive()) {
 
             this.settings.update(event);
@@ -390,6 +410,7 @@ export class GameScene implements Scene {
 
         this.pauseMenu.draw(canvas, 0.5, true);
         this.settings.draw(canvas);
+        this.yesNoMenu.draw(canvas, 0.33);
 
         if (!this.stage.isFinalStage() &&
             this.stageClear) {

@@ -1,3 +1,4 @@
+import { ConfirmationBox } from "./confirmationbox.js";
 import { ShaderType } from "./core/canvas.js";
 import { clamp } from "./core/mathext.js";
 import { TransitionEffectType } from "./core/transition.js";
@@ -33,6 +34,14 @@ export class GameScene {
         this.stageIndex = index;
         this.stage = new Stage(this.stageIndex, event);
         this.objects = new ObjectManager(this.stage, event);
+        this.yesNoMenu = new ConfirmationBox(event => {
+            this.restarting = true;
+            event.transition.activate(true, TransitionEffectType.Fade, 1.0 / 30.0, event => {
+                event.changeScene(TitleScreen);
+            }, new RGBA(0.33, 0.66, 1.0));
+        }, event => {
+            this.yesNoMenu.deactivate();
+        }, event);
         this.pauseMenu = new Menu([
             new MenuButton("Resume", event => {
                 this.pauseMenu.deactivate();
@@ -44,10 +53,7 @@ export class GameScene {
                 this.settings.activate();
             }),
             new MenuButton("Quit", event => {
-                this.restarting = true;
-                event.transition.activate(true, TransitionEffectType.Fade, 1.0 / 30.0, event => {
-                    event.changeScene(TitleScreen);
-                }, new RGBA(0.33, 0.66, 1.0));
+                this.yesNoMenu.activate();
             })
         ]);
         this.settings = new Settings(event);
@@ -143,6 +149,10 @@ export class GameScene {
         }
         this.fadeScale = 1.0;
         this.restarting = false;
+        if (this.yesNoMenu.isActive()) {
+            this.yesNoMenu.update(event);
+            return;
+        }
         if (this.settings.isActive()) {
             this.settings.update(event);
             return;
@@ -231,6 +241,7 @@ export class GameScene {
         }
         this.pauseMenu.draw(canvas, 0.5, true);
         this.settings.draw(canvas);
+        this.yesNoMenu.draw(canvas, 0.33);
         if (!this.stage.isFinalStage() &&
             this.stageClear) {
             this.drawStageClear(canvas);
