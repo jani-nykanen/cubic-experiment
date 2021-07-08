@@ -170,7 +170,7 @@ export class TitleScreen implements Scene {
             if (i == 1)
                 canvas.setDrawColor(0, 0, 0, 0.33);
             else
-                canvas.setDrawColor(0.67, 1.0, 0.67);
+                canvas.setDrawColor();
 
             if (this.phase == 0) {
                 

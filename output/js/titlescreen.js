@@ -96,7 +96,7 @@ export class TitleScreen {
             if (i == 1)
                 canvas.setDrawColor(0, 0, 0, 0.33);
             else
-                canvas.setDrawColor(0.67, 1.0, 0.67);
+                canvas.setDrawColor();
             if (this.phase == 0) {
                 if (this.logoTimer < Math.PI) {
                     scalex = 1.0 + 0.33 * Math.sin(this.logoTimer);
