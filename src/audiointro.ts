@@ -18,7 +18,7 @@ export class AudioIntro implements Scene {
 
 
     static INITIAL_SAMPLE_VOLUME = 0.50;
-    static INITIAL_MUSIC_VOLUME = 0.50;
+    static INITIAL_MUSIC_VOLUME = 0.60;
 
 
     private yesNoMenu : Menu;

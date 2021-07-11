@@ -21,8 +21,12 @@ export class AudioPlayer {
     }
     fadeInMusic(sample, vol = 1.0, fadeTime = 0.0) {
         const EPS = 0.001;
-        if (!this.enabled || this.globalMusicVol <= EPS)
+        if (!this.enabled)
             return;
+        if (this.globalMusicVol <= EPS) {
+            this.musicTrack = sample;
+            return;
+        }
         if (this.musicTrack != null) {
             this.musicTrack.stop();
             this.musicTrack = null;
@@ -38,7 +42,24 @@ export class AudioPlayer {
         this.globalSampleVol = clamp(vol, 0, 1);
     }
     setGlobalMusicVolume(vol = 1.0) {
+        const EPS = 0.001;
+        let oldVol = this.globalMusicVol;
         this.globalMusicVol = clamp(vol, 0, 1);
+        if (vol < EPS) {
+            this.pauseMusic();
+            return;
+        }
+        else if (oldVol < EPS && this.musicTrack != null) {
+            this.playMusic(this.musicTrack, 1.0);
+            return;
+        }
+        //
+        // TODO: This is a bit broken and only works if the music 
+        // volume (of the track) is 1.0
+        //
+        if (this.musicTrack != null) {
+            this.musicTrack.changeVolume(this.ctx, this.globalMusicVol);
+        }
     }
     pauseMusic() {
         if (!this.enabled || this.musicTrack == null)

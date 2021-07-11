@@ -31,7 +31,7 @@ export class AudioSample {
         }
         this.startTime = ctx.currentTime - startTime;
         this.pauseTime = 0;
-        this.playVol = initial;
+        this.playVol = end;
         this.loop = loop;
         bufferSource.connect(this.gain).connect(ctx.destination);
         bufferSource.start(0, startTime);
@@ -55,5 +55,9 @@ export class AudioSample {
     }
     resume(ctx) {
         this.play(ctx, this.playVol, this.loop, this.pauseTime);
+    }
+    changeVolume(ctx, newVol) {
+        this.playVol = newVol;
+        this.gain.gain.value = this.playVol;
     }
 }

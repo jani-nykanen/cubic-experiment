@@ -5,8 +5,9 @@ import { TitleScreen } from "./titlescreen.js";
 export class StartIntro {
     constructor(param, event) {
         this.dispose = (event) => 0;
-        this.waitTimer = 120.0;
+        this.waitTimer = StartIntro.WAIT_TIME;
         event.transition.activate(false, TransitionEffectType.Fade, 1.0 / 30.0, null, new RGBA(0.33, 0.67, 1));
+        this.phase = 0;
     }
     update(event) {
         if (event.transition.isActive())
@@ -14,8 +15,13 @@ export class StartIntro {
         if ((this.waitTimer -= event.step) <= 0 ||
             event.input.anyPressed()) {
             event.transition.activate(true, TransitionEffectType.Fade, 1.0 / 30.0, event => {
-                event.audio.fadeInMusic(event.getSample("theme"), 1.0, 1000.0);
-                event.changeScene(TitleScreen);
+                if ((++this.phase) == 2) {
+                    event.audio.fadeInMusic(event.getSample("theme"), 1.0, 1000.0);
+                    event.changeScene(TitleScreen);
+                }
+                else {
+                    this.waitTimer += StartIntro.WAIT_TIME;
+                }
             }, new RGBA(0.33, 0.67, 1.0));
         }
     }
@@ -31,6 +37,7 @@ export class StartIntro {
         let view = canvas.transform.getViewport();
         canvas.setDrawColor();
         let bmp = canvas.getBitmap("createdby");
-        canvas.drawBitmap(bmp, view.x / 2 - bmp.width / 2 * SCALE, view.y / 2 - bmp.height / 2 * SCALE, bmp.width * SCALE, bmp.height * SCALE);
+        canvas.drawBitmapRegion(bmp, this.phase * 512, 0, 512, 512, view.x / 2 - bmp.width / 4 * SCALE, view.y / 2 - bmp.height / 2 * SCALE, bmp.width / 2 * SCALE, bmp.height * SCALE);
     }
 }
+StartIntro.WAIT_TIME = 120.0;

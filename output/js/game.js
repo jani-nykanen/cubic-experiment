@@ -39,15 +39,19 @@ export class GameScene {
             event.transition.activate(true, TransitionEffectType.Fade, 1.0 / 30.0, event => {
                 event.changeScene(TitleScreen);
             }, new RGBA(0.33, 0.66, 1.0));
+            event.audio.resumeMusic();
         }, event => {
             this.yesNoMenu.deactivate();
+            event.audio.resumeMusic();
         }, event);
         this.pauseMenu = new Menu([
             new MenuButton("Resume", event => {
                 this.pauseMenu.deactivate();
+                event.audio.resumeMusic();
             }),
             new MenuButton("Restart", event => {
                 this.restart(event);
+                event.audio.resumeMusic();
             }),
             new MenuButton("Settings", event => {
                 this.settings.activate();
@@ -84,7 +88,6 @@ export class GameScene {
             event.changeScene(Ending);
             return;
         }
-        event.audio.resumeMusic();
         ++this.stageIndex;
         this.stage.nextStage(event);
         this.stage.parseObjectLayer(this.objects, event);
@@ -129,6 +132,9 @@ export class GameScene {
                     GameScene.STAGE_EXTRA_WAIT_TIME) {
                 speed = this.stage.isFinalStage() ? 1.0 / 120.0 : 1.0 / 30.0;
                 event.transition.activate(true, TransitionEffectType.Fade, speed, event => {
+                    if (!this.stage.isFinalStage()) {
+                        event.audio.resumeMusic();
+                    }
                     this.nextStage(event);
                 }, new RGBA(0.33, 0.67, 1.0));
             }
@@ -168,6 +174,7 @@ export class GameScene {
         if (event.input.getAction("start") == State.Pressed) {
             event.audio.playSample(event.getSample("pause"), 0.70);
             this.pauseMenu.activate(0);
+            event.audio.pauseMusic();
             return;
         }
         this.stage.update(event);

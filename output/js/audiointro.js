@@ -48,4 +48,4 @@ export class AudioIntro {
     }
 }
 AudioIntro.INITIAL_SAMPLE_VOLUME = 0.50;
-AudioIntro.INITIAL_MUSIC_VOLUME = 0.50;
+AudioIntro.INITIAL_MUSIC_VOLUME = 0.60;
