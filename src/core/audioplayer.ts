@@ -120,7 +120,9 @@ export class AudioPlayer {
 
     public resumeMusic() {
 
-        if (!this.enabled || this.musicTrack == null)
+        const EPS = 0.001;
+
+        if (!this.enabled || this.musicTrack == null || this.globalMusicVol < EPS)
             return;
 
         this.musicTrack.resume(this.ctx);
