@@ -23,7 +23,8 @@
         {"name": "gem", "path": "gem.wav"},
         {"name": "soft", "path": "soft.wav"},
 
-        {"name": "victory", "path": "victory.ogg"}
+        {"name": "victory", "path": "victory.ogg"},
+        {"name": "theme", "path": "theme.ogg"}
     ],
 
     "tilemapPath" : "assets/maps/",

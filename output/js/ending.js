@@ -10,7 +10,10 @@ export class Ending {
         if (event.transition.isActive())
             return;
         if (event.input.anyPressed()) {
-            event.transition.activate(true, TransitionEffectType.Fade, 1.0 / 60.0, event => event.changeScene(TitleScreen), new RGBA(0.33, 0.67, 1.0));
+            event.transition.activate(true, TransitionEffectType.Fade, 1.0 / 60.0, event => {
+                event.changeScene(TitleScreen);
+                event.audio.resumeMusic();
+            }, new RGBA(0.33, 0.67, 1.0));
         }
     }
     redraw(canvas) {

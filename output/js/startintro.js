@@ -13,7 +13,10 @@ export class StartIntro {
             return;
         if ((this.waitTimer -= event.step) <= 0 ||
             event.input.anyPressed()) {
-            event.transition.activate(true, TransitionEffectType.Fade, 1.0 / 30.0, event => event.changeScene(TitleScreen), new RGBA(0.33, 0.67, 1.0));
+            event.transition.activate(true, TransitionEffectType.Fade, 1.0 / 30.0, event => {
+                event.audio.fadeInMusic(event.getSample("theme"), 1.0, 1000.0);
+                event.changeScene(TitleScreen);
+            }, new RGBA(0.33, 0.67, 1.0));
         }
     }
     redraw(canvas) {

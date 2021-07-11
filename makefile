@@ -24,3 +24,7 @@ server:
 
 linecount:
 	(cd src; find . -name '*.ts' | xargs wc -l)
+	
+dist:
+	(cd output; zip -r ../dist.zip .)
+

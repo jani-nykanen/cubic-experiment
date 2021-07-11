@@ -84,6 +84,7 @@ export class GameScene {
             event.changeScene(Ending);
             return;
         }
+        event.audio.resumeMusic();
         ++this.stageIndex;
         this.stage.nextStage(event);
         this.stage.parseObjectLayer(this.objects, event);
@@ -134,6 +135,9 @@ export class GameScene {
             return;
         }
         if (this.stage.getStarCount() <= 0) {
+            if (!this.stageClear) {
+                event.audio.pauseMusic();
+            }
             this.fadeScale = 1.0;
             this.stageClearTimer = 0;
             this.stageClear = true;

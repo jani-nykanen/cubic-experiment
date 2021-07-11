@@ -160,6 +160,8 @@ export class GameScene implements Scene {
             return;
         }
 
+        event.audio.resumeMusic();
+
         ++ this.stageIndex;
 
         this.stage.nextStage(event);
@@ -242,6 +244,11 @@ export class GameScene implements Scene {
         }
 
         if (this.stage.getStarCount() <= 0) {
+
+            if (!this.stageClear) {
+
+                event.audio.pauseMusic();
+            }
 
             this.fadeScale = 1.0;
             this.stageClearTimer = 0;

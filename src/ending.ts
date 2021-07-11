@@ -20,7 +20,10 @@ export class Ending implements Scene {
         if (event.input.anyPressed()) {
 
             event.transition.activate(true, TransitionEffectType.Fade,
-                1.0/60.0, event => event.changeScene(TitleScreen),
+                1.0/60.0, event => {
+                    event.changeScene(TitleScreen);
+                    event.audio.resumeMusic();
+                },
                 new RGBA(0.33, 0.67, 1.0));
         }
     }
