@@ -59,8 +59,8 @@ export class Matrix4 {
     static lookAt(eye, target, upDir = new Vector3(0, 1, 0)) {
         let A = Matrix4.identity();
         let forward = Vector3.normalize(new Vector3(eye.x - target.x, eye.y - target.y, eye.z - target.z));
-        let left = Vector3.cross(forward, upDir);
-        let up = Vector3.cross(forward, left);
+        let left = Vector3.normalize(Vector3.cross(forward, upDir));
+        let up = Vector3.normalize(Vector3.cross(forward, left));
         A.m[0] = left.x;
         A.m[1] = left.y;
         A.m[2] = left.z;

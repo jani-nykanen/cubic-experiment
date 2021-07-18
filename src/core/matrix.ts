@@ -132,9 +132,9 @@ export class Matrix4 {
                 new Vector3(eye.x - target.x, 
                     eye.y - target.y, 
                     eye.z - target.z));
-    
-        let left = Vector3.cross(forward, upDir);
-        let up = Vector3.cross(forward, left);
+                    
+        let left = Vector3.normalize(Vector3.cross(forward, upDir));
+        let up = Vector3.normalize(Vector3.cross(forward, left));
     
         A.m[0] = left.x; A.m[1] = left.y; A.m[2] = left.z;
         A.m[4] = up.x; A.m[5] = up.y; A.m[6] = up.z;

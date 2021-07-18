@@ -42,7 +42,7 @@ export class GameScene {
             event.audio.resumeMusic();
         }, event => {
             this.yesNoMenu.deactivate();
-            event.audio.resumeMusic();
+            // event.audio.resumeMusic();
         }, event);
         this.pauseMenu = new Menu([
             new MenuButton("Resume", event => {
@@ -224,6 +224,7 @@ export class GameScene {
         canvas.drawTextWithShadow(canvas.getBitmap("font"), HINTS[this.stageIndex - 1], 8, view.y - 32, CHAR_OFFSET, 0, false, SCALE, SCALE, 2, 2, 0.33);
     }
     redraw(canvas) {
+        const SCALE_CORRECTION_TERM = 0.75;
         let lightDir = Vector3.normalize(new Vector3(-0.5, -1.5, 1));
         canvas.toggleDepthTest(true);
         canvas.clear(0.33, 0.67, 1.0);
@@ -231,7 +232,7 @@ export class GameScene {
         // 3D
         canvas.changeShader(ShaderType.NoTexturesLight);
         canvas.transform.loadIdentity();
-        canvas.transform.setIsometricCamera(canvas.width / canvas.height, this.stage.getCameraScale() * this.fadeScale);
+        canvas.transform.setIsometricCamera(canvas.width / canvas.height, SCALE_CORRECTION_TERM * this.stage.getCameraScale() * this.fadeScale);
         canvas.transform.use();
         canvas.setDrawColor(1, 1, 1);
         canvas.setLight(0.80, lightDir);

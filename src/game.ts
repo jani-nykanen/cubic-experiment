@@ -87,7 +87,7 @@ export class GameScene implements Scene {
             event => {
 
                 this.yesNoMenu.deactivate();
-                event.audio.resumeMusic();
+                // event.audio.resumeMusic();
 
             }, event
         );
@@ -386,6 +386,8 @@ export class GameScene implements Scene {
 
     public redraw(canvas : Canvas) {
 
+        const SCALE_CORRECTION_TERM = 0.75;
+
         let lightDir = Vector3.normalize(new Vector3(-0.5, -1.5, 1));
         
         canvas.toggleDepthTest(true);
@@ -397,7 +399,7 @@ export class GameScene implements Scene {
         
         canvas.transform.loadIdentity();
         canvas.transform.setIsometricCamera(canvas.width/canvas.height, 
-            this.stage.getCameraScale() * this.fadeScale);
+            SCALE_CORRECTION_TERM * this.stage.getCameraScale() * this.fadeScale);
         canvas.transform.use();
 
         canvas.setDrawColor(1, 1, 1);
